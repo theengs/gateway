@@ -1,0 +1,3 @@
+[submodule "TheengsDecoder"]
+	path = TheengsDecoder
+	url = https://github.com/theengs/decoder.git

@@ -1,0 +1,10 @@
+include LICENSE
+include README.md
+include pyproject.toml
+include CMakeLists.txt
+recursive-include TheengsDecoder/src *
+recursive-include TheengsDecoder/python *
+recursive-include TheengsGateway *
+prune TheengsDecoder/src/arduino_json/extras*
+prune TheengsDecoder/src/arduino_json/examples*
+prune TheengsDecoder/src/arduino_json/.*
