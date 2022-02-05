@@ -103,7 +103,7 @@ def detection_callback(device, advertisement_data):
         data_json = decodeBLE(json.dumps(data_json))
 
         if data_json:
-           gw.publish(data_json)
+           gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
 
 def run(arg):
     global gw
@@ -121,7 +121,7 @@ def run(arg):
     gw.scan_time = config.get("ble_scan_time", 5)
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
-    gw.pub_topic = config.get("subscribe_topic", "gateway_pub")
+    gw.pub_topic = config.get("publish_topic", "gateway_pub")
 
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
