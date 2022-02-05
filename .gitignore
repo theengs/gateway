@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+_skbuild
 
 # C extensions
 *.so
