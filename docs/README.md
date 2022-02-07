@@ -1,4 +1,4 @@
-![Iot](docs/img/logo-Theengs.png)
+![Iot](./img/logo-Theengs.png)
 
 **Theengs Gateway** is a multi platforms, multi devices BLE to MQTT gateway that leverage the [Theengs Decoder library](https://github.com/theengs/decoder).
 It retrieves data from a wide range of BLE sensors, translate these informations into a readable JSON format and push those to an MQTT broker.
