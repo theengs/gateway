@@ -13,15 +13,15 @@ except SKBuildError:
 
 setup(
     name="TheengsGateway",
-    version="0.1.0",
+    version="0.1.1",
     description="A message decoder for the Internet of Things",
     author="Theengs",
     url="https://github.com/theengs/gateway",
-    license=" GPL-3.0 License",
+    license="GPL-3.0 License",
     package_dir={"TheengsGateway": "TheengsGateway"},
     packages=["TheengsGateway"],
     setup_requires=setup_requires,
     include_package_data=True,
-    install_requires=["bleak>=0.14.0"]
+    install_requires=['bleak>=0.14.0','paho-mqtt>=1.6.1']
 )
 
