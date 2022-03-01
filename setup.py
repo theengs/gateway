@@ -14,7 +14,8 @@ except SKBuildError:
 setup(
     name="TheengsGateway",
     version="0.1.1",
-    description="A message decoder for the Internet of Things",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author="Theengs",
     url="https://github.com/theengs/gateway",
     license="GPL-3.0 License",
