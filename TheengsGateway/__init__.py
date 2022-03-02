@@ -32,7 +32,7 @@ default_config = {
     "pass":"",
     "ble_scan_time":5,
     "ble_time_between_scans":5,
-    "publish_topic": "home/TheengsGateway",
+    "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "subscribe_topic": "home/TheengsGateway/commands",
     "log_level": "WARNING"
 }
