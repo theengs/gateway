@@ -14,7 +14,7 @@ Here is the list of supported devices by the gateway:
 | GOVEE |H5072|temperature/humidity/battery|
 | GOVEE |H5102|temperature/humidity/battery|
 | HONEYWELL |JQJCY01YM|formaldehyde/temperature/humidity/battery|
-| Ibeacon|protocol|UUID/MFID/Major/Minor/Power|
+| iBeacon|protocol|UUID/MFID/Major/Minor/Power/Volt|
 | INKBIRD|IBS-TH1|temperature/humidity/battery|
 | INKBIRD|IBS-TH2|temperature/battery|
 | INKBIRD|IBT-2X|temperature1/temperature2|
@@ -37,8 +37,8 @@ Here is the list of supported devices by the gateway:
 | XIAOMI Mi Jia 2 custom firmware (2)|LYWSD03MMC ATC|temperature/humidity/battery/volt|
 | XIAOMI Mi Jia 2 custom firmware (3)|LYWSD03MMC PVVX|temperature/humidity/battery/volt|
 | XIAOMI Mi Lamp |MUE4094RT|presence|
-| XIAOMI Mi Scale v1|XMTZC04HM|weight|
-| XIAOMI Mi Scale v2|XMTZC05HM|weight|
+| XIAOMI Mi Smart Scale|XMTZC01HM/XMTZC04HM|weighing mode/unit/weight|
+| XIAOMI Mi Body Composition Scale|XMTZC02HM/XMTZC05HM|weighing mode/unit/weight/impedance|
 | XIAOMI Mi Temp/Humidity v1|MHO-C401|temperature/humidity/battery/volt|
 | XIAOMI Mi Temp/Humidity v2|XMWSDJ04MMC|temperature/humidity/battery/volt|
 | XIAOMI Mi band||steps|
