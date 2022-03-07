@@ -20,9 +20,9 @@ python3 -m TheengsGateway -h
 git clone https://github.com/theengs/gateway.git
 cd gateway
 git submodule update --init --recursive
-python setup.py sdist
+python3 setup.py sdist
 cd sdist
-pip install distribution_file_name
+pip3 install distribution_file_name
 ```
 :::tip
 When launching the gateway you must be outside of its source code folder to avoid errors
