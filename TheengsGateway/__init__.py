@@ -32,8 +32,8 @@ default_config = {
     "pass":"",
     "ble_scan_time":5,
     "ble_time_between_scans":5,
-    "publish_topic": "home/TheengsGateway/BTtoMQTT",
-    "subscribe_topic": "home/TheengsGateway/commands",
+    "publish_topic": "homeassistant/sensor/TheengsGateway/BTtoMQTT",
+    "subscribe_topic": "homeassistant/sensor/TheengsGateway/commands",
     "log_level": "WARNING"
 }
 

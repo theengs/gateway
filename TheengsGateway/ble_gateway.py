@@ -78,6 +78,14 @@ class gateway:
             logger.info(f"Sent `{msg}` to topic `{pub_topic}`")
         else:
             logger.error(f"Failed to send message to topic {pub_topic}")
+    
+    def publish_device_info(self, pub_topic, device):
+        topic = pub_topic + "/" + device
+        print(topic)
+        msg = "hi"
+        self.publish(msg, topic)
+        return 1;
+
 
     async def ble_scan_loop(self):
         scanner = BleakScanner()
@@ -125,9 +133,13 @@ def detection_callback(device, advertisement_data):
 
         if data_json:
            gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+           print(data_json)
+
+
 
 def run(arg):
     global gw
+    
     try:
         with open(arg) as config_file:
             config = json.load(config_file)
@@ -143,7 +155,6 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
-
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
         log_level = logging.DEBUG
@@ -167,6 +178,7 @@ def run(arg):
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
 
     gw.connect_mqtt()
+    gw.publish_device_info(device = "hi", pub_topic=gw.pub_topic)
 
     try:
         gw.client.loop_forever()
@@ -177,7 +189,7 @@ def run(arg):
             pass
         loop.call_soon_threadsafe(loop.stop)
         t.join()
-
+    
 if __name__ == '__main__':
     try:
         arg = sys.argv[1]
