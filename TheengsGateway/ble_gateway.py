@@ -28,7 +28,7 @@ import sys
 import logging
 
 from bleak import BleakScanner
-from ._decoder import decodeBLE, getProperties, getAttribute
+from TheengsDecoder import decodeBLE, getProperties, getAttribute
 from paho.mqtt import client as mqtt_client
 from threading import Thread
 
@@ -79,12 +79,6 @@ class gateway:
         else:
             logger.error(f"Failed to send message to topic {pub_topic}")
     
-    def publish_device_info(self, pub_topic, device):
-        topic = pub_topic + "/" + device
-        print(topic)
-        msg = "hi"
-        self.publish(msg, topic)
-        return 1;
 
 
     async def ble_scan_loop(self):
@@ -132,9 +126,17 @@ def detection_callback(device, advertisement_data):
         data_json = decodeBLE(json.dumps(data_json))
 
         if data_json:
-           gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
-           print(data_json)
+            data_json = json.loads(data_json)
+            print(type(data_json))
+         #  data_json = json.dumps(data_json)
+            print(gw.discovery)
+            if gw.discovery == "true":
+                print(f"publish device# {data_json}")
 
+                gw.publish_device_info(data_json) ## publish sensor data to home assistant mqtt discovery
+            else: 
+                gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+           
 
 
 def run(arg):
@@ -145,11 +147,18 @@ def run(arg):
             config = json.load(config_file)
     except:
         raise SystemExit(f"Invalid File: {sys.argv[1]}")
-
-    try:
-        gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
-    except:
-        raise SystemExit(f"Missing or invalid MQTT host parameters")
+    if config['discovery'] == "true":
+        print("lol")
+        from .discovery import discovery
+        print("inheriting class")
+        gw = discovery(config["host"], int(config["port"]), config["user"], config["pass"], config['discovery'], config['discovery_topic'])
+        #except:
+        #  raise SystemExit(f"Missing or invalid MQTT host parameters")
+    else:
+        try:
+          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
+        except:
+          raise SystemExit(f"Missing or invalid MQTT host parameters")
 
     gw.scan_time = config.get("ble_scan_time", 5)
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
@@ -171,7 +180,9 @@ def run(arg):
 
     logging.basicConfig()
     logger.setLevel(log_level)
-
+#    if config.get("discovery") == True:
+#      gw.discovery_topic = config.get("discovery_topic")
+#      logger.info("HA Discovery activated")
     loop = asyncio.get_event_loop()
     t = Thread(target=loop.run_forever, daemon=True)
     t.start()
