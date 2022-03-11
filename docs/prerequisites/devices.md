@@ -33,7 +33,7 @@ Here is the list of supported devices by the gateway:
 | TPMS|TPMS|temperature/pressure/battery/alarm/count|
 | Vegtrug ||temperature/moisture/luminance/fertility|
 | XIAOMI Mi Flora |HHCCJCY01HHCC|temperature/moisture/luminance/fertility/battery(1)|
-| XIAOMI Mi Jia |LYWSDCGO|temperature/humidity/battery|
+| XIAOMI Mi Jia |LYWSDCGQ|temperature/humidity/battery|
 | XIAOMI Mi Jia 2 custom firmware (2)|LYWSD03MMC ATC|temperature/humidity/battery/volt|
 | XIAOMI Mi Jia 2 custom firmware (3)|LYWSD03MMC PVVX|temperature/humidity/battery/volt|
 | XIAOMI Mi Lamp |MUE4094RT|presence|
