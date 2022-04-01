@@ -121,10 +121,12 @@ def detection_callback(device, advertisement_data):
     if data_json:
         data_json['id'] = device.address
         data_json['rssi'] = device.rssi
-        data_json = decodeBLE(json.dumps(data_json))
+        decoded_json = decodeBLE(json.dumps(data_json))
 
-        if data_json:
-           gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+        if decoded_json:
+            gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+        elif gw.publish_all:
+            gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
 
 def run(arg):
     global gw
@@ -143,6 +145,7 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
+    gw.publish_all = config.get("publish_all", False)
 
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
