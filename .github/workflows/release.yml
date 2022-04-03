@@ -1,4 +1,4 @@
-name: Publish distributions to PyPI
+name: Publish distributions to PyPI and documentation to GH pages
 on:
   release:
     types: [published]
