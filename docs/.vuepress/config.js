@@ -2,7 +2,7 @@ module.exports = {
     markdown: {
       lineNumbers: true
     },
-    title: 'Theengs gateway',
+    title: 'Theengs gateway version_tag',
     description: 'Multi platform MQTT gateway leveraging Theengs Decoder',
     base:"/gateway/",
     head: [
