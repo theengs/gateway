@@ -1,10 +1,10 @@
-""" 
+"""
   TheengsGateway - Decode things and devices and publish data to an MQTT broker
 
     Copyright: (c)Florian ROBERT
-  
+
     This file is part of TheengsGateway.
-    
+
     TheengsGateway is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -58,7 +58,10 @@ class gateway:
         self.client.username_pw_set(self.username, self.password)
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
-        self.client.connect(self.broker, self.port)
+        try:
+            self.client.connect(self.broker, self.port)
+        except:
+            pass
 
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
@@ -95,7 +98,7 @@ class gateway:
                     await asyncio.sleep(5.0)
             except Exception as e:
                 raise e
-    
+
         logger.error('BLE scan loop stopped')
         self.running = False
 
