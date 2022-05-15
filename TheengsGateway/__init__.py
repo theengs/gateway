@@ -1,10 +1,10 @@
-""" 
+"""
   TheengsGateway - Decode things and devices and publish data to an MQTT broker
 
     Copyright: (c)Florian ROBERT
-  
+
     This file is part of TheengsGateway.
-    
+
     TheengsGateway is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -33,7 +33,7 @@ default_config = {
     "ble_scan_time":5,
     "ble_time_between_scans":5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
-    "subscribe_topic": "home/TheengsGateway/commands",
+    "subscribe_topic": "home/TheengsGateway/+",
     "log_level": "WARNING"
 }
 
