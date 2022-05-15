@@ -63,7 +63,10 @@ class gateway:
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
             logger.info(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-            msg_json = json.loads(str(msg.payload.decode()))
+            try:
+                msg_json = json.loads(str(msg.payload.decode()))
+            except:
+                return
             address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
             if decoded_json:
