@@ -58,7 +58,10 @@ class gateway:
         self.client.username_pw_set(self.username, self.password)
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
-        self.client.connect(self.broker, self.port)
+        try:
+            self.client.connect(self.broker, self.port)
+        except:
+            pass
 
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
