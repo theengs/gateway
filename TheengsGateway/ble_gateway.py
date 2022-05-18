@@ -1,10 +1,10 @@
-""" 
+"""
   TheengsGateway - Decode things and devices and publish data to an MQTT broker
 
     Copyright: (c)Florian ROBERT
-  
+
     This file is part of TheengsGateway.
-    
+
     TheengsGateway is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -46,10 +46,10 @@ class gateway:
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 logger.info("Connected to MQTT Broker!")
-                client.subscribe(self.sub_topic)
+                self.subscribe(self.sub_topic)
             else:
                 logger.error(f"Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
-                client.connect(self.broker, self.port)
+                self.client.connect(self.broker, self.port)
 
         def on_disconnect(client, userdata,rc=0):
             logger.error(f"Disconnected rc = %d" % (rc))
@@ -63,9 +63,20 @@ class gateway:
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
             logger.info(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+            try:
+                msg_json = json.loads(str(msg.payload.decode()))
+            except:
+                return
+            address = msg_json["id"]
+            decoded_json = decodeBLE(json.dumps(msg_json))
+            if decoded_json:
+                gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
+            elif gw.publish_all:
+                gw.publish(str(msg.payload.decode()), gw.pub_topic + '/' + address.replace(':', ''))
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
+        logger.info(f"Subscribed to {sub_topic}")
 
 
     def publish(self, msg, pub_topic=None):
@@ -95,7 +106,7 @@ class gateway:
                     await asyncio.sleep(5.0)
             except Exception as e:
                 raise e
-    
+
         logger.error('BLE scan loop stopped')
         self.running = False
 
