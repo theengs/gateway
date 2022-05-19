@@ -15,6 +15,14 @@ You can access advanced configuration by typing:
 python3 -m TheengsGateway -h
 ```
 
+## Install Theengs Gateway as an Add ON in Home Assistant
+1. Open Home Assistant and navigate to the "Add-on Store". Click on the 3 dots (top right) and select "Repositories".
+2. Enter `https://github.com/mihsu81/addon-theengsgw` in the box and click on "Add".
+3. You should now see "TheengsGateway HA Add-on" at the bottom list.
+4. Click on "TheengsGateway", then click "Install".
+5. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](#parameters).
+6. Start the Add-on.
+
 ## Advanced users - Build and install
 ```
 git clone https://github.com/theengs/gateway.git
