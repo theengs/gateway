@@ -1,10 +1,10 @@
-""" 
+"""
   TheengsGateway - Decode things and devices and publish data to an MQTT broker
 
     Copyright: (c)Florian ROBERT
-  
+
     This file is part of TheengsGateway.
-    
+
     TheengsGateway is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -28,7 +28,7 @@ import sys
 import logging
 
 from bleak import BleakScanner
-from TheengsDecoder import decodeBLE, getProperties, getAttribute
+from ._decoder import decodeBLE, getProperties, getAttribute
 from paho.mqtt import client as mqtt_client
 from threading import Thread
 
@@ -78,8 +78,6 @@ class gateway:
             logger.info(f"Sent `{msg}` to topic `{pub_topic}`")
         else:
             logger.error(f"Failed to send message to topic {pub_topic}")
-    
-
 
     async def ble_scan_loop(self):
         scanner = BleakScanner()
@@ -97,7 +95,7 @@ class gateway:
                     await asyncio.sleep(5.0)
             except Exception as e:
                 raise e
-    
+
         logger.error('BLE scan loop stopped')
         self.running = False
 
@@ -127,43 +125,22 @@ def detection_callback(device, advertisement_data):
 
         if data_json:
             data_json = json.loads(data_json)
-            print(type(data_json))
-         #  data_json = json.dumps(data_json)
-            print(gw.discovery)
             if gw.discovery == "true":
-                print(f"publish device# {data_json}")
-
                 gw.publish_device_info(data_json) ## publish sensor data to home assistant mqtt discovery
-            else: 
+            else:
                 gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
-           
+
 
 
 def run(arg):
     global gw
-    
+
     try:
         with open(arg) as config_file:
             config = json.load(config_file)
     except:
         raise SystemExit(f"Invalid File: {sys.argv[1]}")
-    if config['discovery'] == "true":
-        print("lol")
-        from .discovery import discovery
-        print("inheriting class")
-        gw = discovery(config["host"], int(config["port"]), config["user"], config["pass"], config['discovery'], config['discovery_topic'])
-        #except:
-        #  raise SystemExit(f"Missing or invalid MQTT host parameters")
-    else:
-        try:
-          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
-        except:
-          raise SystemExit(f"Missing or invalid MQTT host parameters")
 
-    gw.scan_time = config.get("ble_scan_time", 5)
-    gw.time_between_scans = config.get("ble_time_between_scans", 0)
-    gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
-    gw.pub_topic = config.get("publish_topic", "gateway_pub")
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
         log_level = logging.DEBUG
@@ -178,18 +155,30 @@ def run(arg):
     else:
         log_level = logging.WARNING
 
+    if config['discovery'] == "true":
+        from .discovery import discovery
+        gw = discovery(config["host"], int(config["port"]), config["user"],
+                       config["pass"], config['discovery'], config['discovery_topic'],
+                       config['discovery_device_name'])
+    else:
+        try:
+          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
+        except:
+          raise SystemExit(f"Missing or invalid MQTT host parameters")
+
+    gw.scan_time = config.get("ble_scan_time", 5)
+    gw.time_between_scans = config.get("ble_time_between_scans", 0)
+    gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
+    gw.pub_topic = config.get("publish_topic", "gateway_pub")
+
     logging.basicConfig()
     logger.setLevel(log_level)
-#    if config.get("discovery") == True:
-#      gw.discovery_topic = config.get("discovery_topic")
-#      logger.info("HA Discovery activated")
     loop = asyncio.get_event_loop()
     t = Thread(target=loop.run_forever, daemon=True)
     t.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
 
     gw.connect_mqtt()
-    gw.publish_device_info(device = "hi", pub_topic=gw.pub_topic)
 
     try:
         gw.client.loop_forever()
@@ -200,7 +189,7 @@ def run(arg):
             pass
         loop.call_soon_threadsafe(loop.stop)
         t.join()
-    
+
 if __name__ == '__main__':
     try:
         arg = sys.argv[1]

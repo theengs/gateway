@@ -1,10 +1,10 @@
-""" 
+"""
   TheengsGateway - Decode things and devices and publish data to an MQTT broker
 
     Copyright: (c)Florian ROBERT
-  
+
     This file is part of TheengsGateway.
-    
+
     TheengsGateway is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -37,7 +37,7 @@ default_config = {
     "log_level": "WARNING",
     "discovery": False,
     "discovery_topic": "homeassistant/sensor",
-    "discovery_device_name": "BLEGateway" 
+    "discovery_device_name": "TheengsGateway"
 }
 
 conf_path = os.path.expanduser('~') + '/theengsgw.conf'
@@ -55,7 +55,7 @@ parser.add_argument('-ll', '--log_level', dest='log_level', type=str, help="Thee
                     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 parser.add_argument('-Dt', '--discovery-topic', dest='discovery_topic', type=bool, help="MQTT Discovery for Home Assistant")
 parser.add_argument('-D', '--discovery', dest='discovery', type=str, help="Home Assistant discovery Topic")
-parser.add_argument('-dm', '--discovery_name', dest='discovery_device_name', type=str, help="Device name for Home Assistant")
+parser.add_argument('-Dn', '--discovery_name', dest='discovery_device_name', type=str, help="Device name for Home Assistant")
 args = parser.parse_args()
 
 try:
@@ -100,22 +100,26 @@ if args.discovery:
           if not args.discovery_device_name:
             if not 'discovery_device_name' in config.keys():
              config['discovery_device_name'] = default_config['discovery_device_name']
-          
+
           if 'discovery_device_name' in config.keys():
              config['discovery_device_name'] = config['discovery_device_name']
 
 else:
     print("discovery arg not given")
-    print(config['discovery'])
-    if config['discovery'] == "true":
-       config['discovery'] = "true"
-       print("Discovery enabled")
-    else: 
-      if config['discovery'] == "false":
-         config['discovery'] = "false"
-         print("Discovery disabled")
-      else: config['discovery'] = default_config['discovery']
-            
+    if not 'discovery' in config.keys():
+        config['discovery'] = "true"
+        config['discovery_topic'] = default_config['discovery_topic']
+        config['discovery_device_name'] = default_config['discovery_device_name']
+    else:
+        if config['discovery'] == "true":
+           config['discovery'] = "true"
+           print("Discovery enabled")
+        else:
+            if config['discovery'] == "false":
+                config['discovery'] = "false"
+                print("Discovery disabled")
+            else:
+                config['discovery'] = default_config['discovery']
 
 if not config['host']:
     sys.exit('Invalid MQTT host')

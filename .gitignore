@@ -131,7 +131,3 @@ dmypy.json
 
 # VuePress
 node_modules/
-
-local stuff
-.vscode/
-build.sh
