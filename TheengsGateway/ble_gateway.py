@@ -73,7 +73,10 @@ class gateway:
             address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
             if decoded_json:
-                gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
+                if gw.discovery:
+                    gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
+                else:
+                    gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
             elif gw.publish_all:
                 gw.publish(str(msg.payload.decode()), gw.pub_topic + '/' + address.replace(':', ''))
 
@@ -138,28 +141,21 @@ def detection_callback(device, advertisement_data):
         decoded_json = decodeBLE(json.dumps(data_json))
 
         if decoded_json:
-            gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+            if gw.discovery:
+                gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
+            else:
+                gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
         elif gw.publish_all:
             gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
 
 def run(arg):
     global gw
+
     try:
         with open(arg) as config_file:
             config = json.load(config_file)
     except:
         raise SystemExit(f"Invalid File: {sys.argv[1]}")
-
-    try:
-        gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
-    except:
-        raise SystemExit(f"Missing or invalid MQTT host parameters")
-
-    gw.scan_time = config.get("ble_scan_time", 5)
-    gw.time_between_scans = config.get("ble_time_between_scans", 0)
-    gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
-    gw.pub_topic = config.get("publish_topic", "gateway_pub")
-    gw.publish_all = config.get("publish_all", False)
 
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
@@ -174,6 +170,24 @@ def run(arg):
         log_level = logging.CRITICAL
     else:
         log_level = logging.WARNING
+
+    if config['discovery']:
+        from .discovery import discovery
+        gw = discovery(config["host"], int(config["port"]), config["user"],
+                       config["pass"], config['discovery_topic'],
+                       config['discovery_device_name'], config['discovery_filter'])
+    else:
+        try:
+          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
+        except:
+          raise SystemExit(f"Missing or invalid MQTT host parameters")
+
+    gw.discovery = config['discovery']
+    gw.scan_time = config.get("ble_scan_time", 5)
+    gw.time_between_scans = config.get("ble_time_between_scans", 0)
+    gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
+    gw.pub_topic = config.get("publish_topic", "gateway_pub")
+    gw.publish_all = config.get("publish_all", False)
 
     logging.basicConfig()
     logger.setLevel(log_level)

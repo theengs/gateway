@@ -34,7 +34,11 @@ default_config = {
     "ble_time_between_scans":5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "subscribe_topic": "home/TheengsGateway/+",
-    "log_level": "WARNING"
+    "log_level": "WARNING",
+    "discovery": 1,
+    "discovery_topic": "homeassistant/sensor",
+    "discovery_device_name": "TheengsGateway",
+    "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"]
 }
 
 conf_path = os.path.expanduser('~') + '/theengsgw.conf'
@@ -51,6 +55,11 @@ parser.add_argument('-sd', '--scan_duration', dest='scan_dur', type=int, help="B
 parser.add_argument('-tb', '--time_between', dest='time_between', type=int, help="Seconds to wait between scans")
 parser.add_argument('-ll', '--log_level', dest='log_level', type=str, help="TheengsGateway log level",
                     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+parser.add_argument('-Dt', '--discovery-topic', dest='discovery_topic', type=str, help="MQTT Discovery topic")
+parser.add_argument('-D', '--discovery', dest='discovery', type=int, help="Enable(1) or disable(0) MQTT discovery")
+parser.add_argument('-Dn', '--discovery_name', dest='discovery_device_name', type=str, help="Device name for Home Assistant")
+parser.add_argument('-Df', '--discovery_filter', dest='discovery_filter', nargs='+', default=[],
+                    help="Device discovery filter list for Home Assistant")
 args = parser.parse_args()
 
 try:
@@ -79,6 +88,32 @@ if args.time_between:
     config['ble_time_between_scans'] = args.time_between
 if args.log_level:
     config['log_level'] = args.log_level
+
+if args.discovery is not None:
+    config['discovery'] = args.discovery
+elif not 'discovery' in config.keys():
+    config['discovery'] = default_config['discovery']
+    config['discovery_topic'] = default_config['discovery_topic']
+    config['discovery_device_name'] = default_config['discovery_device_name']
+    config['discovery_filter'] = default_config['discovery_filter']
+
+if args.discovery_topic:
+    config['discovery_topic'] = args.discovery_topic
+elif not 'discovery_topic' in config.keys():
+    config['discovery_topic'] = default_config['discovery_topic']
+
+if args.discovery_device_name:
+    config['discovery_device_name'] = args.discovery_device_name
+elif not 'discovery_device_name' in config.keys():
+    config['discovery_device_name'] = default_config['discovery_device_name']
+
+if args.discovery_filter:
+    config['discovery_filter'] = default_config['discovery_filter']
+    if args.discovery_filter[0] != "reset":
+        for item in args.discovery_filter:
+            config['discovery_filter'].append(item)
+elif not 'discovery_filter' in config.keys():
+    config['discovery_filter'] = default_config['discovery_filter']
 
 if not config['host']:
     sys.exit('Invalid MQTT host')
