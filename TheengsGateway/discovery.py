@@ -1,7 +1,39 @@
 import json
-import logging
 from .ble_gateway import gateway, logger
-from ._decoder import getProperties, getAttribute
+from ._decoder import getProperties
+
+ha_dev_classes = ["battery",
+                  "carbon_monoxide",
+                  "carbon_dioxide",
+                  "humidity",
+                  "illuminance",
+                  "signal_strength",
+                  "temperature",
+                  "timestamp",
+                  "pressure",
+                  "power",
+                  "current",
+                  "energy",
+                  "power_factor",
+                  "voltage"]
+
+ha_dev_units = ["W",
+                "kW",
+                "V",
+                "A",
+                "W",
+                "°C",
+                "°F",
+                "ms",
+                "s",
+                "hPa",
+                "kg",
+                "lb",
+                "µS/cm",
+                "lx",
+                "%",
+                "dB",
+                "B"]
 
 
 class discovery(gateway):
@@ -33,7 +65,6 @@ class discovery(gateway):
         pub_device = pub_device
         pub_device['properties'] = json.loads(
             getProperties(pub_device['model_id']))['properties']
-        logger.info(pub_device['properties'].keys())
 
         hadevice = {}
         hadevice['identifiers'] = list({pub_device_uuid})
@@ -47,16 +78,18 @@ class discovery(gateway):
         hadevice['via_device'] = self.discovery_device_name
 
         topic = self.discovery_topic + "/" + pub_device_uuid
-        logger.info(pub_device['properties'])
         data = getProperties(pub_device['model_id'])
         data = json.loads(data)
         data = data['properties']
 
         for k in data.keys():
-            logger.info(data)
-            logger.info(f"k: {k}, type: {type(k)}")
             device = {}
             device['stat_t'] = self.pub_topic + "/" + pub_device_uuid
+            if k in pub_device['properties']:
+                if pub_device['properties'][k]['name'] in ha_dev_classes:
+                    device['dev_cla'] = pub_device['properties'][k]['name']
+                if pub_device['properties'][k]['unit'] in ha_dev_units:
+                    device['unit_of_meas'] = pub_device['properties'][k]['unit']
             device['name'] = pub_device['model_id'] + "-" + k
             device['uniq_id'] = pub_device_uuid + "-" + k
             device['val_tpl'] = "{{ value_json." + k + " | is_defined }}"
@@ -64,7 +97,6 @@ class discovery(gateway):
             config_topic = topic + "-" + k + "/config"
             device['device'] = hadevice
             if k in pub_device:
-                logger.info(f"property: {k}: {pub_device[k]} {k}")
                 self.publish(json.dumps(device), config_topic)
 
         self.discovered_entities.append(pub_device_uuid)
