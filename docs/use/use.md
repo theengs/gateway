@@ -59,3 +59,21 @@ Once you have entered your credentials and parameters they are saved into a conf
 ```shell
 python -m TheengsGateway
 ```
+
+## MQTTtoMQTT decoding
+Messages sent to the subscribe topic can be used for decoding BLE data and will be published to the publish topic. This allows for offloading the decode operation from other devices, such as an ESP32, to enhance performance.
+
+The data sent to the topic is expected to be formatted in JSON and MUST have at least an "id" entry.
+
+Example message:
+```
+{
+  "id":"54:94:5E:9F:64:C4",
+  "mac_type":1,
+  "manufacturerdata":"4c0010060319247bbc68",
+  "rssi":-74,
+  "txpower":12
+}
+```
+
+If possible, the data will be decoded and published.

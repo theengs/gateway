@@ -46,10 +46,10 @@ class gateway:
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 logger.info("Connected to MQTT Broker!")
-                client.subscribe(self.sub_topic)
+                self.subscribe(self.sub_topic)
             else:
                 logger.error(f"Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
-                client.connect(self.broker, self.port)
+                self.client.connect(self.broker, self.port)
 
         def on_disconnect(client, userdata,rc=0):
             logger.error(f"Disconnected rc = %d" % (rc))
@@ -58,14 +58,31 @@ class gateway:
         self.client.username_pw_set(self.username, self.password)
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
-        self.client.connect(self.broker, self.port)
+        try:
+            self.client.connect(self.broker, self.port)
+        except:
+            pass
 
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
             logger.info(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+            try:
+                msg_json = json.loads(str(msg.payload.decode()))
+            except:
+                return
+            address = msg_json["id"]
+            decoded_json = decodeBLE(json.dumps(msg_json))
+            if decoded_json:
+                if gw.discovery == "true":
+                    gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
+                else:
+                    gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
+            elif gw.publish_all:
+                gw.publish(str(msg.payload.decode()), gw.pub_topic + '/' + address.replace(':', ''))
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
+        logger.info(f"Subscribed to {sub_topic}")
 
 
     def publish(self, msg, pub_topic=None):

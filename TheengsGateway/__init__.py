@@ -33,7 +33,7 @@ default_config = {
     "ble_scan_time":5,
     "ble_time_between_scans":5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
-    "subscribe_topic": "home/TheengsGateway/commands",
+    "subscribe_topic": "home/TheengsGateway/+",
     "log_level": "WARNING",
     "discovery": False,
     "discovery_topic": "homeassistant/sensor",
