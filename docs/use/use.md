@@ -34,7 +34,7 @@ optional arguments:
   -st SUB_TOPIC, --sub_topic SUB_TOPIC
                         MQTT subscribe topic
   -pa PUBLISH_ALL, --publish_all PUBLISH_ALL
-                        Publish all beacons if true
+                        Enable(1) or disable(0) publishing of all beacons
   -sd SCAN_DUR, --scan_duration SCAN_DUR
                         BLE scan duration (seconds)
   -tb TIME_BETWEEN, --time_between TIME_BETWEEN
