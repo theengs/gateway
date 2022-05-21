@@ -10,6 +10,7 @@ Here is the list of supported devices by the gateway:
 | ClearGrass with atmospheric pressure |CGP1W|temperature/humidity/air pressure|
 | Clock |LYWDS02|temperature/humidity|
 | Eddystone TLM|protocol|temperature/count/volt/time|
+| GOVEE |H5055|temperature1/temperature2/temperature3/temperature4 /temperature5/temperature6/battery|
 | GOVEE |H5075|temperature/humidity/battery|
 | GOVEE |H5072|temperature/humidity/battery|
 | GOVEE |H5102|temperature/humidity/battery|
@@ -28,6 +29,7 @@ Here is the list of supported devices by the gateway:
 | Qingping |CGPR1|presence/luminance|
 | RuuviTag Raw V1|RuuviTag|temperature/humidity/pressure/acceleration/volt|
 | RuuviTag Raw V2|RuuviTag|temperature/humidity/pressure/acceleration/volt/TX power/movement/counter/sequence number|
+| SwitchBot|S1|mode/state/battery|
 | Thermobeacon|WS02|temperature/humidity/volt|
 | Thermobeacon|WS08|temperature/humidity/volt|
 | TPMS|TPMS|temperature/pressure/battery/alarm/count|

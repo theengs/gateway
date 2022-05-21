@@ -121,16 +121,15 @@ def detection_callback(device, advertisement_data):
     if data_json:
         data_json['id'] = device.address
         data_json['rssi'] = device.rssi
-        data_json = decodeBLE(json.dumps(data_json))
+        decoded_json = decodeBLE(json.dumps(data_json))
 
-        if data_json:
-            data_json = json.loads(data_json)
+        if decoded_json:
             if gw.discovery == "true":
-                gw.publish_device_info(data_json) ## publish sensor data to home assistant mqtt discovery
+                gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
             else:
-                gw.publish(data_json, gw.pub_topic + '/' + device.address.replace(':', ''))
-
-
+                gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+        elif gw.publish_all:
+            gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
 
 def run(arg):
     global gw
@@ -170,9 +169,11 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
+    gw.publish_all = config.get("publish_all", False)
 
     logging.basicConfig()
     logger.setLevel(log_level)
+
     loop = asyncio.get_event_loop()
     t = Thread(target=loop.run_forever, daemon=True)
     t.start()

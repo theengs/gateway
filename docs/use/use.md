@@ -18,8 +18,9 @@ Example payload received:
 ## Details options
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
-usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-st SUB_TOPIC] [-sd SCAN_DUR]
-          [-tb TIME_BETWEEN] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
+          [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
+          [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -31,6 +32,8 @@ optional arguments:
                         MQTT publish topic
   -st SUB_TOPIC, --sub_topic SUB_TOPIC
                         MQTT subscribe topic
+  -pa PUBLISH_ALL, --publish_all PUBLISH_ALL
+                        Publish all beacons if true
   -sd SCAN_DUR, --scan_duration SCAN_DUR
                         BLE scan duration (seconds)
   -tb TIME_BETWEEN, --time_between TIME_BETWEEN
