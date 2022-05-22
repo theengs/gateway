@@ -30,6 +30,7 @@ Here is the list of supported devices by the gateway:
 | RuuviTag Raw V1|RuuviTag|temperature/humidity/pressure/acceleration/volt|
 | RuuviTag Raw V2|RuuviTag|temperature/humidity/pressure/acceleration/volt/TX power/movement/counter/sequence number|
 | SwitchBot|S1|mode/state/battery|
+| SwitchBot|Meter Plus|temperature/humidity/battery|
 | Thermobeacon|WS02|temperature/humidity/volt|
 | Thermobeacon|WS08|temperature/humidity/volt|
 | TPMS|TPMS|temperature/pressure/battery/alarm/count|
