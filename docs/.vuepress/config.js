@@ -2,9 +2,8 @@ module.exports = {
     markdown: {
       lineNumbers: true
     },
-    title: 'Theengs gateway version_tag',
-    description: 'Multi platform MQTT gateway leveraging Theengs Decoder',
-    base:"/gateway/",
+    title: 'Theengs gateway',
+    description: 'Multi platform MQTT BLE gateway leveraging Theengs Decoder',
     head: [
       ['link', { rel: "apple-touch-icon", sizes: "180x180", href: ".apple-touch-icon.png"}],
       ['link', { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png"}],
@@ -25,8 +24,8 @@ module.exports = {
       lastUpdated: 'Last Updated',
       editLinks: true,
       nav: [
-        { text: 'Gateway', link: 'https://theengs.github.io/gateway'},
-        { text: 'Decoder', link: 'https://theengs.github.io/decoder'}
+        { text: 'Gateway', link: 'https://gateway.theengs.io', target:'_self', rel:''},
+        { text: 'Decoder', link: 'https://decoder.theengs.io', target:'_self', rel:''}
       ],
       sidebar: [
         ['/','0 - What is it for 🏠'],
