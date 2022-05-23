@@ -20,8 +20,10 @@
 """
 
 # python 3.6
+# encoding=utf8
 
 import json
+import re
 from .ble_gateway import gateway, logger
 from ._decoder import getProperties
 
@@ -77,16 +79,16 @@ class discovery(gateway):
     # publish sensor directly to home assistant via mqtt discovery
     def publish_device_info(self, pub_device):
         pub_device_uuid = pub_device['id'].replace(':', '')
+        device_data = json.dumps(pub_device)
         if (pub_device_uuid in self.discovered_entities or
                 pub_device['model_id'] in self.discovery_filter):
-            logger.debug("Already discovered or filtered: %s" % pub_device_uuid)
-            self.publish(json.dumps(pub_device), self.pub_topic + '/' +
+            logger.debug("Already discovered or filtered: %s" %
+                         pub_device_uuid)
+            self.publish(device_data, self.pub_topic + '/' +
                          pub_device_uuid)
             return
 
         logger.info(f"publishing device `{pub_device}`")
-        device_data = pub_device
-        pub_device = pub_device
         pub_device['properties'] = json.loads(
             getProperties(pub_device['model_id']))['properties']
 
@@ -101,14 +103,17 @@ class discovery(gateway):
             hadevice['name'] = pub_device['model']
         hadevice['via_device'] = self.discovery_device_name
 
-        topic = self.discovery_topic + "/" + pub_device_uuid
+        discovery_topic = self.discovery_topic + "/" + pub_device_uuid
+        state_topic = self.pub_topic + "/" + pub_device_uuid
+        state_topic = re.sub(r'.+?/', '+/', state_topic,
+                             len(re.findall(r'/', state_topic)) - 1)
         data = getProperties(pub_device['model_id'])
         data = json.loads(data)
         data = data['properties']
 
         for k in data.keys():
             device = {}
-            device['stat_t'] = self.pub_topic + "/" + pub_device_uuid
+            device['stat_t'] = state_topic
             if k in pub_device['properties']:
                 if pub_device['properties'][k]['name'] in ha_dev_classes:
                     device['dev_cla'] = pub_device['properties'][k]['name']
@@ -118,10 +123,11 @@ class discovery(gateway):
             device['uniq_id'] = pub_device_uuid + "-" + k
             device['val_tpl'] = "{{ value_json." + k + " | is_defined }}"
             device['state_class'] = "measurement"
-            config_topic = topic + "-" + k + "/config"
+            config_topic = discovery_topic + "-" + k + "/config"
             device['device'] = hadevice
             if k in pub_device:
                 self.publish(json.dumps(device), config_topic)
 
         self.discovered_entities.append(pub_device_uuid)
-        self.publish(json.dumps(device_data), topic)
+        self.publish(device_data, self.pub_topic + '/' +
+                     pub_device_uuid)
