@@ -125,9 +125,9 @@ class discovery(gateway):
             device['state_class'] = "measurement"
             config_topic = discovery_topic + "-" + k + "/config"
             device['device'] = hadevice
-            if k in pub_device:
-                self.publish(json.dumps(device), config_topic)
+            self.publish(json.dumps(device), config_topic)
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish(device_data, self.pub_topic + '/' +
                      pub_device_uuid)
+
