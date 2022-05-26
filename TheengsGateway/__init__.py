@@ -50,7 +50,7 @@ parser.add_argument('-u', '--user', dest='user', type=str, help="MQTT username")
 parser.add_argument('-p', '--pass', dest='pwd', type=str, help="MQTT password")
 parser.add_argument('-pt', '--pub_topic', dest='pub_topic', type=str, help="MQTT publish topic")
 parser.add_argument('-st', '--sub_topic', dest='sub_topic', type=str, help="MQTT subscribe topic")
-parser.add_argument('-pa', '--publish_all', dest='publish_all', type=bool, help="Publish all beacons if true")
+parser.add_argument('-pa', '--publish_all', dest='publish_all', type=int, help="Enable(1) or disable(0) publishing of all beacons")
 parser.add_argument('-sd', '--scan_duration', dest='scan_dur', type=int, help="BLE scan duration (seconds)")
 parser.add_argument('-tb', '--time_between', dest='time_between', type=int, help="Seconds to wait between scans")
 parser.add_argument('-ll', '--log_level', dest='log_level', type=str, help="TheengsGateway log level",
