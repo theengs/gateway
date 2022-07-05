@@ -29,7 +29,7 @@ git clone https://github.com/theengs/gateway.git
 cd gateway
 git submodule update --init --recursive
 python3 setup.py sdist
-cd sdist
+cd dist
 pip3 install distribution_file_name
 ```
 :::tip
