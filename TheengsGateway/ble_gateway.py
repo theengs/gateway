@@ -35,11 +35,12 @@ from threading import Thread
 logger = logging.getLogger('BLEGateway')
 
 class gateway:
-    def __init__(self, broker, port, username, password):
+    def __init__(self, broker, port, username, password, adapter):
         self.broker = broker
         self.port = port
         self.username = username
         self.password = password
+        self.adapter = adapter
         self.stopped = False
 
     def connect_mqtt(self):
@@ -97,7 +98,10 @@ class gateway:
             logger.error(f"Failed to send message to topic {pub_topic}")
 
     async def ble_scan_loop(self):
-        scanner = BleakScanner()
+        if self.adapter:
+            scanner = BleakScanner(adapter=self.adapter)
+        else:
+            scanner = BleakScanner()
         scanner.register_detection_callback(detection_callback)
         logger.info('Starting BLE scan')
         self.running = True
@@ -174,11 +178,11 @@ def run(arg):
     if config['discovery']:
         from .discovery import discovery
         gw = discovery(config["host"], int(config["port"]), config["user"],
-                       config["pass"], config['discovery_topic'],
+                       config["pass"], config["adapter"], config['discovery_topic'],
                        config['discovery_device_name'], config['discovery_filter'])
     else:
         try:
-          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"])
+          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"])
         except:
           raise SystemExit(f"Missing or invalid MQTT host parameters")
 

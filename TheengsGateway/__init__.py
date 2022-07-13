@@ -38,7 +38,8 @@ default_config = {
     "discovery": 1,
     "discovery_topic": "homeassistant/sensor",
     "discovery_device_name": "TheengsGateway",
-    "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"]
+    "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"],
+    "adapter": ""
 }
 
 conf_path = os.path.expanduser('~') + '/theengsgw.conf'
@@ -60,6 +61,7 @@ parser.add_argument('-D', '--discovery', dest='discovery', type=int, help="Enabl
 parser.add_argument('-Dn', '--discovery_name', dest='discovery_device_name', type=str, help="Device name for Home Assistant")
 parser.add_argument('-Df', '--discovery_filter', dest='discovery_filter', nargs='+', default=[],
                     help="Device discovery filter list for Home Assistant")
+parser.add_argument('-a', '--adapter', dest='adapter', type=str, help="Bluetooth adapter (e.g. hci1 on Linux)")
 args = parser.parse_args()
 
 try:
@@ -114,6 +116,9 @@ if args.discovery_filter:
             config['discovery_filter'].append(item)
 elif not 'discovery_filter' in config.keys():
     config['discovery_filter'] = default_config['discovery_filter']
+
+if args.adapter:
+    config['adapter'] = args.adapter
 
 if not config['host']:
     sys.exit('Invalid MQTT host')

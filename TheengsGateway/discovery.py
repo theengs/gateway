@@ -62,9 +62,9 @@ ha_dev_units = ["W",
 
 
 class discovery(gateway):
-    def __init__(self, broker, port, username, password,
+    def __init__(self, broker, port, username, password, adapter,
                  discovery_topic, discovery_device_name, discovery_filter):
-        super().__init__(broker, port, username, password)
+        super().__init__(broker, port, username, password, adapter)
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name
         self.discovered_entities = []
