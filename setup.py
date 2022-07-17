@@ -26,6 +26,7 @@ setup(
     license="GPL-3.0 License",
     package_dir={"TheengsGateway": "TheengsGateway"},
     packages=["TheengsGateway"],
+    scripts=["bin/TheengsGateway"],
     setup_requires=setup_requires,
     include_package_data=True,
     install_requires=['bleak>=0.14.0','paho-mqtt>=1.6.1']
