@@ -5,9 +5,9 @@ The following controllers (and many other software) are compatible with MQTT:
 
 ![controllers](../img/TheengsGateway_controllers.png)
 
-TheengsGateway is independant from these projets, you have the liberty of choice among all the compatibles software.
+TheengsGateway is independent from these projects, you have the liberty of choice among all the compatible software.
 
-* [OpenHAB2](https://www.openhab.org)
+* [OpenHAB](https://www.openhab.org)
 * [Home Assistant](https://www.home-assistant.io)
 * [Domoticz](https://www.domoticz.com)
 * [Jeedom](https://www.jeedom.com)

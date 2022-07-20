@@ -4,7 +4,7 @@ Here is the list of supported devices by the gateway:
         
 |Devices|Model|Measurements|
 |-|:-:|:-:|
-| BlueMaestro|TempoDisc|temperature/humidity/duepoint/voltage|
+| BlueMaestro|TempoDisc|temperature/humidity/dew point/voltage|
 | ClearGrass |CGG1|temperature/humidity/battery|
 | ClearGrass alarm clock|CGD1|temperature/humidity|
 | ClearGrass with atmospheric pressure |CGP1W|temperature/humidity/air pressure|
