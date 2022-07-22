@@ -23,6 +23,15 @@ python3 -m TheengsGateway -h
 5. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](#parameters).
 6. Start the Add-on.
 
+## Install Theengs Gateway as a snap
+Theengs Gateway is also packaged as a snap in the [Snap Store](https://snapcraft.io/theengs-gateway). If you have snapd running on your Linux distribution, which is the case by default on Ubuntu, you can install the Theengs Gateway snap as:
+
+```shell
+snap install theengs-gateway
+```
+
+Have a look at the [Theengs Gateway Snap](https://github.com/theengs/gateway-snap) documentation for more information about how to configure and start Theengs Gateway as a service.
+
 ## Advanced users - Build and install
 ```
 git clone https://github.com/theengs/gateway.git
