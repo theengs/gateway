@@ -93,11 +93,11 @@ class gateway:
         logger.info(f"Subscribed to {sub_topic}")
 
 
-    def publish(self, msg, pub_topic=None):
+    def publish(self, msg, pub_topic=None, retain=False):
         if not pub_topic:
             pub_topic = self.pub_topic
 
-        result = self.client.publish(pub_topic, msg)
+        result = self.client.publish(pub_topic, msg, 0, retain)
         status = result[0]
         if status == 0:
             logger.info(f"Sent `{msg}` to topic `{pub_topic}`")

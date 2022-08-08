@@ -73,8 +73,8 @@ class discovery(gateway):
     def connect_mqtt(self):
         super().connect_mqtt()
 
-    def publish(self, msg, pub_topic):
-        return super().publish(msg, pub_topic)
+    def publish(self, msg, pub_topic, retain=False):
+        return super().publish(msg, pub_topic, retain)
 
     # publish sensor directly to home assistant via mqtt discovery
     def publish_device_info(self, pub_device):
@@ -125,7 +125,7 @@ class discovery(gateway):
             device['state_class'] = "measurement"
             config_topic = discovery_topic + "-" + k + "/config"
             device['device'] = hadevice
-            self.publish(json.dumps(device), config_topic)
+            self.publish(json.dumps(device), config_topic, True)
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish(device_data, self.pub_topic + '/' +
