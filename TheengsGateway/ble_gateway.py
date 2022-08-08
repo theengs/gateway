@@ -26,21 +26,28 @@ import json
 import struct
 import sys
 import logging
+import platform
 
 from bleak import BleakScanner
 from ._decoder import decodeBLE, getProperties, getAttribute
 from paho.mqtt import client as mqtt_client
 from threading import Thread
 
+if platform.system() == "Linux":
+    from bleak.assigned_numbers import AdvertisementDataType
+    from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
+    from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
+
 logger = logging.getLogger('BLEGateway')
 
 class gateway:
-    def __init__(self, broker, port, username, password, adapter):
+    def __init__(self, broker, port, username, password, adapter, scanning_mode):
         self.broker = broker
         self.port = port
         self.username = username
         self.password = password
         self.adapter = adapter
+        self.scanning_mode = scanning_mode
         self.stopped = False
 
     def connect_mqtt(self):
@@ -98,10 +105,22 @@ class gateway:
             logger.error(f"Failed to send message to topic {pub_topic}")
 
     async def ble_scan_loop(self):
+        scanner_kwargs = {"scanning_mode": self.scanning_mode}
+
+        # Passive scanning with BlueZ needs at least one or_pattern.
+        # The following matches all devices.
+        if platform.system() == "Linux" and self.scanning_mode == "passive":
+            scanner_kwargs["bluez"] = BlueZScannerArgs(
+                or_patterns=[
+                    OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
+                    OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
+                ]
+            )
+
         if self.adapter:
-            scanner = BleakScanner(adapter=self.adapter)
-        else:
-            scanner = BleakScanner()
+            scanner_kwargs["adapter"] = self.adapter
+
+        scanner = BleakScanner(**scanner_kwargs)
         scanner.register_detection_callback(detection_callback)
         logger.info('Starting BLE scan')
         self.running = True
@@ -178,11 +197,12 @@ def run(arg):
     if config['discovery']:
         from .discovery import discovery
         gw = discovery(config["host"], int(config["port"]), config["user"],
-                       config["pass"], config["adapter"], config['discovery_topic'],
-                       config['discovery_device_name'], config['discovery_filter'])
+                       config["pass"], config["adapter"], config["scanning_mode"],
+                       config["discovery_topic"], config["discovery_device_name"],
+                       config["discovery_filter"])
     else:
         try:
-          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"])
+          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
         except:
           raise SystemExit(f"Missing or invalid MQTT host parameters")
 
