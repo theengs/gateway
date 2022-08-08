@@ -22,7 +22,7 @@ usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
           [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
           [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
-          [-a ADAPTER]
+          [-a ADAPTER] [-s {active,passive}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -52,6 +52,8 @@ optional arguments:
                         Device discovery filter list for Home Assistant
   -a ADAPTER, --adapter ADAPTER
                         Bluetooth adapter (e.g. hci1 on Linux)
+  -s {active,passive}, --scanning_mode {active,passive}
+                        Scanning mode (default: active)
 ```
 
 ## Publish to a 2 levels topic
@@ -97,3 +99,27 @@ If enabled (default), decoded devices will publish their configuration to Home A
 - Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device "model_id" to be filtered.
 
 The `IBEACON`, `GAEN` and `MS-CDP` devices are already filtered as their addresses (id's) change over time resulting in multiple discoveries.
+
+## Passive scanning
+Passive scanning (`-s passive` or `--scanning_mode passive`) only works on Windows or Linux kernel >= 5.10 and BlueZ >= 5.56 with experimental features enabled.
+
+To enable experimental features in BlueZ on a Linux distribution that uses systemd, run the following command:
+
+```shell
+sudo systemctl edit bluetooth.service
+```
+
+Then add the following lines:
+
+```
+[Service]
+ExecStart=
+ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
+```
+
+Save and close the file and then run the following commands:
+
+```
+sudo systemctl dameon-reload
+sudo systemctl restart bluetooth.service
+```

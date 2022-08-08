@@ -39,7 +39,8 @@ default_config = {
     "discovery_topic": "homeassistant/sensor",
     "discovery_device_name": "TheengsGateway",
     "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"],
-    "adapter": ""
+    "adapter": "",
+    "scanning_mode": "active"
 }
 
 conf_path = os.path.expanduser('~') + '/theengsgw.conf'
@@ -62,6 +63,7 @@ parser.add_argument('-Dn', '--discovery_name', dest='discovery_device_name', typ
 parser.add_argument('-Df', '--discovery_filter', dest='discovery_filter', nargs='+', default=[],
                     help="Device discovery filter list for Home Assistant")
 parser.add_argument('-a', '--adapter', dest='adapter', type=str, help="Bluetooth adapter (e.g. hci1 on Linux)")
+parser.add_argument('-s', '--scanning_mode', dest='scanning_mode', type=str, choices=("active", "passive"), help="Scanning mode (default: active)")
 args = parser.parse_args()
 
 try:
@@ -119,6 +121,9 @@ elif not 'discovery_filter' in config.keys():
 
 if args.adapter:
     config['adapter'] = args.adapter
+
+if args.scanning_mode:
+    config['scanning_mode'] = args.scanning_mode
 
 if not config['host']:
     sys.exit('Invalid MQTT host')
