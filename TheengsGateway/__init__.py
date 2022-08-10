@@ -72,6 +72,10 @@ try:
 except:
     config = default_config
 
+# Merge default configuration, with data read from the configuration file overriding default data.
+# This guarantees that all keys we refer to are in the dictionary.
+config = {**default_config, **config}
+
 if args.host:
     config['host'] = args.host
 if args.port:
