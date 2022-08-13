@@ -123,3 +123,6 @@ Save and close the file and then run the following commands:
 sudo systemctl dameon-reload
 sudo systemctl restart bluetooth.service
 ```
+
+## Time synchronization
+If the gateway finds LYWSD02 devices, it automatically synchronizes their time once a day. Therefore, make sure that your gateway's time is set correctly.
