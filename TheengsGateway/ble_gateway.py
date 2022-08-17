@@ -28,6 +28,7 @@ import struct
 import sys
 import logging
 import platform
+from random import randrange
 import time
 
 from bleak import BleakClient, BleakError, BleakScanner
@@ -39,6 +40,9 @@ if platform.system() == "Linux":
     from bleak.assigned_numbers import AdvertisementDataType
     from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
     from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
+
+SECONDS_IN_HOUR = 3600
+SECONDS_IN_DAY = 86400
 
 LYWSD02_TIME_UUID = "ebe0ccb7-7a0a-4b0c-8a1a-6ff2997da3a6"
 
@@ -112,20 +116,22 @@ class gateway:
     def add_lywsd02(self, address, decoded_json):
         if json.loads(decoded_json)["model_id"] == "LYWSD02":
             if address not in self.lywsd02_updates:
-                self.lywsd02_updates[address] = datetime.now().timestamp()
-                logger.info(f"Found LYWSD02 device {address}, synchronizing time in a day...")
+                # Add a random time in the last day as a starting point for the daily update.
+                # This prevents the gateway from connecting to all devices at the same time.
+                self.lywsd02_updates[address] = datetime.now().timestamp() - randrange(SECONDS_IN_DAY)
+                logger.info(f"Found LYWSD02 device {address}, synchronizing time daily...")
 
     async def update_lywsd02_time(self):
         for address, timestamp in self.lywsd02_updates.copy().items():
-            if datetime.now().timestamp() - timestamp > 86400:
+            if datetime.now().timestamp() - timestamp > SECONDS_IN_DAY:
                 logger.info(f"Synchronizing time for LYWSD02 device {address}...")
                 try:
                     async with BleakClient(address) as lywsd02_client:
                         # Set timezone offset
                         if time.daylight:
-                            timezone_offset = -time.altzone // 3600
+                            timezone_offset = -time.altzone // SECONDS_IN_HOUR
                         else:
-                            timezone_offset = -time.timezone // 3600
+                            timezone_offset = -time.timezone // SECONDS_IN_HOUR
 
                         # Pack data for current time and timezone
                         lywsd02_time = struct.pack('Ib', int(datetime.now().timestamp()), timezone_offset)
@@ -133,16 +139,13 @@ class gateway:
                         # Write time and timezone to device
                         await lywsd02_client.write_gatt_char(LYWSD02_TIME_UUID, lywsd02_time)
                         logger.info(f"Synchronized time for LYWSD02 device {address}.")
-
-                        # Remove device to reset timestamp on next discovery
-                        del self.lywsd02_updates[address]
+                        # Reset timestamp to synchronize again in a day
+                        self.lywsd02_updates[address] = datetime.now().timestamp()
                 except BleakError as e:
                     logger.error(e)
-                    # Remove device so it tries again next day
                     del self.lywsd02_updates[address]
                 except asyncio.exceptions.TimeoutError:
                     logger.error(f"Can't connect to LYWSD02 device {address}.")
-                    # Remove device so it tries again next day
                     del self.lywsd02_updates[address]
 
     async def ble_scan_loop(self):
@@ -212,7 +215,7 @@ class gateway:
                 else:
                     gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
 
-                # Add new LYWSD02 devices to dictionary with current timestamp
+                # Add new LYWSD02 devices to dictionary of devices to synchronize time
                 self.add_lywsd02(device.address, decoded_json)
             elif gw.publish_all:
                 gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
