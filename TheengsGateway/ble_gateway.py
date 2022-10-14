@@ -248,7 +248,7 @@ def run(arg):
         gw = discovery(config["host"], int(config["port"]), config["user"],
                        config["pass"], config["adapter"], config["scanning_mode"],
                        config["discovery_topic"], config["discovery_device_name"],
-                       config["discovery_filter"])
+                       config["discovery_filter"], config["hass_discovery"])
     else:
         try:
           gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
