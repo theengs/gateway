@@ -20,7 +20,7 @@ Example payload received:
 C:\Users\1technophile>python -m TheengsGateway -h
 usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
           [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
-          [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY]
+          [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
           [-a ADAPTER] [-s {active,passive}]
 
@@ -46,6 +46,9 @@ optional arguments:
                         MQTT Discovery topic
   -D DISCOVERY, --discovery DISCOVERY
                         Enable(1) or disable(0) MQTT discovery
+  -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
+                        Enable(1) or disable(0) Home Assistant-specific MQTT
+                        discovery (default: 1)                        
   -Dn DISCOVERY_DEVICE_NAME, --discovery_name DISCOVERY_DEVICE_NAME
                         Device name for Home Assistant
   -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
@@ -94,6 +97,7 @@ If possible, the data will be decoded and published.
 ## Home Assistant auto discovery
 If enabled (default), decoded devices will publish their configuration to Home Assistant to be discovered.
 - This can be enabled/disabled with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
+- If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - The discovery topic can be set with the `-Dt` or `--discovery_topic` command line argument.
 - The discovery name can be set wit the `-Dn` or `--discovery_name` command line argument.
 - Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device "model_id" to be filtered.

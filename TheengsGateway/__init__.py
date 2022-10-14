@@ -36,6 +36,7 @@ default_config = {
     "subscribe_topic": "home/TheengsGateway/+",
     "log_level": "WARNING",
     "discovery": 1,
+    "hass_discovery": 1,
     "discovery_topic": "homeassistant/sensor",
     "discovery_device_name": "TheengsGateway",
     "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"],
@@ -59,6 +60,7 @@ parser.add_argument('-ll', '--log_level', dest='log_level', type=str, help="Thee
                     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 parser.add_argument('-Dt', '--discovery-topic', dest='discovery_topic', type=str, help="MQTT Discovery topic")
 parser.add_argument('-D', '--discovery', dest='discovery', type=int, help="Enable(1) or disable(0) MQTT discovery")
+parser.add_argument('-Dh', '--hass_discovery', dest='hass_discovery', type=int, help="Enable(1) or disable(0) Home Assistant-specific MQTT discovery (default: 1)")
 parser.add_argument('-Dn', '--discovery_name', dest='discovery_device_name', type=str, help="Device name for Home Assistant")
 parser.add_argument('-Df', '--discovery_filter', dest='discovery_filter', nargs='+', default=[],
                     help="Device discovery filter list for Home Assistant")
@@ -104,6 +106,9 @@ elif not 'discovery' in config.keys():
     config['discovery_topic'] = default_config['discovery_topic']
     config['discovery_device_name'] = default_config['discovery_device_name']
     config['discovery_filter'] = default_config['discovery_filter']
+
+if args.hass_discovery is not None:
+    config['hass_discovery'] = args.hass_discovery
 
 if args.discovery_topic:
     config['discovery_topic'] = args.discovery_topic

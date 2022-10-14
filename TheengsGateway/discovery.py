@@ -63,12 +63,14 @@ ha_dev_units = ["W",
 
 class discovery(gateway):
     def __init__(self, broker, port, username, password, adapter, scanning_mode,
-                 discovery_topic, discovery_device_name, discovery_filter):
+                 discovery_topic, discovery_device_name, discovery_filter,
+                 hass_discovery):
         super().__init__(broker, port, username, password, adapter, scanning_mode)
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name
         self.discovered_entities = []
         self.discovery_filter = discovery_filter
+        self.hass_discovery = hass_discovery
 
     def connect_mqtt(self):
         super().connect_mqtt()
@@ -121,7 +123,10 @@ class discovery(gateway):
                     device['unit_of_meas'] = pub_device['properties'][k]['unit']
             device['name'] = pub_device['model_id'] + "-" + k
             device['uniq_id'] = pub_device_uuid + "-" + k
-            device['val_tpl'] = "{{ value_json." + k + " | is_defined }}"
+            if self.hass_discovery == 1:
+                device['val_tpl'] = "{{ value_json." + k + " | is_defined }}"
+            else:
+                device['val_tpl'] = "{{ value_json." + k + " }}"
             device['state_class'] = "measurement"
             config_topic = discovery_topic + "-" + k + "/config"
             device['device'] = hadevice
