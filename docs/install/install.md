@@ -16,12 +16,16 @@ python3 -m TheengsGateway -h
 ```
 
 ## Install Theengs Gateway as an Add ON in Home Assistant
-1. Open Home Assistant and navigate to the "Add-on Store". Click on the 3 dots (top right) and select "Repositories".
-2. Enter `https://github.com/mihsu81/addon-theengsgw` in the box and click on "Add".
-3. You should now see "TheengsGateway HA Add-on" at the bottom list.
-4. Click on "TheengsGateway", then click "Install".
-5. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](#parameters).
-6. Start the Add-on.
+1. Add the Add-on repository into the add-on store
+
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fmihsu81%2Faddon-theengsgw)
+
+Or by going to Settings -> Add-ons -> Add-on store -> ⁞ (Menu) -> Repositories -> Fill in the URL `https://github.com/mihsu81/addon-theengsgw` -> Add.
+
+2. You should now see "TheengsGateway HA Add-on" at the bottom list.
+3. Click on "TheengsGateway", then click "Install".
+4. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](#parameters).
+5. Start the Add-on.
 
 ## Install Theengs Gateway as a snap
 Theengs Gateway is also packaged as a snap in the [Snap Store](https://snapcraft.io/theengs-gateway). If you have snapd running on your Linux distribution, which is the case by default on Ubuntu, you can install the Theengs Gateway snap as:
@@ -37,39 +41,6 @@ Theengs Gateway is also available from docker hub thanks to (@maretodoric)[https
 
 ```shell
 docker pull theengs/gateway
-```
-
-To run it with minimum required parameters required:
-```shell
-docker run --rm \
-    --network host \
-    -e MQTT_HOST=<host_ip> \
-    -v /var/run/dbus:/var/run/dbus \
-    --name TheengsGateway \
-    theengs/gateway
-```
-
-With more parameters:
-```shell
-docker run --rm \
-    --network host \
-    -e MQTT_HOST=<host_ip> \
-    -e MQTT_USERNAME=<username> \
-    -e MQTT_PASSWORD=<password> \
-    -e MQTT_PUB_TOPIC=home/TheengsGateway/BTtoMQTT \
-    -e MQTT_SUB_TOPIC=home/TheengsGateway/commands \
-    -e PUBLISH_ALL=true \
-    -e TIME_BETWEEN=60 \
-    -e SCAN_TIME=60 \
-    -e LOG_LEVEL=DEBUG \
-    -e DISCOVERY_TOPIC=homeassistant/sensor \
-    -e DISCOVERY_DEVICE_NAME=TheengsGateway \
-    -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP]" \
-    -e SCANNING_MODE=active
-    -e ADAPTER=hci0 \
-    -v /var/run/dbus:/var/run/dbus \
-    --name TheengsGateway \
-    theengs/gateway
 ```
 
 ## Advanced users - Build and install

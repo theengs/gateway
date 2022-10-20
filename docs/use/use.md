@@ -1,11 +1,28 @@
 # Use
 
 ## Launching the gateway
-```shell
-python -m TheengsGateway -H "192.168.1.17" -u "username" -p "password"
-```
-`192.168.1.17` being your MQTT broker IP address.
 
+### For a regular installation
+```shell
+python -m TheengsGateway -H "<mqtt_broker_host_ip>" -u "username" -p "password"
+```
+
+### For a Docker container
+To run it with minimum required parameters required:
+```shell
+docker run --rm \
+    --network host \
+    -e MQTT_HOST=<mqtt_broker_host_ip> \
+    -v /var/run/dbus:/var/run/dbus \
+    --name TheengsGateway \
+    theengs/gateway
+```
+
+:::tip
+If your mqtt broker is installed on the same instance as the gateway you can use `localhost` as the `<mqtt_broker_host_ip>`.
+:::
+
+### Checking the data published by the gateway
 Once the command launched you should see MQTT payloads appearing on the broker. To visualize these data you have to use an [MQTT client tool](../prerequisites/broker).
 
 ![mqtt](../img/TheengsGateway_mqtt_explorer.png)
@@ -16,6 +33,8 @@ Example payload received:
 ```
 
 ## Details options
+### For a regular installation
+
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
 usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
@@ -57,6 +76,30 @@ optional arguments:
                         Bluetooth adapter (e.g. hci1 on Linux)
   -s {active,passive}, --scanning_mode {active,passive}
                         Scanning mode (default: active)
+```
+
+### For a Docker container
+
+```shell
+docker run --rm \
+    --network host \
+    -e MQTT_HOST=<host_ip> \
+    -e MQTT_USERNAME=<username> \
+    -e MQTT_PASSWORD=<password> \
+    -e MQTT_PUB_TOPIC=home/TheengsGateway/BTtoMQTT \
+    -e MQTT_SUB_TOPIC=home/TheengsGateway/commands \
+    -e PUBLISH_ALL=true \
+    -e TIME_BETWEEN=60 \
+    -e SCAN_TIME=60 \
+    -e LOG_LEVEL=DEBUG \
+    -e DISCOVERY_TOPIC=homeassistant/sensor \
+    -e DISCOVERY_DEVICE_NAME=TheengsGateway \
+    -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP]" \
+    -e SCANNING_MODE=active
+    -e ADAPTER=hci0 \
+    -v /var/run/dbus:/var/run/dbus \
+    --name TheengsGateway \
+    theengs/gateway
 ```
 
 ## Publish to a 2 levels topic
