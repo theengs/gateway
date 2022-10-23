@@ -164,8 +164,8 @@ class gateway:
         if self.adapter:
             scanner_kwargs["adapter"] = self.adapter
 
+        scanner_kwargs["detection_callback"] = self.detection_callback
         scanner = BleakScanner(**scanner_kwargs)
-        scanner.register_detection_callback(self.detection_callback)
         logger.info('Starting BLE scan')
         self.running = True
         while not self.stopped:
