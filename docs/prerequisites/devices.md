@@ -9,7 +9,7 @@ Here is the list of supported devices by the gateway:
 | April Brother|N03|temperature/humidity/luminance/battery|
 | BlueMaestro|TempoDisc|temperature/humidity/dew point/voltage|
 | BM2 Battery Monitor|BM2|battery|
-| ClearGrass|CGG1|temperature/humidity/battery|
+| ClearGrass|CGG1|temperature/humidity/battery/voltage (depending on which CGG1 firmware is installed)|
 | ClearGrass alarm clock|CGD1|temperature/humidity|
 | ClearGrass with atmospheric pressure|CGP1W|temperature/humidity/air pressure|
 | ClearGrass Clock|LYWSD02|temperature/humidity/battery|
@@ -23,12 +23,13 @@ Here is the list of supported devices by the gateway:
 | INKBIRD|IBS-TH1|temperature/humidity/battery|
 | INKBIRD|IBS-TH2/P01B|temperature/battery|
 | INKBIRD|IBT-2X|temperature1/temperature2|
-| INKBIRD|IBT-4XS|temperature1/temperature2/temperature3/temperature4|
+| INKBIRD|IBT-4X(S/C)|temperature1/temperature2/temperature3/temperature4|
 | INKBIRD|IBT-6XS|temperature1/temperature2/temperature3/temperature4/temperature5/temperature6|
 | iNode|Energy Meter|Current average and aggregate kW(h)/m³/battery|
 | Oria/Brifit/SigmaWit/SensorPro|TH Sensor|temperature/humidity/battery|
 | Mokosmart (1)|M1|acceleration x/y/z-axis/battery|
 | Mokosmart|H4|temperature/humidity/voltage|
+| Otio/BeeWi|Door & Window Sensor|contact/battery|
 | Qingping|CGDK2|temperature/humidity|
 | Qingping|CGH1|open|
 | Qingping|CGPR1|presence/luminance/battery|
@@ -47,6 +48,7 @@ Here is the list of supported devices by the gateway:
 | Thermobeacon|WS08|temperature/humidity/voltage/timestamp/maximum temperature/maximum temperature timestamp/minimum temperature/minimum temperature timestamp|
 | ThermoPro|TP357|temperature/humidity|
 | ThermoPro|TP358|temperature/humidity|
+| ThermoPro|TP359|temperature/humidity|
 | TPMS|TPMS|temperature/pressure/battery/alarm/count|
 | Vegtrug||temperature/moisture/luminance/fertility|
 | XIAOMI Mi Flora|HHCCJCY01HHCC|temperature/moisture/luminance/fertility/battery|
