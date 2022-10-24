@@ -87,7 +87,7 @@ docker run --rm \
     -e MQTT_USERNAME=<username> \
     -e MQTT_PASSWORD=<password> \
     -e MQTT_PUB_TOPIC=home/TheengsGateway/BTtoMQTT \
-    -e MQTT_SUB_TOPIC=home/TheengsGateway/commands \
+    -e MQTT_SUB_TOPIC=home/+/BTtoMQTT/undecoded \
     -e PUBLISH_ALL=true \
     -e TIME_BETWEEN=60 \
     -e SCAN_TIME=60 \
@@ -136,6 +136,12 @@ Example message:
 }
 ```
 If possible, the data will be decoded and published.
+
+[OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that will publish directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
+
+:::tip
+By default Theengs Gateway will listen to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway undecoded, Theengs will pickup all of them and centralize the decoded BT sensor data in one place.
+:::
 
 ## Home Assistant auto discovery
 If enabled (default), decoded devices will publish their configuration to Home Assistant to be discovered.

@@ -33,7 +33,7 @@ default_config = {
     "ble_scan_time":5,
     "ble_time_between_scans":5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
-    "subscribe_topic": "home/TheengsGateway/+",
+    "subscribe_topic": "home/+/BTtoMQTT/undecoded",
     "log_level": "WARNING",
     "discovery": 1,
     "hass_discovery": 1,
