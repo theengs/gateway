@@ -1,15 +1,15 @@
 # Install
+Several methods are available to install the gateway:
 
-## Install prerequisites
+## Install Theengs Gateway as a pip package
+Prerequisites:
 * Install [Python3](https://www.python.org/downloads/)
 * Install [pip](https://pip.pypa.io/en/stable/installation/)
 
-## Install Theengs Gateway
-Doing so is simple as 1 command:
+Command:
 ```shell
-pip3 install TheengsGateway
+pip install TheengsGateway
 ```
-
 You can access advanced configuration by typing:
 ```shell
 python3 -m TheengsGateway -h
@@ -30,6 +30,8 @@ Or by going to Settings -> Add-ons -> Add-on store -> ⁞ (Menu) -> Repositories
 ## Install Theengs Gateway as a snap
 Theengs Gateway is also packaged as a snap in the [Snap Store](https://snapcraft.io/theengs-gateway). If you have snapd running on your Linux distribution, which is the case by default on Ubuntu, you can install the Theengs Gateway snap as:
 
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/theengs-gateway)
+
 ```shell
 snap install theengs-gateway
 ```
@@ -37,7 +39,9 @@ snap install theengs-gateway
 Have a look at the [Theengs Gateway Snap](https://github.com/theengs/gateway-snap) documentation for more information about how to configure and start Theengs Gateway as a service.
 
 ## Install Theengs Gateway as a docker
-Theengs Gateway is also available from docker hub thanks to (@maretodoric)[https://github.com/maretodoric]
+Theengs Gateway is also available from docker hub thanks to [@maretodoric](https://github.com/maretodoric)
+
+<img alt="Docker Image Size (latest by date)" src="https://img.shields.io/docker/image-size/theengs/gateway">
 
 ```shell
 docker pull theengs/gateway
