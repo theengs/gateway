@@ -29,7 +29,7 @@ import sys
 import logging
 import platform
 from random import randrange
-import time
+from time import localtime
 
 from bleak import BleakClient, BleakError, BleakScanner
 from ._decoder import decodeBLE, getProperties, getAttribute
@@ -127,20 +127,18 @@ class gateway:
                 logger.info(f"Synchronizing time for LYWSD02 device {address}...")
                 try:
                     async with BleakClient(address) as lywsd02_client:
-                        # Set timezone offset
-                        if time.daylight:
-                            timezone_offset = -time.altzone // SECONDS_IN_HOUR
-                        else:
-                            timezone_offset = -time.timezone // SECONDS_IN_HOUR
+                        # Get time and timezone offset in hours
+                        current_time = datetime.now()
+                        timezone_offset = localtime().tm_gmtoff // SECONDS_IN_HOUR
 
                         # Pack data for current time and timezone
-                        lywsd02_time = struct.pack('Ib', int(datetime.now().timestamp()), timezone_offset)
+                        lywsd02_time = struct.pack('Ib', int(current_time.timestamp()), timezone_offset)
 
                         # Write time and timezone to device
                         await lywsd02_client.write_gatt_char(LYWSD02_TIME_UUID, lywsd02_time)
-                        logger.info(f"Synchronized time for LYWSD02 device {address}.")
+                        logger.info(f"Synchronized time for LYWSD02 device {address} to {current_time} with timezone offset {timezone_offset}.")
                         # Reset timestamp to synchronize again in a day
-                        self.lywsd02_updates[address] = datetime.now().timestamp()
+                        self.lywsd02_updates[address] = current_time.timestamp()
                 except BleakError as e:
                     logger.error(e)
                     del self.lywsd02_updates[address]
