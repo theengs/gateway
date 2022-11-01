@@ -1,3 +1,6 @@
+---
+pageClass: table-generated-page
+---
 # Devices supported
 
 Here is the list of supported devices by the gateway:
