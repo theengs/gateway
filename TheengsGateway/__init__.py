@@ -151,7 +151,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 try:
-    with open(conf_path, "r") as config_file:
+    with open(conf_path, encoding="utf-8") as config_file:
         config = json.load(config_file)
 except Exception:
     config = default_config
@@ -221,9 +221,9 @@ if not config["host"]:
     sys.exit("Invalid MQTT host")
 
 try:
-    with open(conf_path, "w") as config_file:
+    with open(conf_path, mode="w", encoding="utf-8") as config_file:
         config_file.write(json.dumps(config, sort_keys=True, indent=4))
 except Exception:
-    raise SystemExit("Unable to open config file")
+    raise SystemExit("Unable to write config file")
 
 run(conf_path)

@@ -286,7 +286,7 @@ def run(arg):
     global gw
 
     try:
-        with open(arg) as config_file:
+        with open(arg, encoding="utf-8") as config_file:
             config = json.load(config_file)
     except Exception:
         raise SystemExit(f"Invalid File: {sys.argv[1]}")
