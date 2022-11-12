@@ -1,2 +1,5 @@
+[tool.black]
+line-length = 79
+include = 'TheengsGateway\/.*\.pyi?$'
 [build-system]
 requires = ["setuptools", "cmake", "wheel", "scikit-build", "ninja"]

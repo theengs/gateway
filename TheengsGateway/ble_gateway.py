@@ -46,11 +46,13 @@ SECONDS_IN_DAY = 86400
 
 LYWSD02_TIME_UUID = "ebe0ccb7-7a0a-4b0c-8a1a-6ff2997da3a6"
 
-logger = logging.getLogger('BLEGateway')
+logger = logging.getLogger("BLEGateway")
 
 
 class gateway:
-    def __init__(self, broker, port, username, password, adapter, scanning_mode):
+    def __init__(
+        self, broker, port, username, password, adapter, scanning_mode
+    ):
         self.broker = broker
         self.port = port
         self.username = username
@@ -66,7 +68,10 @@ class gateway:
                 logger.info("Connected to MQTT Broker!")
                 self.subscribe(self.sub_topic)
             else:
-                logger.error("Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
+                logger.error(
+                    "Failed to connect to MQTT broker %s:%d rc: %d"
+                    % (self.broker, self.port, rc)
+                )
                 self.client.connect(self.broker, self.port)
 
         def on_disconnect(client, userdata, rc=0):
@@ -83,7 +88,9 @@ class gateway:
 
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
-            logger.info(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+            logger.info(
+                f"Received `{msg.payload.decode()}` from `{msg.topic}` topic"
+            )
             try:
                 msg_json = json.loads(str(msg.payload.decode()))
             except Exception as e:
@@ -93,11 +100,19 @@ class gateway:
             decoded_json = decodeBLE(json.dumps(msg_json))
             if decoded_json:
                 if gw.discovery:
-                    gw.publish_device_info(json.loads(decoded_json))  # Publish sensor data to Home Assistant MQTT discovery
+                    gw.publish_device_info(
+                        json.loads(decoded_json)
+                    )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
-                    gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
+                    gw.publish(
+                        decoded_json,
+                        gw.pub_topic + "/" + address.replace(":", ""),
+                    )
             elif gw.publish_all:
-                gw.publish(str(msg.payload.decode()), gw.pub_topic + '/' + address.replace(':', ''))
+                gw.publish(
+                    str(msg.payload.decode()),
+                    gw.pub_topic + "/" + address.replace(":", ""),
+                )
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
@@ -117,29 +132,49 @@ class gateway:
     def add_lywsd02(self, address, decoded_json):
         if json.loads(decoded_json)["model_id"] == "LYWSD02":
             if address not in self.lywsd02_updates:
-                # Add a random time in the last day as a starting point for the daily update.
-                # This prevents the gateway from connecting to all devices at the same time.
-                self.lywsd02_updates[address] = datetime.now().timestamp() - randrange(SECONDS_IN_DAY)
-                logger.info(f"Found LYWSD02 device {address}, synchronizing time daily...")
+                # Add a random time in the last day as a starting point
+                # for the daily update.
+                # This prevents the gateway from connecting to all devices
+                # at the same time.
+                self.lywsd02_updates[
+                    address
+                ] = datetime.now().timestamp() - randrange(SECONDS_IN_DAY)
+                logger.info(
+                    f"Found LYWSD02 device {address}, synchronizing time daily..."
+                )
 
     async def update_lywsd02_time(self):
         for address, timestamp in self.lywsd02_updates.copy().items():
             if datetime.now().timestamp() - timestamp > SECONDS_IN_DAY:
-                logger.info(f"Synchronizing time for LYWSD02 device {address}...")
+                logger.info(
+                    f"Synchronizing time for LYWSD02 device {address}..."
+                )
                 try:
                     async with BleakClient(address) as lywsd02_client:
                         # Get time and timezone offset in hours
                         current_time = datetime.now()
-                        timezone_offset = localtime().tm_gmtoff // SECONDS_IN_HOUR
+                        timezone_offset = (
+                            localtime().tm_gmtoff // SECONDS_IN_HOUR
+                        )
 
                         # Pack data for current time and timezone
-                        lywsd02_time = struct.pack('Ib', int(current_time.timestamp()), timezone_offset)
+                        lywsd02_time = struct.pack(
+                            "Ib",
+                            int(current_time.timestamp()),
+                            timezone_offset,
+                        )
 
                         # Write time and timezone to device
-                        await lywsd02_client.write_gatt_char(LYWSD02_TIME_UUID, lywsd02_time)
-                        logger.info(f"Synchronized time for LYWSD02 device {address} to {current_time} with timezone offset {timezone_offset}.")
+                        await lywsd02_client.write_gatt_char(
+                            LYWSD02_TIME_UUID, lywsd02_time
+                        )
+                        logger.info(
+                            f"Synchronized time for LYWSD02 device {address} to {current_time} with timezone offset {timezone_offset}."
+                        )
                         # Reset timestamp to synchronize again in a day
-                        self.lywsd02_updates[address] = current_time.timestamp()
+                        self.lywsd02_updates[
+                            address
+                        ] = current_time.timestamp()
                 except BleakError as e:
                     logger.error(e)
                     del self.lywsd02_updates[address]
@@ -165,7 +200,7 @@ class gateway:
 
         scanner_kwargs["detection_callback"] = self.detection_callback
         scanner = BleakScanner(**scanner_kwargs)
-        logger.info('Starting BLE scan')
+        logger.info("Starting BLE scan")
         self.running = True
         while not self.stopped:
             try:
@@ -182,42 +217,59 @@ class gateway:
             except Exception as e:
                 raise e
 
-        logger.error('BLE scan loop stopped')
+        logger.error("BLE scan loop stopped")
         self.running = False
 
     def detection_callback(self, device, advertisement_data):
-        logger.debug("%s RSSI:%d %s" % (device.address, device.rssi, advertisement_data))
+        logger.debug(
+            "%s RSSI:%d %s" % (device.address, device.rssi, advertisement_data)
+        )
         data_json = {}
 
         if advertisement_data.service_data:
             dstr = list(advertisement_data.service_data.keys())[0]
-            data_json['servicedatauuid'] = dstr[4:8]
+            data_json["servicedatauuid"] = dstr[4:8]
             dstr = str(list(advertisement_data.service_data.values())[0].hex())
-            data_json['servicedata'] = dstr
+            data_json["servicedata"] = dstr
 
         if advertisement_data.manufacturer_data:
-            dstr = str(struct.pack('<H', list(advertisement_data.manufacturer_data.keys())[0]).hex())
-            dstr += str(list(advertisement_data.manufacturer_data.values())[0].hex())
-            data_json['manufacturerdata'] = dstr
+            dstr = str(
+                struct.pack(
+                    "<H", list(advertisement_data.manufacturer_data.keys())[0]
+                ).hex()
+            )
+            dstr += str(
+                list(advertisement_data.manufacturer_data.values())[0].hex()
+            )
+            data_json["manufacturerdata"] = dstr
 
         if advertisement_data.local_name:
-            data_json['name'] = advertisement_data.local_name
+            data_json["name"] = advertisement_data.local_name
 
         if data_json:
-            data_json['id'] = device.address
-            data_json['rssi'] = device.rssi
+            data_json["id"] = device.address
+            data_json["rssi"] = device.rssi
             decoded_json = decodeBLE(json.dumps(data_json))
 
             if decoded_json:
                 if gw.discovery:
-                    gw.publish_device_info(json.loads(decoded_json))  # Publish sensor data to Home Assistant MQTT discovery
+                    gw.publish_device_info(
+                        json.loads(decoded_json)
+                    )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
-                    gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
+                    gw.publish(
+                        decoded_json,
+                        gw.pub_topic + "/" + device.address.replace(":", ""),
+                    )
 
-                # Add new LYWSD02 devices to dictionary of devices to synchronize time
+                # Add new LYWSD02 devices to dictionary of devices
+                # to synchronize time.
                 self.add_lywsd02(device.address, decoded_json)
             elif gw.publish_all:
-                gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
+                gw.publish(
+                    json.dumps(data_json),
+                    gw.pub_topic + "/" + device.address.replace(":", ""),
+                )
 
 
 def run(arg):
@@ -243,19 +295,35 @@ def run(arg):
     else:
         log_level = logging.WARNING
 
-    if config['discovery']:
+    if config["discovery"]:
         from .discovery import discovery
-        gw = discovery(config["host"], int(config["port"]), config["user"],
-                       config["pass"], config["adapter"], config["scanning_mode"],
-                       config["discovery_topic"], config["discovery_device_name"],
-                       config["discovery_filter"], config["hass_discovery"])
+
+        gw = discovery(
+            config["host"],
+            int(config["port"]),
+            config["user"],
+            config["pass"],
+            config["adapter"],
+            config["scanning_mode"],
+            config["discovery_topic"],
+            config["discovery_device_name"],
+            config["discovery_filter"],
+            config["hass_discovery"],
+        )
     else:
         try:
-            gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
+            gw = gateway(
+                config["host"],
+                int(config["port"]),
+                config["user"],
+                config["pass"],
+                config["adapter"],
+                config["scanning_mode"],
+            )
         except Exception:
             raise SystemExit("Missing or invalid MQTT host parameters")
 
-    gw.discovery = config['discovery']
+    gw.discovery = config["discovery"]
     gw.scan_time = config.get("ble_scan_time", 5)
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
@@ -283,7 +351,7 @@ def run(arg):
         t.join()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         arg = sys.argv[1]
     except IndexError:

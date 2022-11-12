@@ -5,6 +5,7 @@ from skbuild.cmaker import get_cmake_version
 
 # read the contents of your README file
 from pathlib import Path
+
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
@@ -12,15 +13,15 @@ long_description = (this_directory / "README.md").read_text()
 setup_requires = []
 try:
     if LegacyVersion(get_cmake_version()) < LegacyVersion("3.4"):
-        setup_requires.append('cmake')
+        setup_requires.append("cmake")
 except SKBuildError:
-    setup_requires.append('cmake')
+    setup_requires.append("cmake")
 
 setup(
     name="TheengsGateway",
     version="version_tag",
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     author="Theengs",
     url="https://github.com/theengs/gateway",
     license="GPL-3.0 License",
@@ -29,6 +30,5 @@ setup(
     scripts=["bin/TheengsGateway"],
     setup_requires=setup_requires,
     include_package_data=True,
-    install_requires=['bleak>=0.15.0','paho-mqtt>=1.6.1']
+    install_requires=["bleak>=0.15.0", "paho-mqtt>=1.6.1"],
 )
-

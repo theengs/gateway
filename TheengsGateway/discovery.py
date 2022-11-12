@@ -27,45 +27,61 @@ import re
 from .ble_gateway import gateway, logger
 from ._decoder import getProperties
 
-ha_dev_classes = ["battery",
-                  "carbon_monoxide",
-                  "carbon_dioxide",
-                  "humidity",
-                  "illuminance",
-                  "signal_strength",
-                  "temperature",
-                  "timestamp",
-                  "pressure",
-                  "power",
-                  "current",
-                  "energy",
-                  "power_factor",
-                  "voltage"]
+ha_dev_classes = [
+    "battery",
+    "carbon_monoxide",
+    "carbon_dioxide",
+    "humidity",
+    "illuminance",
+    "signal_strength",
+    "temperature",
+    "timestamp",
+    "pressure",
+    "power",
+    "current",
+    "energy",
+    "power_factor",
+    "voltage",
+]
 
-ha_dev_units = ["W",
-                "kW",
-                "V",
-                "A",
-                "W",
-                "°C",
-                "°F",
-                "ms",
-                "s",
-                "hPa",
-                "kg",
-                "lb",
-                "µS/cm",
-                "lx",
-                "%",
-                "dB",
-                "B"]
+ha_dev_units = [
+    "W",
+    "kW",
+    "V",
+    "A",
+    "W",
+    "°C",
+    "°F",
+    "ms",
+    "s",
+    "hPa",
+    "kg",
+    "lb",
+    "µS/cm",
+    "lx",
+    "%",
+    "dB",
+    "B",
+]
 
 
 class discovery(gateway):
-    def __init__(self, broker, port, username, password, adapter, scanning_mode,
-                 discovery_topic, discovery_device_name, discovery_filter,
-                 hass_discovery):
-        super().__init__(broker, port, username, password, adapter, scanning_mode)
+    def __init__(
+        self,
+        broker,
+        port,
+        username,
+        password,
+        adapter,
+        scanning_mode,
+        discovery_topic,
+        discovery_device_name,
+        discovery_filter,
+        hass_discovery,
+    ):
+        super().__init__(
+            broker, port, username, password, adapter, scanning_mode
+        )
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name
         self.discovered_entities = []
@@ -80,58 +96,63 @@ class discovery(gateway):
 
     # publish sensor directly to home assistant via mqtt discovery
     def publish_device_info(self, pub_device):
-        pub_device_uuid = pub_device['id'].replace(':', '')
+        pub_device_uuid = pub_device["id"].replace(":", "")
         device_data = json.dumps(pub_device)
-        if (pub_device_uuid in self.discovered_entities or
-                pub_device['model_id'] in self.discovery_filter):
-            logger.debug("Already discovered or filtered: %s" %
-                         pub_device_uuid)
-            self.publish(device_data, self.pub_topic + '/' +
-                         pub_device_uuid)
+        if (
+            pub_device_uuid in self.discovered_entities
+            or pub_device["model_id"] in self.discovery_filter
+        ):
+            logger.debug(
+                "Already discovered or filtered: %s" % pub_device_uuid
+            )
+            self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
             return
 
         logger.info(f"publishing device `{pub_device}`")
-        pub_device['properties'] = json.loads(
-            getProperties(pub_device['model_id']))['properties']
+        pub_device["properties"] = json.loads(
+            getProperties(pub_device["model_id"])
+        )["properties"]
 
         hadevice = {}
-        hadevice['identifiers'] = list({pub_device_uuid})
-        hadevice['connections'] = [list(('mac', pub_device_uuid))]
-        hadevice['manufacturer'] = pub_device['brand']
-        hadevice['model'] = pub_device['model_id']
-        if 'name' in pub_device:
-            hadevice['name'] = pub_device['name']
+        hadevice["identifiers"] = list({pub_device_uuid})
+        hadevice["connections"] = [list(("mac", pub_device_uuid))]
+        hadevice["manufacturer"] = pub_device["brand"]
+        hadevice["model"] = pub_device["model_id"]
+        if "name" in pub_device:
+            hadevice["name"] = pub_device["name"]
         else:
-            hadevice['name'] = pub_device['model']
-        hadevice['via_device'] = self.discovery_device_name
+            hadevice["name"] = pub_device["model"]
+        hadevice["via_device"] = self.discovery_device_name
 
         discovery_topic = self.discovery_topic + "/" + pub_device_uuid
         state_topic = self.pub_topic + "/" + pub_device_uuid
-        state_topic = re.sub(r'.+?/', '+/', state_topic,
-                             len(re.findall(r'/', state_topic)) - 1)
-        data = getProperties(pub_device['model_id'])
+        state_topic = re.sub(
+            r".+?/", "+/", state_topic, len(re.findall(r"/", state_topic)) - 1
+        )
+        data = getProperties(pub_device["model_id"])
         data = json.loads(data)
-        data = data['properties']
+        data = data["properties"]
 
         for k in data.keys():
             device = {}
-            device['stat_t'] = state_topic
-            if k in pub_device['properties']:
-                if pub_device['properties'][k]['name'] in ha_dev_classes:
-                    device['dev_cla'] = pub_device['properties'][k]['name']
-                if pub_device['properties'][k]['unit'] in ha_dev_units:
-                    device['unit_of_meas'] = pub_device['properties'][k]['unit']
-            device['name'] = pub_device['model_id'] + "-" + k
-            device['uniq_id'] = pub_device_uuid + "-" + k
+            device["stat_t"] = state_topic
+            if k in pub_device["properties"]:
+                if pub_device["properties"][k]["name"] in ha_dev_classes:
+                    device["dev_cla"] = pub_device["properties"][k]["name"]
+                if pub_device["properties"][k]["unit"] in ha_dev_units:
+                    device["unit_of_meas"] = pub_device["properties"][k][
+                        "unit"
+                    ]
+            device["name"] = pub_device["model_id"] + "-" + k
+            device["uniq_id"] = pub_device_uuid + "-" + k
             if self.hass_discovery == 1:
-                device['val_tpl'] = "{{ value_json." + k + " | is_defined }}"
+                device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
             else:
-                device['val_tpl'] = "{{ value_json." + k + " }}"
-            device['state_class'] = "measurement"
+                device["val_tpl"] = "{{ value_json." + k + " }}"
+            device["state_class"] = "measurement"
             config_topic = discovery_topic + "-" + k + "/config"
-            device['device'] = hadevice
+            device["device"] = hadevice
             self.publish(json.dumps(device), config_topic, True)
 
         self.discovered_entities.append(pub_device_uuid)
-        self.publish(device_data, self.pub_topic + '/' +
-                     pub_device_uuid)
+        self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
