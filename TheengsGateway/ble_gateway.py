@@ -69,13 +69,15 @@ class gateway:
                 self.subscribe(self.sub_topic)
             else:
                 logger.error(
-                    "Failed to connect to MQTT broker %s:%d rc: %d"
-                    % (self.broker, self.port, rc)
+                    "Failed to connect to MQTT broker %s:%d rc: %d",
+                    self.broker,
+                    self.port,
+                    rc,
                 )
                 self.client.connect(self.broker, self.port)
 
         def on_disconnect(client, userdata, rc=0):
-            logger.error("Disconnected rc = %d" % (rc))
+            logger.error("Disconnected rc = %d", rc)
 
         self.client = mqtt_client.Client()
         self.client.username_pw_set(self.username, self.password)
@@ -89,7 +91,9 @@ class gateway:
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
             logger.info(
-                f"Received `{msg.payload.decode()}` from `{msg.topic}` topic"
+                "Received `%s` from `%s` topic",
+                msg.payload.decode(),
+                msg.topic,
             )
             try:
                 msg_json = json.loads(str(msg.payload.decode()))
@@ -116,7 +120,7 @@ class gateway:
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
-        logger.info(f"Subscribed to {sub_topic}")
+        logger.info("Subscribed to %s", sub_topic)
 
     def publish(self, msg, pub_topic=None, retain=False):
         if not pub_topic:
@@ -125,9 +129,9 @@ class gateway:
         result = self.client.publish(pub_topic, msg, 0, retain)
         status = result[0]
         if status == 0:
-            logger.info(f"Sent `{msg}` to topic `{pub_topic}`")
+            logger.info("Sent `%s` to topic `%s`", msg, pub_topic)
         else:
-            logger.error(f"Failed to send message to topic {pub_topic}")
+            logger.error("Failed to send message to topic %s", pub_topic)
 
     def add_lywsd02(self, address, decoded_json):
         if json.loads(decoded_json)["model_id"] == "LYWSD02":
@@ -140,14 +144,15 @@ class gateway:
                     address
                 ] = datetime.now().timestamp() - randrange(SECONDS_IN_DAY)
                 logger.info(
-                    f"Found LYWSD02 device {address}, synchronizing time daily..."
+                    "Found LYWSD02 device %s, synchronizing time daily...",
+                    address,
                 )
 
     async def update_lywsd02_time(self):
         for address, timestamp in self.lywsd02_updates.copy().items():
             if datetime.now().timestamp() - timestamp > SECONDS_IN_DAY:
                 logger.info(
-                    f"Synchronizing time for LYWSD02 device {address}..."
+                    "Synchronizing time for LYWSD02 device %s...", address
                 )
                 try:
                     async with BleakClient(address) as lywsd02_client:
@@ -169,7 +174,9 @@ class gateway:
                             LYWSD02_TIME_UUID, lywsd02_time
                         )
                         logger.info(
-                            f"Synchronized time for LYWSD02 device {address} to {current_time} with timezone offset {timezone_offset}."
+                            "Synchronized time for LYWSD02 device %s to %s",
+                            address,
+                            current_time,
                         )
                         # Reset timestamp to synchronize again in a day
                         self.lywsd02_updates[
@@ -179,7 +186,9 @@ class gateway:
                     logger.error(e)
                     del self.lywsd02_updates[address]
                 except asyncio.exceptions.TimeoutError:
-                    logger.error(f"Can't connect to LYWSD02 device {address}.")
+                    logger.error(
+                        "Can't connect to LYWSD02 device %s.", address
+                    )
                     del self.lywsd02_updates[address]
 
     async def ble_scan_loop(self):
@@ -222,7 +231,7 @@ class gateway:
 
     def detection_callback(self, device, advertisement_data):
         logger.debug(
-            "%s RSSI:%d %s" % (device.address, device.rssi, advertisement_data)
+            "%s RSSI:%d %s", device.address, device.rssi, advertisement_data
         )
         data_json = {}
 

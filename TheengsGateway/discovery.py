@@ -102,13 +102,11 @@ class discovery(gateway):
             pub_device_uuid in self.discovered_entities
             or pub_device["model_id"] in self.discovery_filter
         ):
-            logger.debug(
-                "Already discovered or filtered: %s" % pub_device_uuid
-            )
+            logger.debug("Already discovered or filtered: %s", pub_device_uuid)
             self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
             return
 
-        logger.info(f"publishing device `{pub_device}`")
+        logger.info("publishing device `%s`", pub_device)
         pub_device["properties"] = json.loads(
             getProperties(pub_device["model_id"])
         )["properties"]
