@@ -32,7 +32,7 @@ from random import randrange
 from time import localtime
 
 from bleak import BleakClient, BleakError, BleakScanner
-from ._decoder import decodeBLE, getProperties, getAttribute
+from ._decoder import decodeBLE
 from paho.mqtt import client as mqtt_client
 from threading import Thread
 
