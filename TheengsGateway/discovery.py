@@ -89,9 +89,6 @@ class discovery(gateway):
         self.discovery_filter = discovery_filter
         self.hass_discovery = hass_discovery
 
-    def publish(self, msg, pub_topic, retain=False):
-        return super().publish(msg, pub_topic, retain)
-
     # publish sensor directly to home assistant via mqtt discovery
     def publish_device_info(self, pub_device):
         pub_device_uuid = pub_device["id"].replace(":", "")
