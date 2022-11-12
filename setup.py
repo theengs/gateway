@@ -9,7 +9,8 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
-# Add CMake as a build requirement if cmake is not installed or is too low a version
+# Add CMake as a build requirement if cmake is not installed
+# or is too low a version
 setup_requires = []
 try:
     if LegacyVersion(get_cmake_version()) < LegacyVersion("3.4"):
