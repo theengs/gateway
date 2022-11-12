@@ -22,19 +22,20 @@
 # python 3.6
 
 import asyncio
-from datetime import datetime
 import json
-import struct
-import sys
 import logging
 import platform
+import struct
+import sys
+from datetime import datetime
 from random import randrange
+from threading import Thread
 from time import localtime
 
 from bleak import BleakClient, BleakError, BleakScanner
-from ._decoder import decodeBLE
 from paho.mqtt import client as mqtt_client
-from threading import Thread
+
+from ._decoder import decodeBLE
 
 if platform.system() == "Linux":
     from bleak.assigned_numbers import AdvertisementDataType

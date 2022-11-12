@@ -19,10 +19,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys
-import os
-import json
 import argparse
+import json
+import os
+import sys
+
 from .ble_gateway import run
 
 default_config = {

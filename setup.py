@@ -1,10 +1,10 @@
-from skbuild import setup
-from packaging.version import LegacyVersion
-from skbuild.exceptions import SKBuildError
-from skbuild.cmaker import get_cmake_version
-
 # read the contents of your README file
 from pathlib import Path
+
+from packaging.version import LegacyVersion
+from skbuild import setup
+from skbuild.cmaker import get_cmake_version
+from skbuild.exceptions import SKBuildError
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()

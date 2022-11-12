@@ -24,8 +24,9 @@
 
 import json
 import re
-from .ble_gateway import gateway, logger
+
 from ._decoder import getProperties
+from .ble_gateway import gateway, logger
 
 ha_dev_classes = [
     "battery",
