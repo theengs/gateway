@@ -67,6 +67,8 @@ ha_dev_units = [
 
 
 class discovery(gateway):
+    """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
+
     def __init__(
         self,
         broker,
@@ -89,8 +91,8 @@ class discovery(gateway):
         self.discovery_filter = discovery_filter
         self.hass_discovery = hass_discovery
 
-    # publish sensor directly to home assistant via mqtt discovery
     def publish_device_info(self, pub_device):
+        """Publish sensor directly to Home Assistant via MQTT discovery."""
         pub_device_uuid = pub_device["id"].replace(":", "")
         device_data = json.dumps(pub_device)
         if (

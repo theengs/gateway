@@ -51,6 +51,8 @@ logger = logging.getLogger("BLEGateway")
 
 
 class gateway:
+    """BLE to MQTT gateway class."""
+
     def __init__(
         self, broker, port, username, password, adapter, scanning_mode
     ):
@@ -64,6 +66,8 @@ class gateway:
         self.lywsd02_updates = {}
 
     def connect_mqtt(self):
+        """Connect to MQTT broker."""
+
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 logger.info("Connected to MQTT Broker!")
@@ -90,6 +94,8 @@ class gateway:
             logger.error(e)
 
     def subscribe(self, sub_topic):
+        """Subscribe to MQTT topic <sub_topic>."""
+
         def on_message(client_, userdata, msg):
             logger.info(
                 "Received `%s` from `%s` topic",
@@ -124,6 +130,8 @@ class gateway:
         logger.info("Subscribed to %s", sub_topic)
 
     def publish(self, msg, pub_topic=None, retain=False):
+        """Publish <msg> to MQTT topic <pub_topic>."""
+
         if not pub_topic:
             pub_topic = self.pub_topic
 
@@ -135,6 +143,7 @@ class gateway:
             logger.error("Failed to send message to topic %s", pub_topic)
 
     def add_lywsd02(self, address, decoded_json):
+        """Register LYWSD02 device to synchronize its time later."""
         if json.loads(decoded_json)["model_id"] == "LYWSD02":
             if address not in self.lywsd02_updates:
                 # Add a random time in the last day as a starting point
@@ -150,6 +159,7 @@ class gateway:
                 )
 
     async def update_lywsd02_time(self):
+        """Update time for all registered LYWSD02 devices."""
         for address, timestamp in self.lywsd02_updates.copy().items():
             if datetime.now().timestamp() - timestamp > SECONDS_IN_DAY:
                 logger.info(
@@ -193,6 +203,7 @@ class gateway:
                     del self.lywsd02_updates[address]
 
     async def ble_scan_loop(self):
+        """Scan for BLE devices."""
         scanner_kwargs = {"scanning_mode": self.scanning_mode}
 
         # Passive scanning with BlueZ needs at least one or_pattern.
@@ -231,6 +242,7 @@ class gateway:
         self.running = False
 
     def detection_callback(self, device, advertisement_data):
+        """Detect device in received advertisement data."""
         logger.debug(
             "%s RSSI:%d %s", device.address, device.rssi, advertisement_data
         )
@@ -283,6 +295,7 @@ class gateway:
 
 
 def run(arg):
+    """Run BLE gateway."""
     global gw
 
     try:
