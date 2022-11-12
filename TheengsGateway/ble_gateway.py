@@ -48,6 +48,7 @@ LYWSD02_TIME_UUID = "ebe0ccb7-7a0a-4b0c-8a1a-6ff2997da3a6"
 
 logger = logging.getLogger('BLEGateway')
 
+
 class gateway:
     def __init__(self, broker, port, username, password, adapter, scanning_mode):
         self.broker = broker
@@ -68,7 +69,7 @@ class gateway:
                 logger.error(f"Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
                 self.client.connect(self.broker, self.port)
 
-        def on_disconnect(client, userdata,rc=0):
+        def on_disconnect(client, userdata, rc=0):
             logger.error(f"Disconnected rc = %d" % (rc))
 
         self.client = mqtt_client.Client()
@@ -91,7 +92,7 @@ class gateway:
             decoded_json = decodeBLE(json.dumps(msg_json))
             if decoded_json:
                 if gw.discovery:
-                    gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
+                    gw.publish_device_info(json.loads(decoded_json))  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     gw.publish(decoded_json, gw.pub_topic + '/' + address.replace(':', ''))
             elif gw.publish_all:
@@ -100,7 +101,6 @@ class gateway:
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
         logger.info(f"Subscribed to {sub_topic}")
-
 
     def publish(self, msg, pub_topic=None, retain=False):
         if not pub_topic:
@@ -209,7 +209,7 @@ class gateway:
 
             if decoded_json:
                 if gw.discovery:
-                    gw.publish_device_info(json.loads(decoded_json)) ## publish sensor data to home assistant mqtt discovery
+                    gw.publish_device_info(json.loads(decoded_json))  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     gw.publish(decoded_json, gw.pub_topic + '/' + device.address.replace(':', ''))
 
@@ -217,6 +217,7 @@ class gateway:
                 self.add_lywsd02(device.address, decoded_json)
             elif gw.publish_all:
                 gw.publish(json.dumps(data_json), gw.pub_topic + '/' + device.address.replace(':', ''))
+
 
 def run(arg):
     global gw
@@ -249,9 +250,9 @@ def run(arg):
                        config["discovery_filter"], config["hass_discovery"])
     else:
         try:
-          gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
+            gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
         except:
-          raise SystemExit(f"Missing or invalid MQTT host parameters")
+            raise SystemExit(f"Missing or invalid MQTT host parameters")
 
     gw.discovery = config['discovery']
     gw.scan_time = config.get("ble_scan_time", 5)
@@ -272,13 +273,14 @@ def run(arg):
 
     try:
         gw.client.loop_forever()
-    except(KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit):
         gw.client.disconnect()
         gw.stopped = True
         while gw.running:
             pass
         loop.call_soon_threadsafe(loop.stop)
         t.join()
+
 
 if __name__ == '__main__':
     try:

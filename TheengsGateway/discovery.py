@@ -135,4 +135,3 @@ class discovery(gateway):
         self.discovered_entities.append(pub_device_uuid)
         self.publish(device_data, self.pub_topic + '/' +
                      pub_device_uuid)
-

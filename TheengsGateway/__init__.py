@@ -26,12 +26,12 @@ import argparse
 from .ble_gateway import run
 
 default_config = {
-    "host":"",
-    "port":1883,
-    "user":"",
-    "pass":"",
-    "ble_scan_time":5,
-    "ble_time_between_scans":5,
+    "host": "",
+    "port": 1883,
+    "user": "",
+    "pass": "",
+    "ble_scan_time": 5,
+    "ble_time_between_scans": 5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "subscribe_topic": "home/+/BTtoMQTT/undecoded",
     "log_level": "WARNING",
@@ -46,7 +46,7 @@ default_config = {
 
 conf_path = os.path.expanduser('~') + '/theengsgw.conf'
 
-parser =  argparse.ArgumentParser()
+parser = argparse.ArgumentParser()
 parser.add_argument('-H', '--host', dest='host', type=str, help="MQTT host address")
 parser.add_argument('-P', '--port', dest='port', type=int, help="MQTT host port")
 parser.add_argument('-u', '--user', dest='user', type=str, help="MQTT username")
