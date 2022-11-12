@@ -68,21 +68,21 @@ class Gateway:
     def connect_mqtt(self):
         """Connect to MQTT broker."""
 
-        def on_connect(client, userdata, flags, rc):
-            if rc == 0:
+        def on_connect(client, userdata, flags, return_code):
+            if return_code == 0:
                 logger.info("Connected to MQTT Broker!")
                 self.subscribe(self.sub_topic)
             else:
                 logger.error(
-                    "Failed to connect to MQTT broker %s:%d rc: %d",
+                    "Failed to connect to MQTT broker %s:%d return code: %d",
                     self.broker,
                     self.port,
-                    rc,
+                    return_code,
                 )
                 self.client.connect(self.broker, self.port)
 
-        def on_disconnect(client, userdata, rc=0):
-            logger.error("Disconnected rc = %d", rc)
+        def on_disconnect(client, userdata, return_code=0):
+            logger.error("Disconnected with return code = %d", return_code)
 
         self.client = mqtt_client.Client()
         self.client.username_pw_set(self.username, self.password)
@@ -90,8 +90,8 @@ class Gateway:
         self.client.on_disconnect = on_disconnect
         try:
             self.client.connect(self.broker, self.port)
-        except Exception as e:
-            logger.error(e)
+        except Exception as exception:
+            logger.error(exception)
 
     def subscribe(self, sub_topic):
         """Subscribe to MQTT topic <sub_topic>."""
@@ -104,8 +104,8 @@ class Gateway:
             )
             try:
                 msg_json = json.loads(str(msg.payload.decode()))
-            except Exception as e:
-                logger.warning(e)
+            except Exception as exception:
+                logger.warning(exception)
                 return
             address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
@@ -193,8 +193,8 @@ class Gateway:
                         self.lywsd02_updates[
                             address
                         ] = current_time.timestamp()
-                except BleakError as e:
-                    logger.error(e)
+                except BleakError as error:
+                    logger.error(error)
                     del self.lywsd02_updates[address]
                 except asyncio.exceptions.TimeoutError:
                     logger.error(
@@ -235,8 +235,8 @@ class Gateway:
                     await self.update_lywsd02_time()
                 else:
                     await asyncio.sleep(5.0)
-            except Exception as e:
-                raise e
+            except Exception as exception:
+                raise exception
 
         logger.error("BLE scan loop stopped")
         self.running = False
@@ -357,8 +357,8 @@ def run(arg):
     logger.setLevel(log_level)
 
     loop = asyncio.get_event_loop()
-    t = Thread(target=loop.run_forever, daemon=True)
-    t.start()
+    thread = Thread(target=loop.run_forever, daemon=True)
+    thread.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
 
     gw.connect_mqtt()
@@ -371,12 +371,11 @@ def run(arg):
         while gw.running:
             pass
         loop.call_soon_threadsafe(loop.stop)
-        t.join()
+        thread.join()
 
 
 if __name__ == "__main__":
     try:
-        arg = sys.argv[1]
+        run(sys.argv[1])
     except IndexError:
         raise SystemExit(f"Usage: {sys.argv[0]} /path/to/config_file")
-    run(arg)
