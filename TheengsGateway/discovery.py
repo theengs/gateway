@@ -26,7 +26,7 @@ import json
 import re
 
 from ._decoder import getProperties
-from .ble_gateway import gateway, logger
+from .ble_gateway import Gateway, logger
 
 ha_dev_classes = [
     "battery",
@@ -66,7 +66,7 @@ ha_dev_units = [
 ]
 
 
-class discovery(gateway):
+class DiscoveryGateway(Gateway):
     """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
 
     def __init__(

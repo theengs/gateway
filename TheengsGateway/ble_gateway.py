@@ -50,7 +50,7 @@ LYWSD02_TIME_UUID = "ebe0ccb7-7a0a-4b0c-8a1a-6ff2997da3a6"
 logger = logging.getLogger("BLEGateway")
 
 
-class gateway:
+class Gateway:
     """BLE to MQTT gateway class."""
 
     def __init__(
@@ -319,9 +319,9 @@ def run(arg):
         log_level = logging.WARNING
 
     if config["discovery"]:
-        from .discovery import discovery
+        from .discovery import DiscoveryGateway
 
-        gw = discovery(
+        gw = DiscoveryGateway(
             config["host"],
             int(config["port"]),
             config["user"],
@@ -335,7 +335,7 @@ def run(arg):
         )
     else:
         try:
-            gw = gateway(
+            gw = Gateway(
                 config["host"],
                 int(config["port"]),
                 config["user"],
