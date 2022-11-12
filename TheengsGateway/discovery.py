@@ -89,9 +89,6 @@ class discovery(gateway):
         self.discovery_filter = discovery_filter
         self.hass_discovery = hass_discovery
 
-    def connect_mqtt(self):
-        super().connect_mqtt()
-
     def publish(self, msg, pub_topic, retain=False):
         return super().publish(msg, pub_topic, retain)
 
