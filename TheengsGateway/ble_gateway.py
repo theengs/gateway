@@ -66,11 +66,11 @@ class gateway:
                 logger.info("Connected to MQTT Broker!")
                 self.subscribe(self.sub_topic)
             else:
-                logger.error(f"Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
+                logger.error("Failed to connect to MQTT broker %s:%d rc: %d" % (self.broker, self.port, rc))
                 self.client.connect(self.broker, self.port)
 
         def on_disconnect(client, userdata, rc=0):
-            logger.error(f"Disconnected rc = %d" % (rc))
+            logger.error("Disconnected rc = %d" % (rc))
 
         self.client = mqtt_client.Client()
         self.client.username_pw_set(self.username, self.password)
@@ -252,7 +252,7 @@ def run(arg):
         try:
             gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
         except:
-            raise SystemExit(f"Missing or invalid MQTT host parameters")
+            raise SystemExit("Missing or invalid MQTT host parameters")
 
     gw.discovery = config['discovery']
     gw.scan_time = config.get("ble_scan_time", 5)
