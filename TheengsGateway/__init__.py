@@ -101,7 +101,7 @@ if args.log_level:
 
 if args.discovery is not None:
     config['discovery'] = args.discovery
-elif not 'discovery' in config.keys():
+elif 'discovery' not in config.keys():
     config['discovery'] = default_config['discovery']
     config['discovery_topic'] = default_config['discovery_topic']
     config['discovery_device_name'] = default_config['discovery_device_name']
@@ -112,12 +112,12 @@ if args.hass_discovery is not None:
 
 if args.discovery_topic:
     config['discovery_topic'] = args.discovery_topic
-elif not 'discovery_topic' in config.keys():
+elif 'discovery_topic' not in config.keys():
     config['discovery_topic'] = default_config['discovery_topic']
 
 if args.discovery_device_name:
     config['discovery_device_name'] = args.discovery_device_name
-elif not 'discovery_device_name' in config.keys():
+elif 'discovery_device_name' not in config.keys():
     config['discovery_device_name'] = default_config['discovery_device_name']
 
 if args.discovery_filter:
@@ -125,7 +125,7 @@ if args.discovery_filter:
     if args.discovery_filter[0] != "reset":
         for item in args.discovery_filter:
             config['discovery_filter'].append(item)
-elif not 'discovery_filter' in config.keys():
+elif 'discovery_filter' not in config.keys():
     config['discovery_filter'] = default_config['discovery_filter']
 
 if args.adapter:
