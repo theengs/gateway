@@ -78,15 +78,16 @@ class gateway:
         self.client.on_disconnect = on_disconnect
         try:
             self.client.connect(self.broker, self.port)
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
     def subscribe(self, sub_topic):
         def on_message(client_, userdata, msg):
             logger.info(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
             try:
                 msg_json = json.loads(str(msg.payload.decode()))
-            except:
+            except Exception as e:
+                logger.warning(e)
                 return
             address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
@@ -225,7 +226,7 @@ def run(arg):
     try:
         with open(arg) as config_file:
             config = json.load(config_file)
-    except:
+    except Exception:
         raise SystemExit(f"Invalid File: {sys.argv[1]}")
 
     log_level = config.get("log_level", "WARNING").upper()
@@ -251,7 +252,7 @@ def run(arg):
     else:
         try:
             gw = gateway(config["host"], int(config["port"]), config["user"], config["pass"], config["adapter"], config["scanning_mode"])
-        except:
+        except Exception:
             raise SystemExit("Missing or invalid MQTT host parameters")
 
     gw.discovery = config['discovery']

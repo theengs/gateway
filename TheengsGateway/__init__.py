@@ -71,7 +71,7 @@ args = parser.parse_args()
 try:
     with open(conf_path, 'r') as config_file:
         config = json.load(config_file)
-except:
+except Exception:
     config = default_config
 
 # Merge default configuration, with data read from the configuration file overriding default data.
@@ -140,7 +140,7 @@ if not config['host']:
 try:
     with open(conf_path, 'w') as config_file:
         config_file.write(json.dumps(config, sort_keys=True, indent=4))
-except:
+except Exception:
     raise SystemExit('Unable to open config file')
 
 run(conf_path)
