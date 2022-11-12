@@ -374,12 +374,3 @@ def run(arg):
             pass
         loop.call_soon_threadsafe(loop.stop)
         thread.join()
-
-
-if __name__ == "__main__":
-    try:
-        run(sys.argv[1])
-    except IndexError as error:
-        raise SystemExit(
-            f"Usage: {sys.argv[0]} /path/to/config_file"
-        ) from error
