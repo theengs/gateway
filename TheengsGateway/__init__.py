@@ -223,7 +223,7 @@ if not config["host"]:
 try:
     with open(conf_path, mode="w", encoding="utf-8") as config_file:
         config_file.write(json.dumps(config, sort_keys=True, indent=4))
-except Exception:
-    raise SystemExit("Unable to write config file")
+except Exception as exception:
+    raise SystemExit("Unable to write config file") from exception
 
 run(conf_path)

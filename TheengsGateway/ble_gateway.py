@@ -301,8 +301,8 @@ def run(arg):
     try:
         with open(arg, encoding="utf-8") as config_file:
             config = json.load(config_file)
-    except Exception:
-        raise SystemExit(f"Invalid File: {sys.argv[1]}")
+    except Exception as exception:
+        raise SystemExit(f"Invalid File: {sys.argv[1]}") from exception
 
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
@@ -343,8 +343,10 @@ def run(arg):
                 config["adapter"],
                 config["scanning_mode"],
             )
-        except Exception:
-            raise SystemExit("Missing or invalid MQTT host parameters")
+        except Exception as exception:
+            raise SystemExit(
+                "Missing or invalid MQTT host parameters"
+            ) from exception
 
     gw.discovery = config["discovery"]
     gw.scan_time = config.get("ble_scan_time", 5)
@@ -377,5 +379,7 @@ def run(arg):
 if __name__ == "__main__":
     try:
         run(sys.argv[1])
-    except IndexError:
-        raise SystemExit(f"Usage: {sys.argv[0]} /path/to/config_file")
+    except IndexError as error:
+        raise SystemExit(
+            f"Usage: {sys.argv[0]} /path/to/config_file"
+        ) from error
