@@ -1,35 +1,24 @@
 # Development contributions
 
 We like pull requests from everyone. By participating in this project, you
-agree to follow the code of conduct below
+agree to follow the [code of conduct](https://github.com/theengs/gateway/blob/master/CODE_OF_CONDUCT.md).
 
-[code of conduct](https://github.com/theengs/gateway/blob/master/CODE_OF_CONDUCT.md)
-
-[code style guide](https://google.github.io/styleguide/cppguide.html#Formatting)
-So as to format automatically your document you have to add the "clang-Format" extension to VSCode, once done, you can format the code by doing a right click into the code file window and clicking "Format document".
-
-Fork the [development branch](https://github.com/theengs/gateway/tree/development), then clone the repo
-
-Make your modification,
-
-Review your code, build it
-
-Test it locally on your hardware config
-
-Emit a pull request
-
-Verify the GitHub Actions CI compilation results
-
-Request for review
-
-We may suggest some changes, improvements or alternatives.
+* We use the [pre-commit](https://pre-commit.com) system to identify simple issues before submission to code review. Install it with `pip install pre-commit`.
+* Fork the [development branch](https://github.com/theengs/gateway/tree/development), then clone the repo.
+* Run `pre-commit install` to set up the Git hook scripts.
+* Make your modification.
+* Review your code, build it.
+* Test it locally on your hardware configuration.
+* Create a pull request.
+* Verify the GitHub Actions CI results.
+* Request for review.
+* We may suggest some changes, improvements or alternatives.
 
 Some things that will increase the chance that your pull request is accepted:
-* Comment your code,
-* Ask eventually for design guidelines,
-* Write a [good commit message][commit].
 
-[commit]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+* Comment your code.
+* Ask eventually for design guidelines.
+* Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 
 ## Developer Certificate Of Origin
 
