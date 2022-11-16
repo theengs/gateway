@@ -175,7 +175,7 @@ ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
 Save and close the file and then run the following commands:
 
 ```
-sudo systemctl dameon-reload
+sudo systemctl daemon-reload
 sudo systemctl restart bluetooth.service
 ```
 
