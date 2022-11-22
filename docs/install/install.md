@@ -48,13 +48,24 @@ docker pull theengs/gateway
 ```
 
 ## Advanced users - Build and install
+Clone the repository and its submodules:
 ```
 git clone https://github.com/theengs/gateway.git
 cd gateway
 git submodule update --init --recursive
+```
+
+Change `version_tag` in `setup.py` to a valid version string such has `0.6.0` and then build the package:
+
+```
 python3 setup.py sdist
+```
+
+After this, enter the `dist` directory and install the package you built:
+
+```
 cd dist
-pip3 install distribution_file_name
+pip3 install TheengsGateway-<version>.tar.gz
 ```
 :::tip
 When launching the gateway you must be outside of its source code folder to avoid errors
