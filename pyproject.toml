@@ -1,2 +1,7 @@
+[tool.black]
+line-length = 79
+include = 'TheengsGateway\/.*\.pyi?$'
+[tool.isort]
+profile = "black"
 [build-system]
 requires = ["setuptools", "cmake", "wheel", "scikit-build", "ninja"]
