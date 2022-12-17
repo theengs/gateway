@@ -1,7 +1,7 @@
 # read the contents of your README file
 from pathlib import Path
 
-from packaging.version import LegacyVersion
+from packaging import version
 from skbuild import setup
 from skbuild.cmaker import get_cmake_version
 from skbuild.exceptions import SKBuildError
@@ -13,7 +13,7 @@ long_description = (this_directory / "README.md").read_text()
 # or is too low a version
 setup_requires = []
 try:
-    if LegacyVersion(get_cmake_version()) < LegacyVersion("3.4"):
+    if version.parse(get_cmake_version()) < version.parse("3.4"):
         setup_requires.append("cmake")
 except SKBuildError:
     setup_requires.append("cmake")
