@@ -206,15 +206,25 @@ class Gateway:
         """Scan for BLE devices."""
         scanner_kwargs = {"scanning_mode": self.scanning_mode}
 
-        # Passive scanning with BlueZ needs at least one or_pattern.
-        # The following matches all devices.
-        if platform.system() == "Linux" and self.scanning_mode == "passive":
-            scanner_kwargs["bluez"] = BlueZScannerArgs(
-                or_patterns=[
-                    OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
-                    OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
-                ]
-            )
+        if platform.system() == "Linux":
+            if self.scanning_mode == "passive":
+                # Passive scanning with BlueZ needs at least one or_pattern.
+                # The following matches all devices.
+                scanner_kwargs["bluez"] = BlueZScannerArgs(
+                    or_patterns=[
+                        OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
+                        OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
+                    ]
+                )
+            elif self.scanning_mode == "active":
+                # Disable duplicate detection of advertisement data.
+                # Without this parameter non-compliant devices such as the
+                # TP357/8/9 return multiple keys in manufacturer data and
+                # we don't know which is the most recent data, so the sensor
+                # values don't update.
+                scanner_kwargs["bluez"] = BlueZScannerArgs(
+                    filters=dict(DuplicateData=True)
+                )
 
         if self.adapter:
             scanner_kwargs["adapter"] = self.adapter
