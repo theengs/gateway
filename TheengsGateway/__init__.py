@@ -43,6 +43,8 @@ default_config = {
     "discovery_filter": ["IBEACON", "GAEN", "MS-CDP"],
     "adapter": "",
     "scanning_mode": "active",
+    "time_sync": [],
+    "time_format": 0,
 }
 
 conf_path = os.path.expanduser("~") + "/theengsgw.conf"
@@ -148,6 +150,21 @@ parser.add_argument(
     choices=("active", "passive"),
     help="Scanning mode (default: active)",
 )
+parser.add_argument(
+    "-ts",
+    "--time_sync",
+    dest="time_sync",
+    nargs="+",
+    default=[],
+    help="Addresses of Bluetooth devices to synchronize the time",
+)
+parser.add_argument(
+    "-tf",
+    "--time_format",
+    dest="time_format",
+    type=int,
+    help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
+)
 args = parser.parse_args()
 
 try:
@@ -216,6 +233,17 @@ if args.adapter:
 
 if args.scanning_mode:
     config["scanning_mode"] = args.scanning_mode
+
+if args.time_sync:
+    config["time_sync"] = default_config["time_sync"]
+    if args.time_sync[0] != "reset":
+        for item in args.time_sync:
+            config["time_sync"].append(item)
+elif "time_sync" not in config.keys():
+    config["time_sync"] = default_config["time_sync"]
+
+if args.time_format is not None:
+    config["time_format"] = args.time_format
 
 if not config["host"]:
     sys.exit("Invalid MQTT host")

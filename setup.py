@@ -31,5 +31,9 @@ setup(
     scripts=["bin/TheengsGateway"],
     setup_requires=setup_requires,
     include_package_data=True,
-    install_requires=["bleak>=0.15.0", "paho-mqtt>=1.6.1"],
+    install_requires=[
+        "bleak>=0.15.0",
+        "bluetooth-clocks<1.0",
+        "paho-mqtt>=1.6.1",
+    ],
 )
