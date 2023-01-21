@@ -160,9 +160,12 @@ class Gateway:
 
     async def update_clock_times(self):
         """Update time for all registered clocks."""
+        # Make a copy of the dictionary because we're changing it in the loop.
         for address, timestamp in self.clock_updates.copy().items():
             if time() - timestamp > SECONDS_IN_DAY:
                 logger.info("Synchronizing time for clock %s...", address)
+
+                # Find clock and try to synchronize the time
                 try:
                     logger.info(f"Scanning for clock {address}...")
                     clock = await find_clock(address, self.scan_time)
@@ -178,6 +181,8 @@ class Gateway:
                     logger.error(f"Unsupported clock: {exc}")
                     # There's no point in retrying for an unsupported device.
                     del self.clock_updates[address]
+                    # Just continue with the next device.
+                    continue
                 except asyncio.exceptions.TimeoutError as exc:
                     logger.error(f"Can't connect to clock {address}: {exc}")
                 except BleakError as exc:
@@ -186,6 +191,17 @@ class Gateway:
                     logger.error(
                         f"Can't get attribute from clock {address}: {exc}"
                     )
+
+                # Register current time for this address
+                this_time = time()
+                self.clock_updates[address] = this_time
+                logger.info(
+                    "Synchronizing time with %s again on %s",
+                    address,
+                    datetime.fromtimestamp(
+                        this_time + SECONDS_IN_DAY
+                    ).strftime("%Y-%m-%d %H:%M:%S"),
+                )
 
     async def ble_scan_loop(self):
         """Scan for BLE devices."""
