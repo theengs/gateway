@@ -192,3 +192,11 @@ Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format 
 Note that the first time synchronization of each specified clock will happen at a random time in the next day. This way the connections to these devices will be spaced out in time. After this first time synchronization, Theengs Gateway will synchronize its time every 24 hours.
 
 If a device isn't recognized as a supported clock, Theengs Gateway won't try to synchronize its time ever. But if there are other errors, such as connection errors or write errors (which could be temporary), the device will still be tried every 24 hours.
+
+If you want to know which of your devices are supported by Theengs Gateway's time synchronization feature, run the following command:
+
+```
+bluetooth-clocks discover
+```
+
+The `bluetooth-clocks` command is installed as part of Theengs Gateway.
