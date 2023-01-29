@@ -10,6 +10,7 @@ Here is the list of supported devices by the gateway:
 | Amazfit|Smart Watch/Band|steps, activity heart rate (when activated in the Zepp Life settings)|
 | April Brother|ABTemp|uuid/mfid/major/txpower @ 1 m/temperature/battery|
 | April Brother|N03|temperature/humidity/luminance/battery|
+| BlueCharm|BC08|acceleration x/y/z-axis/voltage/temperature|
 | BlueMaestro|TempoDisc 1 in 1|temperature/battery|
 | BlueMaestro|TempoDisc 3 in 1|temperature/humidity/dew point/battery|
 | BlueMaestro|TempoDisc 4 in 1|temperature/humidity/pressure/battery|
@@ -37,6 +38,7 @@ Here is the list of supported devices by the gateway:
 | INKBIRD|IBT-4X(S/C)|temperature1/temperature2/temperature3/temperature4|
 | INKBIRD|IBT-6XS|temperature1/temperature2/temperature3/temperature4/temperature5/temperature6|
 | iNode|Energy Meter|Current average and aggregate kW(h)/m³/battery|
+| Jaalee|JHT F525|temperature/humidity/battery|
 | Oria/Brifit/SigmaWit/SensorPro|TH Sensor T201|temperature/humidity/battery|
 | Oria/Brifit/SigmaWit/SensorPro|TH Sensor T301|temperature/humidity/battery|
 | Mokosmart (1)|M1|acceleration x/y/z-axis/battery|
