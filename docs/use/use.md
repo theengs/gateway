@@ -76,6 +76,11 @@ optional arguments:
                         Bluetooth adapter (e.g. hci1 on Linux)
   -s {active,passive}, --scanning_mode {active,passive}
                         Scanning mode (default: active)
+  -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
+                        Addresses of Bluetooth devices to synchronize the time
+  -tf TIME_FORMAT, --time_format TIME_FORMAT
+                        Use 12-hour (1) or 24-hour (0) time format for clocks
+                        (default: 0)
 ```
 
 ### For a Docker container
@@ -180,4 +185,18 @@ sudo systemctl restart bluetooth.service
 ```
 
 ## Time synchronization
-If the gateway finds LYWSD02 devices, it automatically synchronizes their time once a day. Therefore, make sure that your gateway's time is set correctly.
+If you have specified the MAC addresses of [supported Bluetooth clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure that your gateway's time is set correctly.
+
+Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format to show their time. Use the argument `--time_format 0` (default) for 24-hour format and `--time_format 1` for 12-hour format.
+
+Note that the first time synchronization of each specified clock will happen at a random time in the next day. This way the connections to these devices will be spaced out in time. After this first time synchronization, Theengs Gateway will synchronize its time every 24 hours.
+
+If a device isn't recognized as a supported clock, Theengs Gateway won't try to synchronize its time ever. But if there are other errors, such as connection errors or write errors (which could be temporary), the device will still be tried every 24 hours.
+
+If you want to know which of your devices are supported by Theengs Gateway's time synchronization feature, run the following command:
+
+```
+bluetooth-clocks discover
+```
+
+The `bluetooth-clocks` command is installed as part of Theengs Gateway.

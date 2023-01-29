@@ -30,9 +30,11 @@ import sys
 from datetime import datetime
 from random import randrange
 from threading import Thread
-from time import localtime
+from time import time
 
-from bleak import BleakClient, BleakError, BleakScanner
+from bleak import BleakError, BleakScanner
+from bluetooth_clocks.exceptions import UnsupportedDeviceError
+from bluetooth_clocks.scanners import find_clock
 from paho.mqtt import client as mqtt_client
 
 from ._decoder import decodeBLE
@@ -42,10 +44,7 @@ if platform.system() == "Linux":
     from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
     from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 
-SECONDS_IN_HOUR = 3600
 SECONDS_IN_DAY = 86400
-
-LYWSD02_TIME_UUID = "ebe0ccb7-7a0a-4b0c-8a1a-6ff2997da3a6"
 
 logger = logging.getLogger("BLEGateway")
 
@@ -63,7 +62,7 @@ class Gateway:
         self.adapter = adapter
         self.scanning_mode = scanning_mode
         self.stopped = False
-        self.lywsd02_updates = {}
+        self.clock_updates = {}
 
     def connect_mqtt(self):
         """Connect to MQTT broker."""
@@ -142,65 +141,67 @@ class Gateway:
         else:
             logger.error("Failed to send message to topic %s", pub_topic)
 
-    def add_lywsd02(self, address, decoded_json):
-        """Register LYWSD02 device to synchronize its time later."""
-        if json.loads(decoded_json)["model_id"] == "LYWSD02":
-            if address not in self.lywsd02_updates:
-                # Add a random time in the last day as a starting point
-                # for the daily update.
-                # This prevents the gateway from connecting to all devices
-                # at the same time.
-                self.lywsd02_updates[
-                    address
-                ] = datetime.now().timestamp() - randrange(SECONDS_IN_DAY)
-                logger.info(
-                    "Found LYWSD02 device %s, synchronizing time daily...",
-                    address,
-                )
+    def add_clock(self, address):
+        """Register clock to synchronize its time later."""
+        if address in self.time_sync and address not in self.clock_updates:
+            # Add a random time in the last day as a starting point
+            # for the daily update.
+            # This prevents the gateway from connecting to all clocks
+            # at the same time.
+            start_time = time() - randrange(SECONDS_IN_DAY)
+            self.clock_updates[address] = start_time
+            logger.info(
+                "Found device %s, synchronizing time daily beginning from %s",
+                address,
+                datetime.fromtimestamp(start_time + SECONDS_IN_DAY).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
+            )
 
-    async def update_lywsd02_time(self):
-        """Update time for all registered LYWSD02 devices."""
-        for address, timestamp in self.lywsd02_updates.copy().items():
-            if datetime.now().timestamp() - timestamp > SECONDS_IN_DAY:
-                logger.info(
-                    "Synchronizing time for LYWSD02 device %s...", address
-                )
+    async def update_clock_times(self):
+        """Update time for all registered clocks."""
+        # Make a copy of the dictionary because we're changing it in the loop.
+        for address, timestamp in self.clock_updates.copy().items():
+            if time() - timestamp > SECONDS_IN_DAY:
+                logger.info("Synchronizing time for clock %s...", address)
+
+                # Find clock and try to synchronize the time
                 try:
-                    async with BleakClient(address) as lywsd02_client:
-                        # Get time and timezone offset in hours
-                        current_time = datetime.now()
-                        timezone_offset = (
-                            localtime().tm_gmtoff // SECONDS_IN_HOUR
-                        )
-
-                        # Pack data for current time and timezone
-                        lywsd02_time = struct.pack(
-                            "Ib",
-                            int(current_time.timestamp()),
-                            timezone_offset,
-                        )
-
-                        # Write time and timezone to device
-                        await lywsd02_client.write_gatt_char(
-                            LYWSD02_TIME_UUID, lywsd02_time
-                        )
+                    logger.info(f"Scanning for clock {address}...")
+                    clock = await find_clock(address, self.scan_time)
+                    if clock:
                         logger.info(
-                            "Synchronized time for LYWSD02 device %s to %s",
-                            address,
-                            current_time,
+                            f"Writing time to {clock.DEVICE_TYPE} device..."
                         )
-                        # Reset timestamp to synchronize again in a day
-                        self.lywsd02_updates[
-                            address
-                        ] = current_time.timestamp()
-                except BleakError as error:
-                    logger.error(error)
-                    del self.lywsd02_updates[address]
-                except asyncio.exceptions.TimeoutError:
+                        await clock.set_time(ampm=self.time_format)
+                        logger.info("Synchronized time")
+                    else:
+                        logger.info(f"Didn't find device {address}.")
+                except UnsupportedDeviceError as exc:
+                    logger.error(f"Unsupported clock: {exc}")
+                    # There's no point in retrying for an unsupported device.
+                    del self.clock_updates[address]
+                    # Just continue with the next device.
+                    continue
+                except asyncio.exceptions.TimeoutError as exc:
+                    logger.error(f"Can't connect to clock {address}: {exc}")
+                except BleakError as exc:
+                    logger.error(f"Can't write to clock {address}: {exc}")
+                except AttributeError as exc:
                     logger.error(
-                        "Can't connect to LYWSD02 device %s.", address
+                        f"Can't get attribute from clock {address}: {exc}"
                     )
-                    del self.lywsd02_updates[address]
+
+                # Register current time for this address
+                this_time = time()
+                self.clock_updates[address] = this_time
+                logger.info(
+                    "Synchronizing time with %s again on %s",
+                    address,
+                    datetime.fromtimestamp(
+                        this_time + SECONDS_IN_DAY
+                    ).strftime("%Y-%m-%d %H:%M:%S"),
+                )
 
     async def ble_scan_loop(self):
         """Scan for BLE devices."""
@@ -241,8 +242,8 @@ class Gateway:
                     await scanner.stop()
                     await asyncio.sleep(self.time_between_scans)
 
-                    # Update time for all LYWSD02 devices once a day
-                    await self.update_lywsd02_time()
+                    # Update time for all clocks once a day
+                    await self.update_clock_times()
                 else:
                     await asyncio.sleep(5.0)
             except Exception as exception:
@@ -256,6 +257,10 @@ class Gateway:
         logger.debug(
             "%s RSSI:%d %s", device.address, device.rssi, advertisement_data
         )
+
+        # Try to add the device to dictionary of clocks to synchronize time.
+        self.add_clock(device.address)
+
         data_json = {}
 
         if advertisement_data.service_data:
@@ -293,10 +298,6 @@ class Gateway:
                         decoded_json,
                         gw.pub_topic + "/" + device.address.replace(":", ""),
                     )
-
-                # Add new LYWSD02 devices to dictionary of devices
-                # to synchronize time.
-                self.add_lywsd02(device.address, decoded_json)
             elif gw.publish_all:
                 gw.publish(
                     json.dumps(data_json),
@@ -364,6 +365,8 @@ def run(arg):
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
     gw.publish_all = config.get("publish_all", 5)
+    gw.time_sync = config["time_sync"]
+    gw.time_format = bool(config["time_format"])
 
     logging.basicConfig()
     logger.setLevel(log_level)
