@@ -35,6 +35,8 @@ from time import time
 from bleak import BleakError, BleakScanner
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
+from bluetooth_numbers import company
+from bluetooth_numbers.exceptions import UnknownCICError
 from paho.mqtt import client as mqtt_client
 
 from ._decoder import decodeBLE
@@ -270,14 +272,13 @@ class Gateway:
             data_json["servicedata"] = dstr
 
         if advertisement_data.manufacturer_data:
-            dstr = str(
-                struct.pack(
-                    "<H", list(advertisement_data.manufacturer_data.keys())[0]
-                ).hex()
-            )
-            dstr += str(
-                list(advertisement_data.manufacturer_data.values())[0].hex()
-            )
+            # Only look at the first manufacturer data in the advertisement
+            company_id = list(advertisement_data.manufacturer_data.keys())[0]
+            manufacturer_data = list(
+                advertisement_data.manufacturer_data.values()
+            )[0]
+            dstr = str(struct.pack("<H", company_id).hex())
+            dstr += str(manufacturer_data.hex())
             data_json["manufacturerdata"] = dstr
 
         if advertisement_data.local_name:
@@ -289,16 +290,35 @@ class Gateway:
             decoded_json = decodeBLE(json.dumps(data_json))
 
             if decoded_json:
+                decoded_json = json.loads(decoded_json)
+                # Only add manufacturer if device is compliant and no beacon
+                if decoded_json.get("cidc", True) and decoded_json[
+                    "model_id"
+                ] not in ("ABTemp", "IBEACON", "MS-CDP", "RDL52832"):
+                    try:
+                        decoded_json["mfr"] = company[company_id]
+                    except (UnboundLocalError, UnknownCICError):
+                        # Ignore when there's no manufacturer data
+                        # or when the company ID is unknown
+                        pass
+
                 if gw.discovery:
                     gw.publish_device_info(
-                        json.loads(decoded_json)
+                        decoded_json
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     gw.publish(
-                        decoded_json,
+                        json.dumps(decoded_json),
                         gw.pub_topic + "/" + device.address.replace(":", ""),
                     )
             elif gw.publish_all:
+                try:
+                    data_json["mfr"] = company[company_id]
+                except (UnboundLocalError, UnknownCICError):
+                    # Ignore when there's no manufacturer data
+                    # or when the company ID is unknown
+                    pass
+
                 gw.publish(
                     json.dumps(data_json),
                     gw.pub_topic + "/" + device.address.replace(":", ""),
