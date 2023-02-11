@@ -384,7 +384,7 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
-    gw.publish_all = config.get("publish_all", 5)
+    gw.publish_all = config["publish_all"]
     gw.time_sync = config["time_sync"]
     gw.time_format = bool(config["time_format"])
 

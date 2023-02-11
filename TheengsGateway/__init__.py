@@ -34,6 +34,7 @@ default_config = {
     "ble_scan_time": 5,
     "ble_time_between_scans": 5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
+    "publish_all": 1,
     "subscribe_topic": "home/+/BTtoMQTT/undecoded",
     "log_level": "WARNING",
     "discovery": 1,
@@ -75,7 +76,7 @@ parser.add_argument(
     "--publish_all",
     dest="publish_all",
     type=int,
-    help="Enable(1) or disable(0) publishing of all beacons",
+    help="Publish all (1) or only decoded (0) advertisements (default: 1)",
 )
 parser.add_argument(
     "-sd",
@@ -190,7 +191,7 @@ if args.pub_topic:
     config["publish_topic"] = args.pub_topic
 if args.sub_topic:
     config["subscribe_topic"] = args.sub_topic
-if args.publish_all:
+if args.publish_all is not None:
     config["publish_all"] = args.publish_all
 if args.scan_dur:
     config["ble_scan_time"] = args.scan_dur
