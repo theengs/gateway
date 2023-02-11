@@ -29,8 +29,15 @@ Once the command launched you should see MQTT payloads appearing on the broker. 
 
 Example payload received:
 ```json
-{"name":"F35285","id":"F3:52:85","rssi":-82,"brand":"BlueMaestro","model":"TempoDisc","model_id":"BM_V23","tempc":24.1,"tempf":75.38,"hum":104.7,"dp":24.8,"volt":2.56}
+{"name":"F35285","id":"F3:52:85","rssi":-82,"brand":"BlueMaestro","model":"TempoDisc","model_id":"BM_V23","tempc":24.1,"tempf":75.38,"hum":104.7,"dp":24.8,"volt":2.56,"mfr":"Blue Maestro Limited"}
 ```
+
+The `mfr` key has the company name of the manufacturer as its value in two cases:
+
+* The advertisement of the device has been successfully decoded, its manufacturer data have a company ID compliant to the Bluetooth specification, and it's no beacon (iBeacon, Microsoft Advertising Beacon).
+* The advertisement of the device can't be decoded.
+
+Note that in the latter case, we can't guarantee that the manufacturer name is correct, as many devices are not compliant to the Bluetooth specification and encode their data in the bytes where the manufacturer ID should be.
 
 ## Details options
 ### For a regular installation

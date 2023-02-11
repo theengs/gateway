@@ -34,6 +34,7 @@ setup(
     install_requires=[
         "bleak>=0.15.0",
         "bluetooth-clocks<1.0",
+        "bluetooth-numbers>=1.0,<2.0",
         "paho-mqtt>=1.6.1",
     ],
 )
