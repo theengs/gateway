@@ -7,7 +7,7 @@ from skbuild.cmaker import get_cmake_version
 from skbuild.exceptions import SKBuildError
 
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
+long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 # Add CMake as a build requirement if cmake is not installed
 # or is too low a version
