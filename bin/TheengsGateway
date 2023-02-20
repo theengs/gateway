@@ -1,2 +1,4 @@
 #!/usr/bin/env python
-import TheengsGateway
+from TheengsGateway import main
+
+main()
