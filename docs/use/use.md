@@ -48,6 +48,7 @@ usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
           [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
           [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
+          [-prt PRESENCE_TOPIC] [-pr PUBLISH_PRESENCE]
           [-a ADAPTER] [-s {active,passive}]
 
 optional arguments:
@@ -80,6 +81,10 @@ optional arguments:
                         Device name for Home Assistant
   -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
                         Device discovery filter list for Home Assistant
+  -prt PRESENCE_TOPIC, --presence_topic PRESENCE_TOPIC
+                        MQTT topic to publish presence messages
+  -pr PUBLISH_PRESENCE, --presence PUBLISH_PRESENCE
+                        Enable (1) or disable (0) publishing presence messages
   -a ADAPTER, --adapter ADAPTER
                         Bluetooth adapter (e.g. hci1 on Linux)
   -s {active,passive}, --scanning_mode {active,passive}

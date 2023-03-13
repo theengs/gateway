@@ -101,6 +101,8 @@ class DiscoveryGateway(Gateway):
         ):
             logger.debug("Already discovered or filtered: %s", pub_device_uuid)
             self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
+            if self.presence:
+                self.publish(device_data, self.presence_topic)
             return
 
         logger.info("publishing device `%s`", pub_device)
@@ -151,3 +153,5 @@ class DiscoveryGateway(Gateway):
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
+        if self.presence:
+            self.publish(device_data, self.presence_topic)
