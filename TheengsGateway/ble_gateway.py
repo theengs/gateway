@@ -72,6 +72,7 @@ class Gateway:
         def on_connect(client, userdata, flags, return_code):
             if return_code == 0:
                 logger.info("Connected to MQTT Broker!")
+                client.publish(self.lwt_topic, "online", 0, True)
                 self.subscribe(self.sub_topic)
             else:
                 logger.error(
@@ -87,12 +88,17 @@ class Gateway:
 
         self.client = mqtt_client.Client()
         self.client.username_pw_set(self.username, self.password)
+        self.client.will_set(self.lwt_topic, "offline", 0, True)
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         try:
             self.client.connect(self.broker, self.port)
         except Exception as exception:
             logger.error(exception)
+
+    def disconnect_mqtt(self):
+        self.client.publish(self.lwt_topic, "offline", 0, True)
+        self.client.disconnect()
 
     def subscribe(self, sub_topic):
         """Subscribe to MQTT topic <sub_topic>."""
@@ -420,6 +426,7 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
+    gw.lwt_topic = config["lwt_topic"]
     gw.presence_topic = config["presence_topic"]
     gw.presence = config["presence"]
     gw.publish_all = config["publish_all"]
@@ -439,7 +446,7 @@ def run(arg):
     try:
         gw.client.loop_forever()
     except (KeyboardInterrupt, SystemExit):
-        gw.client.disconnect()
+        gw.disconnect_mqtt()
         gw.stopped = True
         while gw.running:
             pass

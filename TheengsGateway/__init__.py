@@ -34,10 +34,11 @@ default_config = {
     "ble_scan_time": 5,
     "ble_time_between_scans": 5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
-    "publish_all": 1,
+    "lwt_topic": "home/TheengsGateway/LWT",
     "subscribe_topic": "home/+/BTtoMQTT/undecoded",
     "presence_topic": "home/TheengsGateway/presence",
     "presence": 0,
+    "publish_all": 1,
     "log_level": "WARNING",
     "discovery": 1,
     "hass_discovery": 1,
@@ -80,6 +81,13 @@ def main():
         dest="sub_topic",
         type=str,
         help="MQTT subscribe topic",
+    )
+    parser.add_argument(
+        "-Lt",
+        "--lwt_topic",
+        dest="lwt_topic",
+        type=str,
+        help="MQTT LWT topic",
     )
     parser.add_argument(
         "-prt",
@@ -217,6 +225,8 @@ def main():
         config["publish_topic"] = args.pub_topic
     if args.sub_topic:
         config["subscribe_topic"] = args.sub_topic
+    if args.lwt_topic:
+        config["lwt_topic"] = args.lwt_topic
     if args.presence_topic:
         config["presence_topic"] = args.presence_topic
     if args.presence is not None:
