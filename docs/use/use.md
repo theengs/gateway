@@ -44,7 +44,7 @@ Note that in the latter case, we can't guarantee that the manufacturer name is c
 
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
-usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC]
+usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_TOPIC]
           [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
           [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
@@ -61,6 +61,8 @@ optional arguments:
                         MQTT publish topic
   -st SUB_TOPIC, --sub_topic SUB_TOPIC
                         MQTT subscribe topic
+  -Lt LWT_TOPIC, --lwt_topic LWT_TOPIC
+                        MQTT LWT topic
   -pa PUBLISH_ALL, --publish_all PUBLISH_ALL
                         Publish all (1) or only decoded (0) advertisements (default:
                         1)
