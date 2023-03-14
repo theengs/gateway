@@ -36,6 +36,8 @@ default_config = {
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "publish_all": 1,
     "subscribe_topic": "home/+/BTtoMQTT/undecoded",
+    "presence_topic": "home/TheengsGateway/presence",
+    "presence": 0,
     "log_level": "WARNING",
     "discovery": 1,
     "hass_discovery": 1,
@@ -78,6 +80,20 @@ def main():
         dest="sub_topic",
         type=str,
         help="MQTT subscribe topic",
+    )
+    parser.add_argument(
+        "-prt",
+        "--presence_topic",
+        dest="presence_topic",
+        type=str,
+        help="MQTT presence topic",
+    )
+    parser.add_argument(
+        "-pr",
+        "--presence",
+        dest="presence",
+        type=int,
+        help="Enable (1) or disable (0) presence publication (default: 1)",
     )
     parser.add_argument(
         "-pa",
@@ -201,6 +217,10 @@ def main():
         config["publish_topic"] = args.pub_topic
     if args.sub_topic:
         config["subscribe_topic"] = args.sub_topic
+    if args.presence_topic:
+        config["presence_topic"] = args.presence_topic
+    if args.presence is not None:
+        config["presence"] = args.presence
     if args.publish_all is not None:
         config["publish_all"] = args.publish_all
     if args.scan_dur:

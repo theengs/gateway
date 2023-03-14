@@ -110,16 +110,26 @@ class Gateway:
                 return
             address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
+
             if decoded_json:
+                decoded_json = json.loads(decoded_json)
+                if gw.presence:
+                    self.hass_presence(decoded_json)
                 if gw.discovery:
                     gw.publish_device_info(
-                        json.loads(decoded_json)
+                        decoded_json
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
+                    msg = json.dumps(decoded_json)
                     gw.publish(
-                        decoded_json,
+                        msg,
                         gw.pub_topic + "/" + address.replace(":", ""),
                     )
+                    if gw.presence:
+                        gw.publish(
+                            msg,
+                            gw.presence_topic,
+                        )
             elif gw.publish_all:
                 gw.publish(
                     str(msg.payload.decode()),
@@ -129,6 +139,23 @@ class Gateway:
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
         logger.info("Subscribed to %s", sub_topic)
+
+    def hass_presence(self, decoded_json):
+        rssi = decoded_json.get("rssi", 0)
+        if not rssi:
+            return
+        txpower = decoded_json.get("txpower", 0)
+        if txpower >= 0:
+            txpower = (
+                -59
+            )  # if tx power is not found we set a default calibration value
+        logger.debug("rssi: %d, txpower: %d", rssi, txpower)
+        ratio = rssi / txpower
+        if ratio < 1.0:
+            distance = pow(ratio, 10)
+        else:
+            distance = 0.89976 * pow(ratio, 7.7095) + 0.111
+        decoded_json["distance"] = distance
 
     def publish(self, msg, pub_topic=None, retain=False):
         """Publish <msg> to MQTT topic <pub_topic>."""
@@ -302,15 +329,24 @@ class Gateway:
                         # or when the company ID is unknown
                         pass
 
+                if gw.presence:
+                    self.hass_presence(decoded_json)
+
                 if gw.discovery:
                     gw.publish_device_info(
                         decoded_json
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
+                    msg = json.dumps(decoded_json)
                     gw.publish(
-                        json.dumps(decoded_json),
+                        msg,
                         gw.pub_topic + "/" + device.address.replace(":", ""),
                     )
+                    if gw.presence:
+                        gw.publish(
+                            msg,
+                            gw.presence_topic,
+                        )
             elif gw.publish_all:
                 try:
                     data_json["mfr"] = company[company_id]
@@ -384,6 +420,8 @@ def run(arg):
     gw.time_between_scans = config.get("ble_time_between_scans", 0)
     gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
     gw.pub_topic = config.get("publish_topic", "gateway_pub")
+    gw.presence_topic = config["presence_topic"]
+    gw.presence = config["presence"]
     gw.publish_all = config["publish_all"]
     gw.time_sync = config["time_sync"]
     gw.time_format = bool(config["time_format"])
