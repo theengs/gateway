@@ -25,7 +25,8 @@
 import json
 import re
 
-from ._decoder import getProperties
+from TheengsDecoder import getProperties
+
 from .ble_gateway import Gateway, logger
 
 ha_dev_classes = [
