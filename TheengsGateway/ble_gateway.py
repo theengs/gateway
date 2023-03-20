@@ -289,9 +289,7 @@ class Gateway:
 
     def detection_callback(self, device, advertisement_data):
         """Detect device in received advertisement data."""
-        logger.debug(
-            "%s RSSI:%d %s", device.address, device.rssi, advertisement_data
-        )
+        logger.debug("%s:%s", device.address, advertisement_data)
 
         # Try to add the device to dictionary of clocks to synchronize time.
         self.add_clock(device.address)
@@ -319,7 +317,7 @@ class Gateway:
 
         if data_json:
             data_json["id"] = device.address
-            data_json["rssi"] = device.rssi
+            data_json["rssi"] = advertisement_data.rssi
             decoded_json = decodeBLE(json.dumps(data_json))
 
             if decoded_json:
