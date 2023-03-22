@@ -33,6 +33,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "bleak>=0.19.0",
+        "bluetooth-adapters>=0.15.3; python_version>=3.9",
         "bluetooth-clocks<1.0",
         "bluetooth-numbers>=1.0,<2.0",
         "paho-mqtt>=1.6.1",
