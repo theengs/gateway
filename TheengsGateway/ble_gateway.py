@@ -38,8 +38,7 @@ from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
 from bluetooth_numbers.exceptions import UnknownCICError
 from paho.mqtt import client as mqtt_client
-
-from ._decoder import decodeBLE
+from TheengsDecoder import decodeBLE
 
 if platform.system() == "Linux":
     from bleak.assigned_numbers import AdvertisementDataType

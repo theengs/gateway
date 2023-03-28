@@ -48,11 +48,11 @@ docker pull theengs/gateway
 ```
 
 ## Advanced users - Build and install
-Clone the repository and its submodules:
+Clone the repository:
+
 ```
 git clone https://github.com/theengs/gateway.git
 cd gateway
-git submodule update --init --recursive
 ```
 
 Change `version_tag` in `setup.py` to a valid version string such has `0.6.0` and then build the package:
