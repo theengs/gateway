@@ -23,6 +23,7 @@ setup(
         'bluetooth-adapters>=0.15.3; python_version>="3.9"',
         "bluetooth-clocks<1.0",
         "bluetooth-numbers>=1.0,<2.0",
+        "importlib-metadata",
         "paho-mqtt>=1.6.1",
         "TheengsDecoder>=1.3.0",
     ],

@@ -101,7 +101,7 @@ def _os() -> None:
         "Version": platform.version(),
         "Machine type": platform.machine(),
     }
-    if platform.system() == "Linux":
+    if platform.system() == "Linux" and sys.version_info[:2] >= (3, 10):
         os_parameters["Distribution"] = platform.freedesktop_os_release()[
             "PRETTY_NAME"
         ]
@@ -117,7 +117,9 @@ def _config() -> None:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             _anonymize_addresses("time_sync", config)
+        print("```")
         print(json.dumps(config, sort_keys=True, indent=4))
+        print("```")
         print()
     except FileNotFoundError:
         print(f"Configuration file not found: {_conf_path}")

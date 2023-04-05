@@ -40,6 +40,8 @@ from bluetooth_numbers.exceptions import UnknownCICError
 from paho.mqtt import client as mqtt_client
 from TheengsDecoder import decodeBLE
 
+from .diagnose import diagnostics
+
 if platform.system() == "Linux":
     from bleak.assigned_numbers import AdvertisementDataType
     from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
@@ -434,6 +436,9 @@ def run(arg):
     logger.setLevel(log_level)
 
     loop = asyncio.get_event_loop()
+
+    if log_level == logging.DEBUG:
+        asyncio.run(diagnostics())
     thread = Thread(target=loop.run_forever, daemon=True)
     thread.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
