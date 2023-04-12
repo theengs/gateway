@@ -19,9 +19,9 @@ def _anonymize_strings(fields, config) -> None:
 
 def _anonymize_address(address) -> str:
     addr_parts = _ADDR_RE.match(address)
-    try:
+    if addr_parts:
         return f"{addr_parts.group(1)}XX:XX:XX"
-    except AttributeError:
+    else:
         return "INVALID ADDRESS"
 
 
@@ -42,13 +42,13 @@ def _section(title, values) -> None:
         values: The values to print out.
     """
     max_name = max(map(len, values.keys()))
-    max_value = max(map(len, values.values()))
+    max_value = max(map(len, [str(value) for value in values.values()]))
     print(f"## {title}")
     print()
     print(f"| {'Name':{max_name}} | {'Value':{max_value}} |")
     print(f"|-{'-' * max_name}-|-{'-'*max_value}-|")
     for name, value in values.items():
-        print(f"| {name:{max_name}} | {value:{max_value}} |")
+        print(f"| {name:{max_name}} | {str(value):{max_value}} |")
     print()
 
 
@@ -139,8 +139,6 @@ async def _adapters() -> None:
 
         for adapter, properties in sorted(bluetooth_adapters.adapters.items()):
             properties["address"] = _anonymize_address(properties["address"])
-            for prop in properties:
-                properties[prop] = str(properties[prop])
             print("#", end="")
             _section(adapter, properties)
 
