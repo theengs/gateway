@@ -1,7 +1,12 @@
 [tool.black]
 line-length = 79
 include = 'TheengsGateway\/.*\.pyi?$'
-[tool.isort]
-profile = "black"
+[[tool.mypy.overrides]]
+module = [
+    "paho.mqtt",
+    "setuptools",
+    "TheengsDecoder",
+]
+ignore_missing_imports = true
 [build-system]
 requires = ["setuptools", "wheel"]
