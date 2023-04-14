@@ -337,6 +337,19 @@ class Gateway:
                 if gw.presence:
                     self.hass_presence(decoded_json)
 
+                # Remove advanced data
+                if not gw.pubadvdata:
+                    for key in (
+                        "servicedatauuid",
+                        "servicedata",
+                        "manufacturerdata",
+                        "cidc",
+                        "acts",
+                        "cont",
+                        "track",
+                    ):
+                        decoded_json.pop(key, None)
+
                 if gw.discovery:
                     gw.publish_device_info(
                         decoded_json
@@ -431,6 +444,7 @@ def run(arg):
     gw.publish_all = config["publish_all"]
     gw.time_sync = config["time_sync"]
     gw.time_format = bool(config["time_format"])
+    gw.pubadvdata = bool(config["publish_advdata"])
 
     logging.basicConfig()
     logger.setLevel(log_level)
