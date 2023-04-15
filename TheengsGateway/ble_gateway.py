@@ -323,48 +323,52 @@ class Gateway:
 
             if decoded_json:
                 decoded_json = json.loads(decoded_json)
-                # Only add manufacturer if device is compliant and no beacon
-                if decoded_json.get("cidc", True) and decoded_json[
-                    "model_id"
-                ] not in ("ABTemp", "IBEACON", "MS-CDP", "RDL52832"):
-                    try:
-                        decoded_json["mfr"] = company[company_id]
-                    except (UnboundLocalError, UnknownCICError):
-                        # Ignore when there's no manufacturer data
-                        # or when the company ID is unknown
-                        pass
+                # Only process if the device is not a random mac address
+                if decoded_json["type"] != "RMAC":
+                    # Only add manufacturer if device is compliant and no beacon
+                    if decoded_json.get("cidc", True) and decoded_json[
+                        "model_id"
+                    ] not in ("ABTemp", "IBEACON", "RDL52832"):
+                        try:
+                            decoded_json["mfr"] = company[company_id]
+                        except (UnboundLocalError, UnknownCICError):
+                            # Ignore when there's no manufacturer data
+                            # or when the company ID is unknown
+                            pass
 
-                if gw.presence:
-                    self.hass_presence(decoded_json)
-
-                # Remove advanced data
-                if not gw.pubadvdata:
-                    for key in (
-                        "servicedatauuid",
-                        "servicedata",
-                        "manufacturerdata",
-                        "cidc",
-                        "acts",
-                        "cont",
-                        "track",
-                    ):
-                        decoded_json.pop(key, None)
-
-                if gw.discovery:
-                    gw.publish_device_info(
-                        decoded_json
-                    )  # Publish sensor data to Home Assistant MQTT discovery
-                else:
-                    msg = json.dumps(decoded_json)
-                    gw.publish(
-                        msg,
-                        gw.pub_topic + "/" + device.address.replace(":", ""),
-                    )
                     if gw.presence:
+                        self.hass_presence(decoded_json)
+
+                    # Remove advanced data
+                    if not gw.pubadvdata:
+                        for key in (
+                            "servicedatauuid",
+                            "servicedata",
+                            "manufacturerdata",
+                            "cidc",
+                            "acts",
+                            "cont",
+                            "track",
+                        ):
+                            decoded_json.pop(key, None)
+
+                    if gw.discovery:
+                        gw.publish_device_info(
+                            decoded_json
+                        )  # Publish sensor data to Home Assistant MQTT discovery
+                    else:
+                        msg = json.dumps(decoded_json)
                         gw.publish(
                             msg,
-                            gw.presence_topic,
+                            gw.pub_topic
+                            + "/"
+                            + device.address.replace(":", ""),
                         )
+                        if gw.presence:
+                            gw.publish(
+                                msg,
+                                gw.presence_topic,
+                            )
             elif gw.publish_all:
                 try:
                     data_json["mfr"] = company[company_id]
