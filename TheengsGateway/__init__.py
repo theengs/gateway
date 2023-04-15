@@ -55,6 +55,7 @@ default_config = {
     "scanning_mode": "active",
     "time_sync": [],
     "time_format": 0,
+    "publish_advdata": 0,
 }
 
 conf_path = os.path.expanduser("~") + "/theengsgw.conf"
@@ -206,6 +207,14 @@ def main():
         help="Use 12-hour (1) or 24-hour (0) time format for clocks "
         "(default: 0)",
     )
+    parser.add_argument(
+        "-padv",
+        "--publish_advdata",
+        dest="publish_advdata",
+        type=int,
+        help="Publish advertising and advanced data (1) or not (0) (default: 0)",
+    )
+
     args = parser.parse_args()
 
     try:
@@ -295,6 +304,9 @@ def main():
 
     if args.time_format is not None:
         config["time_format"] = args.time_format
+
+    if args.publish_advdata is not None:
+        config["publish_advdata"] = args.publish_advdata
 
     if not config["host"]:
         sys.exit("Invalid MQTT host")

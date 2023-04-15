@@ -49,7 +49,8 @@ usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_T
           [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
           [-prt PRESENCE_TOPIC] [-pr PUBLISH_PRESENCE]
-          [-a ADAPTER] [-s {active,passive}]
+          [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
+          [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -95,6 +96,9 @@ optional arguments:
                         Addresses of Bluetooth devices to synchronize the time
   -tf TIME_FORMAT, --time_format TIME_FORMAT
                         Use 12-hour (1) or 24-hour (0) time format for clocks
+                        (default: 0)
+  -padv PUBLISH_ADVDATA, --publish_advdata PUBLISH_ADVDATA
+                        Publish advertising and advanced data (1) or not (0)
                         (default: 0)
 ```
 
