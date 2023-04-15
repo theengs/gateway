@@ -177,7 +177,7 @@ If enabled (default), decoded devices will publish their configuration to Home A
 - The discovery name can be set wit the `-Dn` or `--discovery_name` command line argument.
 - Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device "model_id" to be filtered.
 
-The `IBEACON`, `GAEN`, `MS-CDP`, `APPLE_CONT` and `APPLE_CONTAT` devices are already filtered as their addresses (IDs) change over time resulting in multiple discoveries.
+The `IBEACON` and random MAC devices (APPLE, MS-CDP and GAEN) are not discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
 ## Passive scanning
 Passive scanning (`-s passive` or `--scanning_mode passive`) only works on Windows or Linux kernel >= 5.10 and BlueZ >= 5.56 with experimental features enabled.
