@@ -46,10 +46,6 @@ default_config = {
     "discovery_device_name": "TheengsGateway",
     "discovery_filter": [
         "IBEACON",
-        "GAEN",
-        "MS-CDP",
-        "APPLE_CONT",
-        "APPLE_CONTAT",
     ],
     "adapter": "",
     "scanning_mode": "active",
