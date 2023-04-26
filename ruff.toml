@@ -1,10 +1,12 @@
 select = [
-  "D",     # pydocstyle
-  "E",     # pycodestyle
-  "F",     # Pyflakes
+  "ANN",     # flake8-annotations
+  "D",       # pydocstyle
+  "E",       # pycodestyle
+  "F",       # Pyflakes
 ]
 ignore = [
-  "D107",  # undocumented-public-init
+  "ANN101",  # missing-type-self
+  "D107",    # undocumented-public-init
 ]
 # Always generate Python 3.7-compatible code
 target-version = "py37"

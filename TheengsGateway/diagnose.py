@@ -9,20 +9,22 @@ import os
 import platform
 import re
 import sys
+from typing import Dict, List, Union
 
 from importlib_metadata import PackageNotFoundError, version
 
+ConfigType = Dict[str, Union[str, int, List[str]]]
 _conf_path = os.path.expanduser("~") + "/theengsgw.conf"
 _ADDR_RE = re.compile(r"^(([0-9A-F]{2}:){3})([0-9A-F]{2}:){2}[0-9A-F]{2}$")
 
 
-def _anonymize_strings(fields, config) -> None:
+def _anonymize_strings(fields: List[str], config: ConfigType) -> None:
     for field in fields:
         if field in config:
             config[field] = "***"
 
 
-def _anonymize_address(address) -> str:
+def _anonymize_address(address: str) -> str:
     addr_parts = _ADDR_RE.match(address)
     if addr_parts:
         return f"{addr_parts.group(1)}XX:XX:XX"
@@ -30,17 +32,12 @@ def _anonymize_address(address) -> str:
         return "INVALID ADDRESS"
 
 
-def _anonymize_addresses(field, config) -> None:
-    try:
-        config[field] = [
-            _anonymize_address(address) for address in config[field]
-        ]
-    except KeyError:
-        pass
+def _anonymize_addresses(addresses: List[str]) -> List[str]:
+    return [_anonymize_address(address) for address in addresses]
 
 
 # This function is taken from Textual
-def _section(title, values) -> None:
+def _section(title: str, values: Dict[str, str]) -> None:
     """Print a collection of named values within a titled section."""
     max_name = max(map(len, values.keys()))
     max_value = max(map(len, [str(value) for value in values.values()]))
@@ -119,7 +116,7 @@ def _config() -> None:
         with open(_conf_path, encoding="utf-8") as config_file:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
-            _anonymize_addresses("time_sync", config)
+            config["time_sync"] = _anonymize_addresses(config["time_sync"])
         print("```")
         print(json.dumps(config, sort_keys=True, indent=4))
         print("```")
@@ -144,10 +141,10 @@ async def _adapters() -> None:
         for adapter, properties in sorted(bluetooth_adapters.adapters.items()):
             properties["address"] = _anonymize_address(properties["address"])
             print("#", end="")
-            _section(adapter, properties)
+            _section(adapter, properties)  # type: ignore[arg-type]
 
 
-async def diagnostics():
+async def diagnostics() -> None:
     """Main function of the diagnose module.
 
     This function prints a header and various sections with diagnostic information
