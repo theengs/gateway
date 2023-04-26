@@ -18,11 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# python 3.6
-# encoding=utf8
+# mypy: disable-error-code=attr-defined
 
 import json
 import re
+from typing import List
 
 from TheengsDecoder import getProperties
 
@@ -71,27 +71,27 @@ class DiscoveryGateway(Gateway):
 
     def __init__(
         self,
-        broker,
-        port,
-        username,
-        password,
-        adapter,
-        scanning_mode,
-        discovery_topic,
-        discovery_device_name,
-        discovery_filter,
-        hass_discovery,
-    ):
+        broker: str,
+        port: int,
+        username: str,
+        password: str,
+        adapter: str,
+        scanning_mode: str,
+        discovery_topic: str,
+        discovery_device_name: str,
+        discovery_filter: str,
+        hass_discovery: int,
+    ) -> None:
         super().__init__(
             broker, port, username, password, adapter, scanning_mode
         )
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name
-        self.discovered_entities = []
+        self.discovered_entities: List[str] = []
         self.discovery_filter = discovery_filter
         self.hass_discovery = hass_discovery
 
-    def publish_device_info(self, pub_device):
+    def publish_device_info(self, pub_device) -> None:  # noqa: ANN001
         """Publish sensor directly to Home Assistant via MQTT discovery."""
         pub_device_uuid = pub_device["id"].replace(":", "")
         device_data = json.dumps(pub_device)
@@ -119,7 +119,7 @@ class DiscoveryGateway(Gateway):
             hadevice["name"] = pub_device["name"]
         else:
             hadevice["name"] = pub_device["model"]
-        hadevice["via_device"] = self.discovery_device_name
+        hadevice["via_device"] = self.discovery_device_name  # type: ignore[assignment]
 
         discovery_topic = self.discovery_topic + "/" + pub_device_uuid
         state_topic = self.pub_topic + "/" + pub_device_uuid

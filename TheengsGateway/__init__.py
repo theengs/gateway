@@ -56,7 +56,7 @@ default_config = {
 conf_path = os.path.expanduser("~") + "/theengsgw.conf"
 
 
-def main():
+def main() -> None:
     """Main entry point of the TheengsGateway program."""
     parser = argparse.ArgumentParser()
     parser.add_argument(

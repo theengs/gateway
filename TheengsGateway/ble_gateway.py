@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# python 3.6
+# mypy: disable-error-code="name-defined,attr-defined"
 
 import asyncio
 import json
@@ -30,8 +30,12 @@ from datetime import datetime
 from random import randrange
 from threading import Thread
 from time import time
+from typing import Dict
 
 from bleak import BleakError, BleakScanner
+from bleak.backends.device import BLEDevice
+from bleak.backends.scanner import AdvertisementData
+
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
@@ -55,8 +59,14 @@ class Gateway:
     """BLE to MQTT gateway class."""
 
     def __init__(
-        self, broker, port, username, password, adapter, scanning_mode
-    ):
+        self,
+        broker: str,
+        port: int,
+        username: str,
+        password: str,
+        adapter: str,
+        scanning_mode: str,
+    ) -> None:
         self.broker = broker
         self.port = port
         self.username = username
@@ -64,12 +74,14 @@ class Gateway:
         self.adapter = adapter
         self.scanning_mode = scanning_mode
         self.stopped = False
-        self.clock_updates = {}
+        self.clock_updates: Dict[str, float] = {}
 
-    def connect_mqtt(self):
+    def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
 
-        def on_connect(client, userdata, flags, return_code):
+        def on_connect(
+            client, userdata, flags, return_code  # noqa: ANN001
+        ) -> None:
             if return_code == 0:
                 logger.info("Connected to MQTT Broker!")
                 client.publish(self.lwt_topic, "online", 0, True)
@@ -83,7 +95,9 @@ class Gateway:
                 )
                 self.client.connect(self.broker, self.port)
 
-        def on_disconnect(client, userdata, return_code=0):
+        def on_disconnect(
+            client, userdata, return_code=0  # noqa: ANN001
+        ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
         self.client = mqtt_client.Client()
@@ -96,15 +110,15 @@ class Gateway:
         except Exception as exception:
             logger.error(exception)
 
-    def disconnect_mqtt(self):
+    def disconnect_mqtt(self) -> None:
         """Disconnect from the MQTT broker."""
         self.client.publish(self.lwt_topic, "offline", 0, True)
         self.client.disconnect()
 
-    def subscribe(self, sub_topic):
+    def subscribe(self, sub_topic: str) -> None:
         """Subscribe to MQTT topic <sub_topic>."""
 
-        def on_message(client_, userdata, msg):
+        def on_message(client_, userdata, msg) -> None:  # noqa: ANN001
             logger.info(
                 "Received `%s` from `%s` topic",
                 msg.payload.decode(),
@@ -147,7 +161,7 @@ class Gateway:
         self.client.on_message = on_message
         logger.info("Subscribed to %s", sub_topic)
 
-    def hass_presence(self, decoded_json):
+    def hass_presence(self, decoded_json) -> None:  # noqa: ANN001
         """Add presence information to the decoded JSON."""
         rssi = decoded_json.get("rssi", 0)
         if not rssi:
@@ -165,7 +179,9 @@ class Gateway:
             distance = 0.89976 * pow(ratio, 7.7095) + 0.111
         decoded_json["distance"] = distance
 
-    def publish(self, msg, pub_topic=None, retain=False):
+    def publish(
+        self, msg, pub_topic=None, retain=False  # noqa: ANN001
+    ) -> None:
         """Publish <msg> to MQTT topic <pub_topic>."""
         if not pub_topic:
             pub_topic = self.pub_topic
@@ -177,7 +193,7 @@ class Gateway:
         else:
             logger.error("Failed to send message to topic %s", pub_topic)
 
-    def add_clock(self, address):
+    def add_clock(self, address: str) -> None:
         """Register clock to synchronize its time later."""
         if address in self.time_sync and address not in self.clock_updates:
             # Add a random time in the last day as a starting point
@@ -194,7 +210,7 @@ class Gateway:
                 ),
             )
 
-    async def update_clock_times(self):
+    async def update_clock_times(self) -> None:
         """Update time for all registered clocks."""
         # Make a copy of the dictionary because we're changing it in the loop.
         for address, timestamp in self.clock_updates.copy().items():
@@ -239,7 +255,7 @@ class Gateway:
                     ).strftime("%Y-%m-%d %H:%M:%S"),
                 )
 
-    async def ble_scan_loop(self):
+    async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
         scanner_kwargs = {"scanning_mode": self.scanning_mode}
 
@@ -252,7 +268,7 @@ class Gateway:
                         OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
                         OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
                     ]
-                )
+                )  # type: ignore[assignment]
             elif self.scanning_mode == "active":
                 # Disable duplicate detection of advertisement data.
                 # Without this parameter non-compliant devices such as the
@@ -261,13 +277,13 @@ class Gateway:
                 # values don't update.
                 scanner_kwargs["bluez"] = BlueZScannerArgs(
                     filters=dict(DuplicateData=True)
-                )
+                )  # type: ignore[assignment]
 
         if self.adapter:
             scanner_kwargs["adapter"] = self.adapter
 
-        scanner_kwargs["detection_callback"] = self.detection_callback
-        scanner = BleakScanner(**scanner_kwargs)
+        scanner_kwargs["detection_callback"] = self.detection_callback  # type: ignore[assignment] # noqa: E501
+        scanner = BleakScanner(**scanner_kwargs)  # type: ignore[arg-type]
         logger.info("Starting BLE scan")
         self.running = True
         while not self.stopped:
@@ -288,7 +304,9 @@ class Gateway:
         logger.error("BLE scan loop stopped")
         self.running = False
 
-    def detection_callback(self, device, advertisement_data):
+    def detection_callback(
+        self, device: BLEDevice, advertisement_data: AdvertisementData
+    ) -> None:
         """Detect device in received advertisement data."""
         logger.debug("%s:%s", device.address, advertisement_data)
 
@@ -318,7 +336,7 @@ class Gateway:
 
         if data_json:
             data_json["id"] = device.address
-            data_json["rssi"] = advertisement_data.rssi
+            data_json["rssi"] = advertisement_data.rssi  # type: ignore[assignment]
             decoded_json = decodeBLE(json.dumps(data_json))
 
             if decoded_json:
@@ -383,7 +401,7 @@ class Gateway:
                 )
 
 
-def run(arg):
+def run(arg: str) -> None:
     """Run BLE gateway."""
     global gw
 
