@@ -1,3 +1,8 @@
+"""Diagnose module for Theengs Gateway.
+
+This module can be run on the command line with python -m TheengsGateway.diagnose
+to show diagnostic information for debugging purposes.
+"""
 import asyncio
 import json
 import os
@@ -36,11 +41,7 @@ def _anonymize_addresses(field, config) -> None:
 
 # This function is taken from Textual
 def _section(title, values) -> None:
-    """Print a collection of named values within a titled section.
-    Args:
-        title: The title for the section.
-        values: The values to print out.
-    """
+    """Print a collection of named values within a titled section."""
     max_name = max(map(len, values.keys()))
     max_value = max(map(len, [str(value) for value in values.values()]))
     print(f"## {title}")
@@ -95,6 +96,7 @@ def _python() -> None:
 
 
 def _os() -> None:
+    """Print operating system information."""
     os_parameters = {
         "System": platform.system(),
         "Release": platform.release(),
@@ -110,6 +112,7 @@ def _os() -> None:
 
 
 def _config() -> None:
+    """Print the anonymized Theengs Gateway configuration."""
     print("## Configuration")
     print()
     try:
@@ -127,6 +130,7 @@ def _config() -> None:
 
 
 async def _adapters() -> None:
+    """Print information about the system's Bluetooth adapters."""
     if sys.version_info[:2] >= (3, 9):
         from bluetooth_adapters import get_adapters
 
@@ -144,6 +148,13 @@ async def _adapters() -> None:
 
 
 async def diagnostics():
+    """Main function of the diagnose module.
+
+    This function prints a header and various sections with diagnostic information
+    about package versions, Python and operating system information, the
+    anonymized configuration file and Bluetooth adapter information in Markdown
+    format.
+    """
     print("# Theengs Gateway Diagnostics")
     print()
     _versions()
