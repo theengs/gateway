@@ -1,4 +1,4 @@
-# read the contents of your README file
+"""Setup script for TheengsGateway package."""
 from pathlib import Path
 
 from setuptools import setup

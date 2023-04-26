@@ -1,22 +1,21 @@
-"""
-  TheengsGateway - Decode things and devices and publish data to an MQTT broker
+"""TheengsGateway - Decode things and devices and publish data to an MQTT broker.
 
-    Copyright: (c)Florian ROBERT
+Copyright: (c)Florian ROBERT
 
-    This file is part of TheengsGateway.
+This file is part of TheengsGateway.
 
-    TheengsGateway is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+TheengsGateway is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    TheengsGateway is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+TheengsGateway is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import argparse
@@ -58,6 +57,7 @@ conf_path = os.path.expanduser("~") + "/theengsgw.conf"
 
 
 def main():
+    """Main entry point of the TheengsGateway program."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-H", "--host", dest="host", type=str, help="MQTT host address"
