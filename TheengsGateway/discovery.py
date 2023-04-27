@@ -130,7 +130,7 @@ class DiscoveryGateway(Gateway):
         data = json.loads(data)
         data = data["properties"]
 
-        for k in data.keys():
+        for k in data:
             device = {}
             device["stat_t"] = state_topic
             if k in pub_device["properties"]:

@@ -26,6 +26,7 @@ import logging
 import platform
 import struct
 import sys
+from contextlib import suppress
 from datetime import datetime
 from random import randrange
 from threading import Thread
@@ -107,8 +108,8 @@ class Gateway:
         self.client.on_disconnect = on_disconnect
         try:
             self.client.connect(self.broker, self.port)
-        except Exception as exception:
-            logger.error(exception)
+        except Exception:
+            logger.exception("Connection error")
 
     def disconnect_mqtt(self) -> None:
         """Disconnect from the MQTT broker."""
@@ -125,8 +126,8 @@ class Gateway:
                 msg.topic,
             )
             try:
-                msg_json = json.loads(str(msg.payload.decode()))
-            except Exception as exception:
+                msg_json = json.loads(msg.payload.decode())
+            except (json.JSONDecodeError, UnicodeDecodeError) as exception:
                 logger.warning(exception)
                 return
             address = msg_json["id"]
@@ -229,19 +230,19 @@ class Gateway:
                         logger.info("Synchronized time")
                     else:
                         logger.info(f"Didn't find device {address}.")
-                except UnsupportedDeviceError as exc:
-                    logger.error(f"Unsupported clock: {exc}")
+                except UnsupportedDeviceError:
+                    logger.exception("Unsupported clock")
                     # There's no point in retrying for an unsupported device.
                     del self.clock_updates[address]
                     # Just continue with the next device.
                     continue
-                except asyncio.exceptions.TimeoutError as exc:
-                    logger.error(f"Can't connect to clock {address}: {exc}")
-                except BleakError as exc:
-                    logger.error(f"Can't write to clock {address}: {exc}")
-                except AttributeError as exc:
-                    logger.error(
-                        f"Can't get attribute from clock {address}: {exc}"
+                except asyncio.exceptions.TimeoutError:
+                    logger.exception(f"Can't connect to clock {address}")
+                except BleakError:
+                    logger.exception(f"Can't write to clock {address}")
+                except AttributeError:
+                    logger.exception(
+                        f"Can't get attribute from clock {address}"
                     )
 
                 # Register current time for this address
@@ -298,8 +299,8 @@ class Gateway:
                     await self.update_clock_times()
                 else:
                     await asyncio.sleep(5.0)
-            except Exception as exception:
-                raise exception
+            except Exception:
+                raise
 
         logger.error("BLE scan loop stopped")
         self.running = False
@@ -347,12 +348,10 @@ class Gateway:
                     if decoded_json.get("cidc", True) and decoded_json[
                         "model_id"
                     ] not in ("ABTemp", "IBEACON", "RDL52832"):
-                        try:
+                        with suppress(UnboundLocalError, UnknownCICError):
                             decoded_json["mfr"] = company[company_id]
-                        except (UnboundLocalError, UnknownCICError):
                             # Ignore when there's no manufacturer data
                             # or when the company ID is unknown
-                            pass
 
                     if gw.presence:
                         self.hass_presence(decoded_json)
@@ -388,12 +387,10 @@ class Gateway:
                                 gw.presence_topic,
                             )
             elif gw.publish_all:
-                try:
+                with suppress(UnboundLocalError, UnknownCICError):
                     data_json["mfr"] = company[company_id]
-                except (UnboundLocalError, UnknownCICError):
                     # Ignore when there's no manufacturer data
                     # or when the company ID is unknown
-                    pass
 
                 gw.publish(
                     json.dumps(data_json),
@@ -408,8 +405,9 @@ def run(arg: str) -> None:
     try:
         with open(arg, encoding="utf-8") as config_file:
             config = json.load(config_file)
-    except Exception as exception:
-        raise SystemExit(f"Invalid File: {sys.argv[1]}") from exception
+    except (json.JSONDecodeError, OSError) as exception:
+        msg = f"Invalid File: {sys.argv[1]}"
+        raise SystemExit(msg) from exception  # noqa: TRY003
 
     log_level = config.get("log_level", "WARNING").upper()
     if log_level == "DEBUG":
@@ -450,10 +448,9 @@ def run(arg: str) -> None:
                 config["adapter"],
                 config["scanning_mode"],
             )
-        except Exception as exception:
-            raise SystemExit(
-                "Missing or invalid MQTT host parameters"
-            ) from exception
+        except Exception as exception:  # noqa: BLE001
+            msg = "Missing or invalid MQTT host parameters"
+            raise SystemExit(msg) from exception  # noqa: TRY003
 
     gw.discovery = config["discovery"]
     gw.scan_time = config.get("ble_scan_time", 5)

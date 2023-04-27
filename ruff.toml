@@ -1,8 +1,12 @@
 select = [
   "ANN",     # flake8-annotations
+  "BLE",     # flake8-blind-except
   "D",       # pydocstyle
   "E",       # pycodestyle
+  "EM",      # flake8-errmsg
   "F",       # Pyflakes
+  "SIM",     # flake8-simplify
+  "TRY",     # Tryceratops
 ]
 ignore = [
   "ANN101",  # missing-type-self
