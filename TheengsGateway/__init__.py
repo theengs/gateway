@@ -216,7 +216,7 @@ def main() -> None:
     try:
         with open(conf_path, encoding="utf-8") as config_file:
             config = json.load(config_file)
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         config = default_config
 
     # Merge default configuration, with data read from the configuration file
@@ -310,7 +310,8 @@ def main() -> None:
     try:
         with open(conf_path, mode="w", encoding="utf-8") as config_file:
             config_file.write(json.dumps(config, sort_keys=True, indent=4))
-    except Exception as exception:
-        raise SystemExit("Unable to write config file") from exception
+    except OSError as exception:
+        msg = "Unable to write config file"
+        raise SystemExit(msg) from exception  # noqa: TRY003
 
     run(conf_path)
