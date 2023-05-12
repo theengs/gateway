@@ -10,7 +10,7 @@ Here is the list of supported devices by the gateway:
 | Amazfit|Smart Watch/Band|steps, activity heart rate (when activated in the Zepp Life settings)|
 | April Brother|ABTemp|uuid/mfid/major/txpower @ 1 m/temperature/battery|
 | April Brother|N03|temperature/humidity/luminance/battery|
-| BlueCharm|BC08|acceleration x/y/z-axis/voltage/temperature|
+| BlueCharm|BC08/04P/021|acceleration x/y/z-axis/voltage/temperature|
 | BlueMaestro|TempoDisc 1 in 1|temperature/battery|
 | BlueMaestro|TempoDisc 3 in 1|temperature/humidity/dew point/battery|
 | BlueMaestro|TempoDisc 4 in 1|temperature/humidity/pressure/battery|
@@ -61,6 +61,7 @@ Here is the list of supported devices by the gateway:
 | Switchbot|Contact Sensor|contact/movement/scope tested/light level/battery|
 | Switchbot|Curtain|motion state/position/light level/battery/calibration state|
 | SwitchBot|Meter Plus|temperature/humidity/battery|
+| SwitchBot|Outdoor Meter|temperature/humidity/battery|
 | Thermobeacon|WS02|temperature/humidity/voltage/timestamp/maximum temperature/maximum temperature timestamp/minimum temperature/minimum temperature timestamp|
 | Thermobeacon|WS08|temperature/humidity/voltage/timestamp/maximum temperature/maximum temperature timestamp/minimum temperature/minimum temperature timestamp|
 | ThermoPro|TP357|temperature/humidity|
