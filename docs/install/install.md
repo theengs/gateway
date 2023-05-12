@@ -24,7 +24,7 @@ Or by going to Settings -> Add-ons -> Add-on store -> ⁞ (Menu) -> Repositories
 
 2. You should now see "TheengsGateway HA Add-on" at the bottom list.
 3. Click on "TheengsGateway", then click "Install".
-4. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](#parameters).
+4. Under the "Configuration" tab, change the settings appropriately (at least MQTT parameters), see [Parameters](https://github.com/mihsu81/addon-theengsgw/blob/main/theengsgateway/DOCS.md#parameters).
 5. Start the Add-on.
 
 ## Install Theengs Gateway as a snap
