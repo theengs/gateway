@@ -76,6 +76,7 @@ class Gateway:
         self.scanning_mode = scanning_mode
         self.stopped = False
         self.clock_updates: Dict[str, float] = {}
+        self.published_messages = 0
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -190,7 +191,8 @@ class Gateway:
         result = self.client.publish(pub_topic, msg, 0, retain)
         status = result[0]
         if status == 0:
-            logger.info("Sent `%s` to topic `%s`", msg, pub_topic)
+            logger.debug("Sent `%s` to topic `%s`", msg, pub_topic)
+            self.published_messages = self.published_messages + 1
         else:
             logger.error("Failed to send message to topic %s", pub_topic)
 
@@ -229,7 +231,7 @@ class Gateway:
                         await clock.set_time(ampm=self.time_format)
                         logger.info("Synchronized time")
                     else:
-                        logger.info(f"Didn't find device {address}.")
+                        logger.warning(f"Didn't find device {address}.")
                 except UnsupportedDeviceError:
                     logger.exception("Unsupported clock")
                     # There's no point in retrying for an unsupported device.
@@ -290,9 +292,13 @@ class Gateway:
         while not self.stopped:
             try:
                 if self.client.is_connected():
+                    self.published_messages = 0
                     await scanner.start()
                     await asyncio.sleep(self.scan_time)
                     await scanner.stop()
+                    logger.info(
+                        "Sent %s messages to MQTT", self.published_messages
+                    )
                     await asyncio.sleep(self.time_between_scans)
 
                     # Update time for all clocks once a day
