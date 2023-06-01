@@ -38,7 +38,7 @@ default_config = {
     "presence_topic": "home/TheengsGateway/presence",
     "presence": 0,
     "publish_all": 1,
-    "log_level": "WARNING",
+    "log_level": "INFO",
     "discovery": 1,
     "hass_discovery": 1,
     "discovery_topic": "homeassistant/sensor",
