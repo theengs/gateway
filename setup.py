@@ -25,6 +25,6 @@ setup(
         "bluetooth-numbers>=1.0,<2.0",
         "importlib-metadata",
         "paho-mqtt>=1.6.1",
-        "TheengsDecoder>=1.4.2",
+        "TheengsDecoder>=1.5.0",
     ],
 )
