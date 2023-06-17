@@ -53,8 +53,6 @@ default_config = {
     "publish_advdata": 0,
 }
 
-conf_path = os.path.expanduser("~") + "/theengsgw.conf"
-
 
 def main() -> None:
     """Main entry point of the TheengsGateway program."""
@@ -210,8 +208,20 @@ def main() -> None:
         type=int,
         help="Publish advertising and advanced data (1) or not (0) (default: 0)",
     )
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="conf_path",
+        type=str,
+        help="Path to the configuration file (default: ~/theengsgw.conf)",
+    )
 
     args = parser.parse_args()
+
+    if args.conf_path:
+        conf_path = args.conf_path
+    else:
+        conf_path = os.path.expanduser("~") + "/theengsgw.conf"
 
     try:
         with open(conf_path, encoding="utf-8") as config_file:

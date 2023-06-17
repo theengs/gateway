@@ -3,6 +3,7 @@
 This module can be run on the command line with python -m TheengsGateway.diagnose
 to show diagnostic information for debugging purposes.
 """
+import argparse
 import asyncio
 import json
 import os
@@ -14,7 +15,6 @@ from typing import Dict, List, Union
 from importlib_metadata import PackageNotFoundError, version
 
 ConfigType = Dict[str, Union[str, int, List[str]]]
-_conf_path = os.path.expanduser("~") + "/theengsgw.conf"
 _ADDR_RE = re.compile(r"^(([0-9A-F]{2}:){3})([0-9A-F]{2}:){2}[0-9A-F]{2}$")
 
 
@@ -108,12 +108,14 @@ def _os() -> None:
     _section("Operating System", os_parameters)
 
 
-def _config() -> None:
+def _config(conf_path: str) -> None:
     """Print the anonymized Theengs Gateway configuration."""
     print("## Configuration")
     print()
+    print(f"File: {os.path.abspath(conf_path)}")
+    print()
     try:
-        with open(_conf_path, encoding="utf-8") as config_file:
+        with open(conf_path, encoding="utf-8") as config_file:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             config["time_sync"] = _anonymize_addresses(config["time_sync"])
@@ -122,7 +124,7 @@ def _config() -> None:
         print("```")
         print()
     except FileNotFoundError:
-        print(f"Configuration file not found: {_conf_path}")
+        print(f"Configuration file not found: {conf_path}")
         print()
 
 
@@ -144,7 +146,7 @@ async def _adapters() -> None:
             _section(adapter, properties)  # type: ignore[arg-type]
 
 
-async def diagnostics() -> None:
+async def diagnostics(conf_path: str) -> None:
     """Main function of the diagnose module.
 
     This function prints a header and various sections with diagnostic information
@@ -157,9 +159,24 @@ async def diagnostics() -> None:
     _versions()
     _python()
     _os()
-    _config()
+    _config(conf_path)
     await _adapters()
 
 
 if __name__ == "__main__":
-    asyncio.run(diagnostics())
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="conf_path",
+        type=str,
+        help="Path to the configuration file (default: ~/theengsgw.conf)",
+    )
+    args = parser.parse_args()
+
+    if args.conf_path:
+        conf_path = args.conf_path
+    else:
+        conf_path = os.path.expanduser("~") + "/theengsgw.conf"
+
+    asyncio.run(diagnostics(conf_path))
