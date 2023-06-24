@@ -51,6 +51,7 @@ usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_T
           [-prt PRESENCE_TOPIC] [-pr PUBLISH_PRESENCE]
           [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
           [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
+          [-bk ADDRESS [BINDKEY ...]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -100,6 +101,8 @@ optional arguments:
   -padv PUBLISH_ADVDATA, --publish_advdata PUBLISH_ADVDATA
                         Publish advertising and advanced data (1) or not (0)
                         (default: 0)
+  -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
+                        Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
 ```
 
 ### For a Docker container
@@ -219,3 +222,12 @@ bluetooth-clocks discover
 ```
 
 The `bluetooth-clocks` command is installed as part of Theengs Gateway.
+
+## Reading encrypted advertisements
+If you want to read encrypted advertisements, you need to add a bindkey for each device address with the `--bindkeys` argument. For example:
+
+```
+TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
+```
+
+Theengs Gateway will then use the bindkey 0dc540f3025b474b9ef1085e051b1add to decrypt all advertisements from device 00:11:22:33:44:55:66 and bindkey 6385424e1b0341109942ad2a6bb42e58 for all advertisements from device AA:BB:CC:DD:EE:FF.
