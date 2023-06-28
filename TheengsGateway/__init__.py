@@ -51,6 +51,7 @@ default_config = {
     "time_sync": [],
     "time_format": 0,
     "publish_advdata": 0,
+    "bindkeys": {},
 }
 
 conf_path = os.path.expanduser("~") + "/theengsgw.conf"
@@ -210,6 +211,15 @@ def main() -> None:
         type=int,
         help="Publish advertising and advanced data (1) or not (0) (default: 0)",
     )
+    parser.add_argument(
+        "-bk",
+        "--bindkeys",
+        nargs="+",
+        metavar=("ADDRESS", "BINDKEY"),
+        dest="bindkeys",
+        default={},
+        help="Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2",
+    )
 
     args = parser.parse_args()
 
@@ -303,6 +313,11 @@ def main() -> None:
 
     if args.publish_advdata is not None:
         config["publish_advdata"] = args.publish_advdata
+
+    if args.bindkeys:
+        config["bindkeys"].update(
+            dict(zip(args.bindkeys[::2], args.bindkeys[1::2]))
+        )
 
     if not config["host"]:
         sys.exit("Invalid MQTT host")

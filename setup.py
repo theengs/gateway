@@ -25,6 +25,7 @@ setup(
         "bluetooth-numbers>=1.0,<2.0",
         "importlib-metadata",
         "paho-mqtt>=1.6.1",
-        "TheengsDecoder>=1.5.0",
+        "pycryptodomex>=3.18.0",
+        "TheengsDecoder>=1.5.5",
     ],
 )
