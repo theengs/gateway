@@ -544,7 +544,7 @@ def run(arg: str) -> None:
     loop = asyncio.get_event_loop()
 
     if log_level == logging.DEBUG:
-        asyncio.run(diagnostics())
+        asyncio.run(diagnostics(arg))
     thread = Thread(target=loop.run_forever, daemon=True)
     thread.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
