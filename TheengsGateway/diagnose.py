@@ -36,6 +36,11 @@ def _anonymize_addresses(addresses: List[str]) -> List[str]:
     return [_anonymize_address(address) for address in addresses]
 
 
+def _anonymize_bindkeys(bindkeys: Dict[str, str]) -> Dict[str, str]:
+    """Anonymize the addresses and bindkeys in a dictionary."""
+    return {_anonymize_address(address): "***" for address in bindkeys}
+
+
 # This function is taken from Textual
 def _section(title: str, values: Dict[str, str]) -> None:
     """Print a collection of named values within a titled section."""
@@ -119,6 +124,7 @@ def _config(conf_path: str) -> None:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             config["time_sync"] = _anonymize_addresses(config["time_sync"])
+            config["bindkeys"] = _anonymize_bindkeys(config["bindkeys"])
         print("```")
         print(json.dumps(config, sort_keys=True, indent=4))
         print("```")

@@ -3,6 +3,7 @@ line-length = 79
 include = 'TheengsGateway\/.*\.pyi?$'
 [[tool.mypy.overrides]]
 module = [
+    "Cryptodome.Cipher",
     "paho.mqtt",
     "setuptools",
     "TheengsDecoder",
