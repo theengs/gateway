@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # mypy: disable-error-code="name-defined,attr-defined"
 
 import asyncio
-import binascii
 import json
 import logging
 import platform
@@ -42,10 +41,10 @@ from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
 from bluetooth_numbers.exceptions import UnknownCICError
-from Cryptodome.Cipher import AES
 from paho.mqtt import client as mqtt_client
 from TheengsDecoder import decodeBLE
 
+from .decryption import create_decryptor, UnsupportedEncryptionError
 from .diagnose import diagnostics
 
 if platform.system() == "Linux":
@@ -365,52 +364,22 @@ class Gateway:
                         self.hass_presence(decoded_json)
 
                     # Handle encrypted payload
-                    if (
-                        decoded_json.get("encr", False)
-                        and decoded_json["model_id"] == "SBBT_002C_ENCR"
-                    ):
+                    if decoded_json.get("encr", False):
                         try:
                             bindkey = bytes.fromhex(
                                 gw.bindkeys[device.address]
                             )
-                            nonce = binascii.unhexlify(
-                                "".join(
-                                    [
-                                        device.address.replace(":", ""),
-                                        "d2fc",
-                                        decoded_json["servicedata"][:2],
-                                        decoded_json["ctr"],
-                                    ]
-                                )
+                            decryptor = create_decryptor(
+                                decoded_json["model_id"]
                             )
-                            cipher = AES.new(
-                                bindkey, AES.MODE_CCM, nonce=nonce, mac_len=4
+                            decrypted_data = decryptor.decrypt(
+                                bindkey, device.address, decoded_json
                             )
-                            payload = bytes.fromhex(decoded_json["cipher"])
-                            mic = bytes.fromhex(decoded_json["mic"])
-                            decrypted_data = cipher.decrypt_and_verify(
-                                payload, mic
+                            decryptor.replace_encrypted_data(
+                                decrypted_data, data_json, decoded_json
                             )
 
-                            # Clear encryption and MAC included bits in device info
-                            # See https://bthome.io/format/
-                            device_info = bytes.fromhex(
-                                decoded_json["servicedata"][:2]
-                            )
-                            mask = 0b11111100
-                            masked_device_info = (
-                                int.from_bytes(device_info, "big") & mask
-                            )
-                            bthome_service_data = bytearray(
-                                masked_device_info.to_bytes(1, "big")
-                            )
-
-                            # Replace encrypted data by decrypted payload
-                            bthome_service_data.extend(decrypted_data)
-                            data_json[
-                                "servicedata"
-                            ] = bthome_service_data.hex()
-
+                            # Re-decode advertisement, this time unencrypted
                             decoded_json = decodeBLE(json.dumps(data_json))
                             if decoded_json:
                                 decoded_json = json.loads(decoded_json)
@@ -423,6 +392,12 @@ class Gateway:
                         except KeyError:
                             logger.exception(
                                 "Can't find bindkey for %s.", device.address
+                            )
+                        except UnsupportedEncryptionError:
+                            logger.exception(
+                                "Unsupported encrypted device %s of model %s",
+                                device.address,
+                                decoded_json["model_id"],
                             )
                         except ValueError:
                             logger.exception("Decryption failed")
