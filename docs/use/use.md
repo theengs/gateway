@@ -124,7 +124,7 @@ docker run --rm \
     -e DISCOVERY_TOPIC=homeassistant/sensor \
     -e DISCOVERY_DEVICE_NAME=TheengsGateway \
     -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP,APPLE_CONT,APPLE_CONTAT]" \
-    -e SCANNING_MODE=active
+    -e SCANNING_MODE=active \
     -e ADAPTER=hci0 \
     -v /var/run/dbus:/var/run/dbus \
     --name TheengsGateway \
