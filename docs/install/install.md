@@ -55,7 +55,7 @@ git clone https://github.com/theengs/gateway.git
 cd gateway
 ```
 
-Change `version_tag` in `setup.py` to a valid version string such has `0.6.0` and then build the package:
+Build the package:
 
 ```
 python3 setup.py sdist
