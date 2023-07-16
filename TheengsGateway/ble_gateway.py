@@ -379,6 +379,11 @@ class Gateway:
                                 decrypted_data, data_json, decoded_json
                             )
 
+                            # Keep encrypted properties
+                            cipher = decoded_json["cipher"]
+                            mic = decoded_json["mic"]
+                            ctr = decoded_json["ctr"]
+
                             # Re-decode advertisement, this time unencrypted
                             decoded_json = decodeBLE(json.dumps(data_json))
                             if decoded_json:
@@ -388,6 +393,11 @@ class Gateway:
                                     "Decrypted payload not supported: `%s`",
                                     data_json["servicedata"],
                                 )
+
+                            # Re-add encrypted properties
+                            decoded_json["cipher"] = cipher
+                            decoded_json["mic"] = mic
+                            decoded_json["ctr"] = ctr
 
                         except KeyError:
                             logger.exception(
@@ -413,6 +423,9 @@ class Gateway:
                             "cont",
                             "track",
                             "encr",
+                            "cipher",
+                            "mic",
+                            "ctr",
                         ):
                             decoded_json.pop(key, None)
 
