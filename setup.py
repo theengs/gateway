@@ -8,7 +8,6 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="TheengsGateway",
-    version="version_tag",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Theengs",
@@ -28,4 +27,6 @@ setup(
         "pycryptodomex>=3.18.0",
         "TheengsDecoder>=1.5.5",
     ],
+    use_scm_version={"version_scheme": "no-guess-dev"},
+    setup_requires=["setuptools_scm"],
 )
