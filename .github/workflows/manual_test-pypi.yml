@@ -4,13 +4,13 @@ on:
 jobs:
   build-n-publish:
     name: Build and publish distribution to TestPyPI
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
       with: {fetch-depth: 0}  # deep clone for setuptools-scm
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.11'
     - name: Install pypa/build
       run: |
         python3 -m pip install --upgrade pip
@@ -19,7 +19,7 @@ jobs:
       run: |
         python3 setup.py sdist
     - name: Publish distribution 📦 to Test PyPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+        repository-url: https://test.pypi.org/legacy/
