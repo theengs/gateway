@@ -4,6 +4,7 @@ include = 'TheengsGateway\/.*\.pyi?$'
 [[tool.mypy.overrides]]
 module = [
     "Cryptodome.Cipher",
+    "Cryptodome.Cipher.AES",
     "paho.mqtt",
     "setuptools",
     "TheengsDecoder",

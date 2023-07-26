@@ -73,8 +73,8 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):
         data_json["servicedata"] = decrypted_data.hex()
 
 
-class ShellyBLUButton1Decryptor(AdvertisementDecryptor):
-    """Class for decryption of ShellyBLU Button1 encrypted advertisements."""
+class BTHomeV2Decryptor(AdvertisementDecryptor):
+    """Class for decryption of BTHome v2 encrypted advertisements."""
 
     def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
         """Compute the nonce for a specific address and JSON input."""
@@ -122,7 +122,8 @@ class ShellyBLUButton1Decryptor(AdvertisementDecryptor):
 
 _DECRYPTOR_MODELS = {
     "LYWSD03MMC/MJWSD05MMC_PVVX_ENCR": LYWSD03MMC_PVVXDecryptor,
-    "SBBT_002C_ENCR": ShellyBLUButton1Decryptor,
+    "SBBT_002C_ENCR": BTHomeV2Decryptor,
+    "SBDW_002C_ENCR": BTHomeV2Decryptor,
 }
 
 
@@ -134,7 +135,7 @@ def create_decryptor(model_id: str) -> AdvertisementDecryptor:
     """Return the decryptor class for the given model ID."""
     if model_id not in _DECRYPTOR_MODELS:
         raise UnsupportedEncryptionError()
-    return _DECRYPTOR_MODELS[model_id]()
+    return _DECRYPTOR_MODELS[model_id]()  # type: ignore[abstract]
 
 
 def reverse_address(address: str) -> str:
