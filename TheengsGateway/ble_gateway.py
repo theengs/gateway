@@ -31,7 +31,7 @@ from datetime import datetime
 from random import randrange
 from threading import Thread
 from time import time
-from typing import Dict
+from typing import Dict, Optional, Union
 
 from bleak import BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
@@ -40,7 +40,7 @@ from bleak.backends.scanner import AdvertisementData
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
-from bluetooth_numbers.exceptions import UnknownCICError
+from bluetooth_numbers.exceptions import No16BitIntegerError, UnknownCICError
 from paho.mqtt import client as mqtt_client
 from TheengsDecoder import decodeBLE
 
@@ -55,6 +55,8 @@ if platform.system() == "Linux":
 SECONDS_IN_DAY = 86400
 
 logger = logging.getLogger("BLEGateway")
+
+DataJSONType = Dict[str, Union[str, int, float, bool]]
 
 
 class Gateway:
@@ -132,7 +134,6 @@ class Gateway:
             except (json.JSONDecodeError, UnicodeDecodeError) as exception:
                 logger.warning(exception)
                 return
-            address = msg_json["id"]
             decoded_json = decodeBLE(json.dumps(msg_json))
 
             if decoded_json:
@@ -147,7 +148,9 @@ class Gateway:
                     msg = json.dumps(decoded_json)
                     gw.publish(
                         msg,
-                        gw.pub_topic + "/" + address.replace(":", ""),
+                        gw.pub_topic
+                        + "/"
+                        + self.get_address(decoded_json).replace(":", ""),
                     )
                     if gw.presence:
                         gw.publish(
@@ -157,7 +160,9 @@ class Gateway:
             elif gw.publish_all:
                 gw.publish(
                     str(msg.payload.decode()),
-                    gw.pub_topic + "/" + address.replace(":", ""),
+                    gw.pub_topic
+                    + "/"
+                    + self.get_address(msg_json).replace(":", ""),
                 )
 
         self.client.subscribe(sub_topic)
@@ -321,13 +326,8 @@ class Gateway:
         # Try to add the device to dictionary of clocks to synchronize time.
         self.add_clock(device.address)
 
-        data_json = {}
-
-        if advertisement_data.service_data:
-            dstr = list(advertisement_data.service_data.keys())[0]
-            data_json["servicedatauuid"] = dstr[4:8]
-            dstr = str(list(advertisement_data.service_data.values())[0].hex())
-            data_json["servicedata"] = dstr
+        data_json: DataJSONType = {}
+        company_id = None
 
         if advertisement_data.manufacturer_data:
             # Only look at the first manufacturer data in the advertisement
@@ -342,120 +342,152 @@ class Gateway:
         if advertisement_data.local_name:
             data_json["name"] = advertisement_data.local_name
 
-        if data_json:
+        if advertisement_data.service_data:
             data_json["id"] = device.address
-            data_json["rssi"] = advertisement_data.rssi  # type: ignore[assignment]
-            decoded_json = decodeBLE(json.dumps(data_json))
+            data_json["rssi"] = advertisement_data.rssi
+            # Try to decode advertisement with service data for each UUID separately.
+            for uuid, data in advertisement_data.service_data.items():
+                # Copy data JSON because it gets manipulated while decoding
+                data_json_copy = data_json.copy()
+                data_json_copy["servicedatauuid"] = uuid[4:8]
+                data_json_copy["servicedata"] = data.hex()
+                self.decode_advertisement(data_json_copy, company_id)
+        else:
+            if data_json:
+                data_json["id"] = device.address
+                data_json["rssi"] = advertisement_data.rssi
+                self.decode_advertisement(data_json, company_id)
 
-            if decoded_json:
-                decoded_json = json.loads(decoded_json)
-                # Only process if the device is not a random mac address
-                if decoded_json["type"] != "RMAC":
-                    # Only add manufacturer if device is compliant and no beacon
-                    if decoded_json.get("cidc", True) and decoded_json[
-                        "model_id"
-                    ] not in ("ABTemp", "IBEACON", "RDL52832"):
-                        with suppress(UnboundLocalError, UnknownCICError):
-                            decoded_json["mfr"] = company[company_id]
-                            # Ignore when there's no manufacturer data
-                            # or when the company ID is unknown
+    def decode_advertisement(
+        self,
+        data_json: DataJSONType,
+        company_id: Optional[int],
+    ) -> None:
+        """Decode device from data JSON."""
+        decoded_json = decodeBLE(json.dumps(data_json))
 
+        if decoded_json:
+            decoded_json = json.loads(decoded_json)
+            # Only process if the device is not a random mac address
+            if decoded_json["type"] != "RMAC":
+                # Only add manufacturer if device is compliant and no beacon
+                if decoded_json.get("cidc", True) and decoded_json[
+                    "model_id"
+                ] not in ("ABTemp", "IBEACON", "RDL52832"):
+                    self.add_manufacturer(data_json, company_id)
+
+                if gw.presence:
+                    self.hass_presence(decoded_json)
+
+                # Handle encrypted payload
+                if decoded_json.get("encr", False):
+                    try:
+                        bindkey = bytes.fromhex(
+                            gw.bindkeys[self.get_address(decoded_json)]
+                        )
+                        decryptor = create_decryptor(decoded_json["model_id"])
+                        decrypted_data = decryptor.decrypt(
+                            bindkey,
+                            self.get_address(decoded_json),
+                            decoded_json,
+                        )
+                        decryptor.replace_encrypted_data(
+                            decrypted_data, data_json, decoded_json
+                        )
+
+                        # Keep encrypted properties
+                        cipher = decoded_json["cipher"]
+                        mic = decoded_json["mic"]
+                        ctr = decoded_json["ctr"]
+
+                        # Re-decode advertisement, this time unencrypted
+                        decoded_json = decodeBLE(json.dumps(data_json))
+                        if decoded_json:
+                            decoded_json = json.loads(decoded_json)
+                        else:
+                            logger.exception(
+                                "Decrypted payload not supported: `%s`",
+                                data_json["servicedata"],
+                            )
+
+                        # Re-add encrypted properties
+                        decoded_json["cipher"] = cipher
+                        decoded_json["mic"] = mic
+                        decoded_json["ctr"] = ctr
+
+                    except KeyError:
+                        logger.exception(
+                            "Can't find bindkey for %s.",
+                            self.get_address(decoded_json),
+                        )
+                    except UnsupportedEncryptionError:
+                        logger.exception(
+                            "Unsupported encrypted device %s of model %s",
+                            self.get_address(decoded_json),
+                            decoded_json["model_id"],
+                        )
+                    except ValueError:
+                        logger.exception("Decryption failed")
+
+                # Remove advanced data
+                if not gw.pubadvdata:
+                    for key in (
+                        "servicedatauuid",
+                        "servicedata",
+                        "manufacturerdata",
+                        "cidc",
+                        "acts",
+                        "cont",
+                        "track",
+                        "encr",
+                        "cipher",
+                        "mic",
+                        "ctr",
+                    ):
+                        decoded_json.pop(key, None)
+
+                if gw.discovery:
+                    gw.publish_device_info(
+                        decoded_json
+                    )  # Publish sensor data to Home Assistant MQTT discovery
+                else:
+                    msg = json.dumps(decoded_json)
+                    gw.publish(
+                        msg,
+                        gw.pub_topic
+                        + "/"
+                        + self.get_address(decoded_json).replace(":", ""),
+                    )
                     if gw.presence:
-                        self.hass_presence(decoded_json)
-
-                    # Handle encrypted payload
-                    if decoded_json.get("encr", False):
-                        try:
-                            bindkey = bytes.fromhex(
-                                gw.bindkeys[device.address]
-                            )
-                            decryptor = create_decryptor(
-                                decoded_json["model_id"]
-                            )
-                            decrypted_data = decryptor.decrypt(
-                                bindkey, device.address, decoded_json
-                            )
-                            decryptor.replace_encrypted_data(
-                                decrypted_data, data_json, decoded_json
-                            )
-
-                            # Keep encrypted properties
-                            cipher = decoded_json["cipher"]
-                            mic = decoded_json["mic"]
-                            ctr = decoded_json["ctr"]
-
-                            # Re-decode advertisement, this time unencrypted
-                            decoded_json = decodeBLE(json.dumps(data_json))
-                            if decoded_json:
-                                decoded_json = json.loads(decoded_json)
-                            else:
-                                logger.exception(
-                                    "Decrypted payload not supported: `%s`",
-                                    data_json["servicedata"],
-                                )
-
-                            # Re-add encrypted properties
-                            decoded_json["cipher"] = cipher
-                            decoded_json["mic"] = mic
-                            decoded_json["ctr"] = ctr
-
-                        except KeyError:
-                            logger.exception(
-                                "Can't find bindkey for %s.", device.address
-                            )
-                        except UnsupportedEncryptionError:
-                            logger.exception(
-                                "Unsupported encrypted device %s of model %s",
-                                device.address,
-                                decoded_json["model_id"],
-                            )
-                        except ValueError:
-                            logger.exception("Decryption failed")
-
-                    # Remove advanced data
-                    if not gw.pubadvdata:
-                        for key in (
-                            "servicedatauuid",
-                            "servicedata",
-                            "manufacturerdata",
-                            "cidc",
-                            "acts",
-                            "cont",
-                            "track",
-                            "encr",
-                            "cipher",
-                            "mic",
-                            "ctr",
-                        ):
-                            decoded_json.pop(key, None)
-
-                    if gw.discovery:
-                        gw.publish_device_info(
-                            decoded_json
-                        )  # Publish sensor data to Home Assistant MQTT discovery
-                    else:
-                        msg = json.dumps(decoded_json)
                         gw.publish(
                             msg,
-                            gw.pub_topic
-                            + "/"
-                            + device.address.replace(":", ""),
+                            gw.presence_topic,
                         )
-                        if gw.presence:
-                            gw.publish(
-                                msg,
-                                gw.presence_topic,
-                            )
-            elif gw.publish_all:
-                with suppress(UnboundLocalError, UnknownCICError):
-                    data_json["mfr"] = company[company_id]
-                    # Ignore when there's no manufacturer data
-                    # or when the company ID is unknown
+        elif gw.publish_all:
+            self.add_manufacturer(data_json, company_id)
+            gw.publish(
+                json.dumps(data_json),
+                gw.pub_topic
+                + "/"
+                + self.get_address(data_json).replace(":", ""),
+            )
 
-                gw.publish(
-                    json.dumps(data_json),
-                    gw.pub_topic + "/" + device.address.replace(":", ""),
-                )
+    def get_address(self, data: DataJSONType) -> str:
+        """Return the device address from a data JSON."""
+        try:
+            return data["mac"]  # type: ignore[return-value]
+        except KeyError:
+            return data["id"]  # type: ignore[return-value]
+
+    def add_manufacturer(
+        self,
+        data: DataJSONType,
+        company_id: Optional[int],
+    ) -> None:
+        """Add the name of the manufacturer based on the company ID."""
+        if company_id is not None:
+            with suppress(No16BitIntegerError, UnknownCICError):
+                data["mfr"] = company[company_id]
 
 
 def run(arg: str) -> None:
