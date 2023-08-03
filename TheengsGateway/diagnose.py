@@ -6,10 +6,10 @@ to show diagnostic information for debugging purposes.
 import argparse
 import asyncio
 import json
-import os
 import platform
 import re
 import sys
+from pathlib import Path
 from typing import Dict, List, Union
 
 from importlib_metadata import PackageNotFoundError, version
@@ -28,8 +28,7 @@ def _anonymize_address(address: str) -> str:
     addr_parts = _ADDR_RE.match(address)
     if addr_parts:
         return f"{addr_parts.group(1)}XX:XX:XX"
-    else:
-        return "INVALID ADDRESS"
+    return "INVALID ADDRESS"
 
 
 def _anonymize_addresses(addresses: List[str]) -> List[str]:
@@ -113,14 +112,14 @@ def _os() -> None:
     _section("Operating System", os_parameters)
 
 
-def _config(conf_path: str) -> None:
+def _config(conf_path: Path) -> None:
     """Print the anonymized Theengs Gateway configuration."""
     print("## Configuration")
     print()
-    print(f"File: {os.path.abspath(conf_path)}")
+    print(f"File: {conf_path.resolve()}")
     print()
     try:
-        with open(conf_path, encoding="utf-8") as config_file:
+        with conf_path.open(encoding="utf-8") as config_file:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             config["time_sync"] = _anonymize_addresses(config["time_sync"])
@@ -152,7 +151,7 @@ async def _adapters() -> None:
             _section(adapter, properties)  # type: ignore[arg-type]
 
 
-async def diagnostics(conf_path: str) -> None:
+async def diagnostics(conf_path: Path) -> None:
     """Main function of the diagnose module.
 
     This function prints a header and various sections with diagnostic information
@@ -181,8 +180,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.conf_path:
-        conf_path = args.conf_path
+        conf_path = Path(args.conf_path)
     else:
-        conf_path = os.path.expanduser("~") + "/theengsgw.conf"
+        conf_path = Path("~/theengsgw.conf").expanduser()
 
     asyncio.run(diagnostics(conf_path))

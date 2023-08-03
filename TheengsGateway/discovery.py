@@ -83,7 +83,12 @@ class DiscoveryGateway(Gateway):
         hass_discovery: int,
     ) -> None:
         super().__init__(
-            broker, port, username, password, adapter, scanning_mode
+            broker,
+            port,
+            username,
+            password,
+            adapter,
+            scanning_mode,
         )
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name
@@ -107,12 +112,12 @@ class DiscoveryGateway(Gateway):
 
         logger.info("publishing device `%s`", pub_device)
         pub_device["properties"] = json.loads(
-            getProperties(pub_device["model_id"])
+            getProperties(pub_device["model_id"]),
         )["properties"]
 
         hadevice = {}
         hadevice["identifiers"] = list({pub_device_uuid})
-        hadevice["connections"] = [list(("mac", pub_device_uuid))]
+        hadevice["connections"] = [["mac", pub_device_uuid]]
         hadevice["manufacturer"] = pub_device["brand"]
         hadevice["model"] = pub_device["model_id"]
         if "name" in pub_device:
@@ -124,7 +129,10 @@ class DiscoveryGateway(Gateway):
         discovery_topic = self.discovery_topic + "/" + pub_device_uuid
         state_topic = self.pub_topic + "/" + pub_device_uuid
         state_topic = re.sub(
-            r".+?/", "+/", state_topic, len(re.findall(r"/", state_topic)) - 1
+            r".+?/",
+            "+/",
+            state_topic,
+            len(re.findall(r"/", state_topic)) - 1,
         )
         data = getProperties(pub_device["model_id"])
         data = json.loads(data)
