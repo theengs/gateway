@@ -1,10 +1,20 @@
 select = [
   "ANN",     # flake8-annotations
+  "ARG",     # flake8-unused-arguments
   "BLE",     # flake8-blind-except
+  "C4",      # flake8-comprehensions
+  "COM",     # flake8-commas
   "D",       # pydocstyle
   "E",       # pycodestyle
   "EM",      # flake8-errmsg
   "F",       # Pyflakes
+  "G",       # flake8-logging-format
+  "I",       # isort
+  "PTH",     # flake8-use-pathlib
+  "PIE",     # flake8-pie
+  "RET",     # flake8-return
+  "RSE",     # flake8-raise
+  "S",       # flake8-bandit
   "SIM",     # flake8-simplify
   "TRY",     # Tryceratops
 ]
@@ -12,8 +22,8 @@ ignore = [
   "ANN101",  # missing-type-self
   "D107",    # undocumented-public-init
 ]
-# Always generate Python 3.7-compatible code
-target-version = "py37"
+# Always generate Python 3.8-compatible code
+target-version = "py38"
 
 [pydocstyle]
 convention = "google"

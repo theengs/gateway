@@ -28,6 +28,7 @@ import struct
 import sys
 from contextlib import suppress
 from datetime import datetime
+from pathlib import Path
 from random import randrange
 from threading import Thread
 from time import time
@@ -36,7 +37,6 @@ from typing import Dict, Optional, Union
 from bleak import BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
-
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
@@ -44,7 +44,7 @@ from bluetooth_numbers.exceptions import No16BitIntegerError, UnknownCICError
 from paho.mqtt import client as mqtt_client
 from TheengsDecoder import decodeBLE
 
-from .decryption import create_decryptor, UnsupportedEncryptionError
+from .decryption import UnsupportedEncryptionError, create_decryptor
 from .diagnose import diagnostics
 
 if platform.system() == "Linux":
@@ -53,10 +53,41 @@ if platform.system() == "Linux":
     from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 
 SECONDS_IN_DAY = 86400
+ADVANCED_DATA = (
+    "acts",
+    "cidc",
+    "cipher",
+    "cont",
+    "ctr",
+    "encr",
+    "manufacturerdata",
+    "mic",
+    "servicedata",
+    "servicedatauuid",
+    "track",
+)
 
 logger = logging.getLogger("BLEGateway")
 
 DataJSONType = Dict[str, Union[str, int, float, bool]]
+
+
+def get_address(data: DataJSONType) -> str:
+    """Return the device address from a data JSON."""
+    try:
+        return data["mac"]  # type: ignore[return-value]
+    except KeyError:
+        return data["id"]  # type: ignore[return-value]
+
+
+def add_manufacturer(
+    data: DataJSONType,
+    company_id: Optional[int],
+) -> None:
+    """Add the name of the manufacturer based on the company ID."""
+    if company_id is not None:
+        with suppress(No16BitIntegerError, UnknownCICError):
+            data["mfr"] = company[company_id]
 
 
 class Gateway:
@@ -85,7 +116,10 @@ class Gateway:
         """Connect to MQTT broker."""
 
         def on_connect(
-            client, userdata, flags, return_code  # noqa: ANN001
+            client,  # noqa: ANN001
+            userdata,  # noqa: ANN001,ARG001
+            flags,  # noqa: ANN001,ARG001
+            return_code,  # noqa: ANN001
         ) -> None:
             if return_code == 0:
                 logger.info("Connected to MQTT Broker!")
@@ -101,7 +135,9 @@ class Gateway:
                 self.client.connect(self.broker, self.port)
 
         def on_disconnect(
-            client, userdata, return_code=0  # noqa: ANN001
+            client,  # noqa: ANN001,ARG001
+            userdata,  # noqa: ANN001,ARG001
+            return_code=0,  # noqa: ANN001
         ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
@@ -123,7 +159,7 @@ class Gateway:
     def subscribe(self, sub_topic: str) -> None:
         """Subscribe to MQTT topic <sub_topic>."""
 
-        def on_message(client_, userdata, msg) -> None:  # noqa: ANN001
+        def on_message(client, userdata, msg) -> None:  # noqa: ANN001,ARG001
             logger.info(
                 "Received `%s` from `%s` topic",
                 msg.payload.decode(),
@@ -142,7 +178,7 @@ class Gateway:
                     self.hass_presence(decoded_json)
                 if gw.discovery:
                     gw.publish_device_info(
-                        decoded_json
+                        decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     msg = json.dumps(decoded_json)
@@ -150,7 +186,7 @@ class Gateway:
                         msg,
                         gw.pub_topic
                         + "/"
-                        + self.get_address(decoded_json).replace(":", ""),
+                        + get_address(decoded_json).replace(":", ""),
                     )
                     if gw.presence:
                         gw.publish(
@@ -162,7 +198,7 @@ class Gateway:
                     str(msg.payload.decode()),
                     gw.pub_topic
                     + "/"
-                    + self.get_address(msg_json).replace(":", ""),
+                    + get_address(msg_json).replace(":", ""),
                 )
 
         self.client.subscribe(sub_topic)
@@ -188,7 +224,10 @@ class Gateway:
         decoded_json["distance"] = distance
 
     def publish(
-        self, msg, pub_topic=None, retain=False  # noqa: ANN001
+        self,
+        msg,  # noqa: ANN001
+        pub_topic=None,  # noqa: ANN001
+        retain=False,  # noqa: ANN001
     ) -> None:
         """Publish <msg> to MQTT topic <pub_topic>."""
         if not pub_topic:
@@ -209,13 +248,13 @@ class Gateway:
             # for the daily update.
             # This prevents the gateway from connecting to all clocks
             # at the same time.
-            start_time = time() - randrange(SECONDS_IN_DAY)
+            start_time = time() - randrange(SECONDS_IN_DAY)  # noqa: S311
             self.clock_updates[address] = start_time
             logger.info(
                 "Found device %s, synchronizing time daily beginning from %s",
                 address,
                 datetime.fromtimestamp(start_time + SECONDS_IN_DAY).strftime(
-                    "%Y-%m-%d %H:%M:%S"
+                    "%Y-%m-%d %H:%M:%S",
                 ),
             )
 
@@ -228,16 +267,17 @@ class Gateway:
 
                 # Find clock and try to synchronize the time
                 try:
-                    logger.info(f"Scanning for clock {address}...")
+                    logger.info("Scanning for clock %s...", address)
                     clock = await find_clock(address, self.scan_time)
                     if clock:
                         logger.info(
-                            f"Writing time to {clock.DEVICE_TYPE} device..."
+                            "Writing time to %s device...",
+                            clock.DEVICE_TYPE,
                         )
                         await clock.set_time(ampm=self.time_format)
                         logger.info("Synchronized time")
                     else:
-                        logger.warning(f"Didn't find device {address}.")
+                        logger.warning("Didn't find device %s.", address)
                 except UnsupportedDeviceError:
                     logger.exception("Unsupported clock")
                     # There's no point in retrying for an unsupported device.
@@ -245,12 +285,13 @@ class Gateway:
                     # Just continue with the next device.
                     continue
                 except asyncio.exceptions.TimeoutError:
-                    logger.exception(f"Can't connect to clock {address}")
+                    logger.exception("Can't connect to clock %s.", address)
                 except BleakError:
-                    logger.exception(f"Can't write to clock {address}")
+                    logger.exception("Can't write to clock %s.", address)
                 except AttributeError:
                     logger.exception(
-                        f"Can't get attribute from clock {address}"
+                        "Can't get attribute from clock %s.",
+                        address,
                     )
 
                 # Register current time for this address
@@ -260,7 +301,7 @@ class Gateway:
                     "Synchronizing time with %s again on %s",
                     address,
                     datetime.fromtimestamp(
-                        this_time + SECONDS_IN_DAY
+                        this_time + SECONDS_IN_DAY,
                     ).strftime("%Y-%m-%d %H:%M:%S"),
                 )
 
@@ -276,7 +317,7 @@ class Gateway:
                     or_patterns=[
                         OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
                         OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
-                    ]
+                    ],
                 )  # type: ignore[assignment]
             elif self.scanning_mode == "active":
                 # Disable duplicate detection of advertisement data.
@@ -285,7 +326,7 @@ class Gateway:
                 # we don't know which is the most recent data, so the sensor
                 # values don't update.
                 scanner_kwargs["bluez"] = BlueZScannerArgs(
-                    filters=dict(DuplicateData=True)
+                    filters={"DuplicateData": True},
                 )  # type: ignore[assignment]
 
         if self.adapter:
@@ -303,7 +344,8 @@ class Gateway:
                     await asyncio.sleep(self.scan_time)
                     await scanner.stop()
                     logger.info(
-                        "Sent %s messages to MQTT", self.published_messages
+                        "Sent %s messages to MQTT",
+                        self.published_messages,
                     )
                     await asyncio.sleep(self.time_between_scans)
 
@@ -318,7 +360,9 @@ class Gateway:
         self.running = False
 
     def detection_callback(
-        self, device: BLEDevice, advertisement_data: AdvertisementData
+        self,
+        device: BLEDevice,
+        advertisement_data: AdvertisementData,
     ) -> None:
         """Detect device in received advertisement data."""
         logger.debug("%s:%s", device.address, advertisement_data)
@@ -333,7 +377,7 @@ class Gateway:
             # Only look at the first manufacturer data in the advertisement
             company_id = list(advertisement_data.manufacturer_data.keys())[0]
             manufacturer_data = list(
-                advertisement_data.manufacturer_data.values()
+                advertisement_data.manufacturer_data.values(),
             )[0]
             dstr = str(struct.pack("<H", company_id).hex())
             dstr += str(manufacturer_data.hex())
@@ -352,11 +396,10 @@ class Gateway:
                 data_json_copy["servicedatauuid"] = uuid[4:8]
                 data_json_copy["servicedata"] = data.hex()
                 self.decode_advertisement(data_json_copy, company_id)
-        else:
-            if data_json:
-                data_json["id"] = device.address
-                data_json["rssi"] = advertisement_data.rssi
-                self.decode_advertisement(data_json, company_id)
+        elif data_json:
+            data_json["id"] = device.address
+            data_json["rssi"] = advertisement_data.rssi
+            self.decode_advertisement(data_json, company_id)
 
     def decode_advertisement(
         self,
@@ -371,10 +414,11 @@ class Gateway:
             # Only process if the device is not a random mac address
             if decoded_json["type"] != "RMAC":
                 # Only add manufacturer if device is compliant and no beacon
-                if decoded_json.get("cidc", True) and decoded_json[
-                    "model_id"
-                ] not in ("ABTemp", "IBEACON", "RDL52832"):
-                    self.add_manufacturer(data_json, company_id)
+                if (
+                    decoded_json.get("cidc", True)
+                    and decoded_json.get("type", "UNIQ") != "BCON"
+                ):
+                    add_manufacturer(data_json, company_id)
 
                 if gw.presence:
                     self.hass_presence(decoded_json)
@@ -383,16 +427,18 @@ class Gateway:
                 if decoded_json.get("encr", False):
                     try:
                         bindkey = bytes.fromhex(
-                            gw.bindkeys[self.get_address(decoded_json)]
+                            gw.bindkeys[get_address(decoded_json)],
                         )
                         decryptor = create_decryptor(decoded_json["model_id"])
                         decrypted_data = decryptor.decrypt(
                             bindkey,
-                            self.get_address(decoded_json),
+                            get_address(decoded_json),
                             decoded_json,
                         )
                         decryptor.replace_encrypted_data(
-                            decrypted_data, data_json, decoded_json
+                            decrypted_data,
+                            data_json,
+                            decoded_json,
                         )
 
                         # Keep encrypted properties
@@ -418,12 +464,12 @@ class Gateway:
                     except KeyError:
                         logger.exception(
                             "Can't find bindkey for %s.",
-                            self.get_address(decoded_json),
+                            get_address(decoded_json),
                         )
                     except UnsupportedEncryptionError:
                         logger.exception(
                             "Unsupported encrypted device %s of model %s",
-                            self.get_address(decoded_json),
+                            get_address(decoded_json),
                             decoded_json["model_id"],
                         )
                     except ValueError:
@@ -431,24 +477,12 @@ class Gateway:
 
                 # Remove advanced data
                 if not gw.pubadvdata:
-                    for key in (
-                        "servicedatauuid",
-                        "servicedata",
-                        "manufacturerdata",
-                        "cidc",
-                        "acts",
-                        "cont",
-                        "track",
-                        "encr",
-                        "cipher",
-                        "mic",
-                        "ctr",
-                    ):
+                    for key in ADVANCED_DATA:
                         decoded_json.pop(key, None)
 
                 if gw.discovery:
                     gw.publish_device_info(
-                        decoded_json
+                        decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     msg = json.dumps(decoded_json)
@@ -456,7 +490,7 @@ class Gateway:
                         msg,
                         gw.pub_topic
                         + "/"
-                        + self.get_address(decoded_json).replace(":", ""),
+                        + get_address(decoded_json).replace(":", ""),
                     )
                     if gw.presence:
                         gw.publish(
@@ -464,38 +498,19 @@ class Gateway:
                             gw.presence_topic,
                         )
         elif gw.publish_all:
-            self.add_manufacturer(data_json, company_id)
+            add_manufacturer(data_json, company_id)
             gw.publish(
                 json.dumps(data_json),
-                gw.pub_topic
-                + "/"
-                + self.get_address(data_json).replace(":", ""),
+                gw.pub_topic + "/" + get_address(data_json).replace(":", ""),
             )
 
-    def get_address(self, data: DataJSONType) -> str:
-        """Return the device address from a data JSON."""
-        try:
-            return data["mac"]  # type: ignore[return-value]
-        except KeyError:
-            return data["id"]  # type: ignore[return-value]
 
-    def add_manufacturer(
-        self,
-        data: DataJSONType,
-        company_id: Optional[int],
-    ) -> None:
-        """Add the name of the manufacturer based on the company ID."""
-        if company_id is not None:
-            with suppress(No16BitIntegerError, UnknownCICError):
-                data["mfr"] = company[company_id]
-
-
-def run(arg: str) -> None:
+def run(conf_path: Path) -> None:
     """Run BLE gateway."""
     global gw
 
     try:
-        with open(arg, encoding="utf-8") as config_file:
+        with conf_path.open(encoding="utf-8") as config_file:
             config = json.load(config_file)
     except (json.JSONDecodeError, OSError) as exception:
         msg = f"Invalid File: {sys.argv[1]}"
@@ -564,7 +579,7 @@ def run(arg: str) -> None:
     loop = asyncio.get_event_loop()
 
     if log_level == logging.DEBUG:
-        asyncio.run(diagnostics(arg))
+        asyncio.run(diagnostics(conf_path))
     thread = Thread(target=loop.run_forever, daemon=True)
     thread.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)

@@ -3,8 +3,8 @@
 This module adds decryptors for encrypted advertisements of a selection of
 devices.
 """
-from abc import ABC, abstractmethod
 import binascii
+from abc import ABC, abstractmethod
 from typing import Dict
 
 from Cryptodome.Cipher import AES
@@ -16,21 +16,24 @@ class AdvertisementDecryptor(ABC):
     @abstractmethod
     def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
         """Compute the nonce for a specific address and JSON input."""
-        pass
 
     @abstractmethod
     def decrypt(
-        self, bindkey: bytes, address: str, decoded_json: Dict
+        self,
+        bindkey: bytes,
+        address: str,
+        decoded_json: Dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input."""
-        pass
 
     @abstractmethod
     def replace_encrypted_data(
-        self, decrypted_data: bytes, data_json: Dict, decoded_json: Dict
+        self,
+        decrypted_data: bytes,
+        data_json: Dict,
+        decoded_json: Dict,
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
-        pass
 
 
 class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):
@@ -51,12 +54,15 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):
                     bytes([len(decoded_json["servicedata"]) // 2 + 3]).hex(),
                     "161a18",
                     decoded_json["ctr"],
-                ]
-            )
+                ],
+            ),
         )
 
     def decrypt(
-        self, bindkey: bytes, address: str, decoded_json: Dict
+        self,
+        bindkey: bytes,
+        address: str,
+        decoded_json: Dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input with AES CCM."""
         nonce = self.compute_nonce(address, decoded_json)
@@ -67,7 +73,10 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):
         return cipher.decrypt_and_verify(payload, mic)
 
     def replace_encrypted_data(
-        self, decrypted_data: bytes, data_json: Dict, decoded_json: Dict
+        self,
+        decrypted_data: bytes,
+        data_json: Dict,
+        decoded_json: Dict,  # noqa: ARG002
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
         data_json["servicedata"] = decrypted_data.hex()
@@ -90,12 +99,15 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
                     "d2fc",  # UUID fcd2
                     decoded_json["servicedata"][:2],
                     decoded_json["ctr"],
-                ]
-            )
+                ],
+            ),
         )
 
     def decrypt(
-        self, bindkey: bytes, address: str, decoded_json: Dict
+        self,
+        bindkey: bytes,
+        address: str,
+        decoded_json: Dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input with AES CCM."""
         nonce = self.compute_nonce(address, decoded_json)
@@ -105,7 +117,10 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
         return cipher.decrypt_and_verify(payload, mic)
 
     def replace_encrypted_data(
-        self, decrypted_data: bytes, data_json: Dict, decoded_json: Dict
+        self,
+        decrypted_data: bytes,
+        data_json: Dict,
+        decoded_json: Dict,
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
         # Clear encryption and MAC included bits in device info
@@ -134,7 +149,7 @@ class UnsupportedEncryptionError(Exception):
 def create_decryptor(model_id: str) -> AdvertisementDecryptor:
     """Return the decryptor class for the given model ID."""
     if model_id not in _DECRYPTOR_MODELS:
-        raise UnsupportedEncryptionError()
+        raise UnsupportedEncryptionError
     return _DECRYPTOR_MODELS[model_id]()  # type: ignore[abstract]
 
 

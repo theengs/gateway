@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
 import json
-import os
 import sys
+from pathlib import Path
 
 from .ble_gateway import run
 
@@ -59,16 +59,32 @@ def main() -> None:
     """Main entry point of the TheengsGateway program."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-H", "--host", dest="host", type=str, help="MQTT host address"
+        "-H",
+        "--host",
+        dest="host",
+        type=str,
+        help="MQTT host address",
     )
     parser.add_argument(
-        "-P", "--port", dest="port", type=int, help="MQTT host port"
+        "-P",
+        "--port",
+        dest="port",
+        type=int,
+        help="MQTT host port",
     )
     parser.add_argument(
-        "-u", "--user", dest="user", type=str, help="MQTT username"
+        "-u",
+        "--user",
+        dest="user",
+        type=str,
+        help="MQTT username",
     )
     parser.add_argument(
-        "-p", "--pass", dest="pwd", type=str, help="MQTT password"
+        "-p",
+        "--pass",
+        dest="pwd",
+        type=str,
+        help="MQTT password",
     )
     parser.add_argument(
         "-pt",
@@ -229,12 +245,12 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.conf_path:
-        conf_path = args.conf_path
+        conf_path = Path(args.conf_path)
     else:
-        conf_path = os.path.expanduser("~") + "/theengsgw.conf"
+        conf_path = Path("~/theengsgw.conf").expanduser()
 
     try:
-        with open(conf_path, encoding="utf-8") as config_file:
+        with conf_path.open(encoding="utf-8") as config_file:
             config = json.load(config_file)
     except (json.JSONDecodeError, OSError):
         config = default_config
@@ -326,14 +342,14 @@ def main() -> None:
 
     if args.bindkeys:
         config["bindkeys"].update(
-            dict(zip(args.bindkeys[::2], args.bindkeys[1::2]))
+            dict(zip(args.bindkeys[::2], args.bindkeys[1::2])),
         )
 
     if not config["host"]:
         sys.exit("Invalid MQTT host")
 
     try:
-        with open(conf_path, mode="w", encoding="utf-8") as config_file:
+        with conf_path.open(mode="w", encoding="utf-8") as config_file:
             config_file.write(json.dumps(config, sort_keys=True, indent=4))
     except OSError as exception:
         msg = "Unable to write config file"
