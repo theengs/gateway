@@ -181,25 +181,9 @@ class Gateway:
                         decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
-                    msg = json.dumps(decoded_json)
-                    gw.publish(
-                        msg,
-                        gw.pub_topic
-                        + "/"
-                        + get_address(decoded_json).replace(":", ""),
-                    )
-                    if gw.presence:
-                        gw.publish(
-                            msg,
-                            gw.presence_topic,
-                        )
+                    self.publish_json(decoded_json, decoded=True)
             elif gw.publish_all:
-                gw.publish(
-                    str(msg.payload.decode()),
-                    gw.pub_topic
-                    + "/"
-                    + get_address(msg_json).replace(":", ""),
-                )
+                self.publish_json(msg_json, decoded=False)
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
@@ -425,55 +409,10 @@ class Gateway:
 
                 # Handle encrypted payload
                 if decoded_json.get("encr", False):
-                    try:
-                        bindkey = bytes.fromhex(
-                            gw.bindkeys[get_address(decoded_json)],
-                        )
-                        decryptor = create_decryptor(decoded_json["model_id"])
-                        decrypted_data = decryptor.decrypt(
-                            bindkey,
-                            get_address(decoded_json),
-                            decoded_json,
-                        )
-                        decryptor.replace_encrypted_data(
-                            decrypted_data,
-                            data_json,
-                            decoded_json,
-                        )
-
-                        # Keep encrypted properties
-                        cipher = decoded_json["cipher"]
-                        mic = decoded_json["mic"]
-                        ctr = decoded_json["ctr"]
-
-                        # Re-decode advertisement, this time unencrypted
-                        decoded_json = decodeBLE(json.dumps(data_json))
-                        if decoded_json:
-                            decoded_json = json.loads(decoded_json)
-                        else:
-                            logger.exception(
-                                "Decrypted payload not supported: `%s`",
-                                data_json["servicedata"],
-                            )
-
-                        # Re-add encrypted properties
-                        decoded_json["cipher"] = cipher
-                        decoded_json["mic"] = mic
-                        decoded_json["ctr"] = ctr
-
-                    except KeyError:
-                        logger.exception(
-                            "Can't find bindkey for %s.",
-                            get_address(decoded_json),
-                        )
-                    except UnsupportedEncryptionError:
-                        logger.exception(
-                            "Unsupported encrypted device %s of model %s",
-                            get_address(decoded_json),
-                            decoded_json["model_id"],
-                        )
-                    except ValueError:
-                        logger.exception("Decryption failed")
+                    self.handle_encrypted_advertisement(
+                        data_json,
+                        decoded_json,
+                    )
 
                 # Remove advanced data
                 if not gw.pubadvdata:
@@ -485,24 +424,80 @@ class Gateway:
                         decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
-                    msg = json.dumps(decoded_json)
-                    gw.publish(
-                        msg,
-                        gw.pub_topic
-                        + "/"
-                        + get_address(decoded_json).replace(":", ""),
-                    )
-                    if gw.presence:
-                        gw.publish(
-                            msg,
-                            gw.presence_topic,
-                        )
+                    self.publish_json(decoded_json, decoded=True)
         elif gw.publish_all:
             add_manufacturer(data_json, company_id)
+            self.publish_json(data_json, decoded=False)
+
+    def publish_json(self, data_json: DataJSONType, decoded: bool) -> None:
+        """Publish JSON data to MQTT."""
+        message = json.dumps(data_json)
+        gw.publish(
+            message,
+            gw.pub_topic + "/" + get_address(data_json).replace(":", ""),
+        )
+        if decoded and gw.presence:
             gw.publish(
-                json.dumps(data_json),
-                gw.pub_topic + "/" + get_address(data_json).replace(":", ""),
+                message,
+                gw.presence_topic,
             )
+
+    def handle_encrypted_advertisement(
+        self,
+        data_json: DataJSONType,
+        decoded_json: DataJSONType,
+    ) -> None:
+        """Handle encrypted advertisement."""
+        try:
+            bindkey = bytes.fromhex(
+                gw.bindkeys[get_address(decoded_json)],
+            )
+            decryptor = create_decryptor(
+                decoded_json["model_id"],  # type: ignore[arg-type]
+            )
+            decrypted_data = decryptor.decrypt(
+                bindkey,
+                get_address(decoded_json),
+                decoded_json,
+            )
+            decryptor.replace_encrypted_data(
+                decrypted_data,
+                data_json,
+                decoded_json,
+            )
+
+            # Keep encrypted properties
+            cipher = decoded_json["cipher"]
+            mic = decoded_json["mic"]
+            ctr = decoded_json["ctr"]
+
+            # Re-decode advertisement, this time unencrypted
+            decoded_json = decodeBLE(json.dumps(data_json))
+            if decoded_json:
+                decoded_json = json.loads(decoded_json)  # type: ignore[arg-type]
+            else:
+                logger.exception(
+                    "Decrypted payload not supported: `%s`",
+                    data_json["servicedata"],
+                )
+
+            # Re-add encrypted properties
+            decoded_json["cipher"] = cipher
+            decoded_json["mic"] = mic
+            decoded_json["ctr"] = ctr
+        except KeyError:
+            logger.exception(
+                "Can't find bindkey for %s.",
+                get_address(decoded_json),
+            )
+        except UnsupportedEncryptionError:
+            logger.exception(
+                "Unsupported encrypted device %s of model %s",
+                get_address(decoded_json),
+                decoded_json["model_id"],
+            )
+        except ValueError:
+            logger.exception("Decryption failed")
 
 
 def run(conf_path: Path) -> None:
