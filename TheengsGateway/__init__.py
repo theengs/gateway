@@ -217,15 +217,15 @@ def parse_args() -> argparse.Namespace:
         help="Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2",
     )
     parser.add_argument(
-        "-ssl",
-        "--enable_ssl",
-        action='store_true',
-        help="Enable SSL",
+        "-tls",
+        "--enable_tls",
+        action="store_true",
+        help="Enable TLS",
     )
     parser.add_argument(
         "-ws",
         "--enable_websockets",
-        action='store_true',
+        action="store_true",
         help="Enable websockets transport layer",
     )
     return parser.parse_args()

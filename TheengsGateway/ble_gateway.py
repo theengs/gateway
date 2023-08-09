@@ -20,13 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # mypy: disable-error-code="name-defined,attr-defined"
 
+
 import asyncio
 import json
 import logging
 import platform
+import ssl
 import struct
 import sys
-import ssl
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
@@ -102,12 +103,12 @@ class Gateway:
         password: str,
         adapter: str,
         scanning_mode: str,
-        enable_ssl: bool,
-        enable_websockets: bool
+        enable_tls: bool,
+        enable_websockets: bool,
     ) -> None:
         self.broker = broker
         self.port = port
-        self.enable_ssl = enable_ssl
+        self.enable_tls = enable_tls
         self.enable_websockets = enable_websockets
         self.username = username
         self.password = password
@@ -150,9 +151,12 @@ class Gateway:
             self.client = mqtt_client.Client(transport="websockets")
         else:
             self.client = mqtt_client.Client()
-        
-        if self.enable_ssl:
-            self.client.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLS)
+
+        if self.enable_tls:
+            self.client.tls_set(
+                cert_reqs=ssl.CERT_REQUIRED,
+                tls_version=ssl.PROTOCOL_TLS,
+            )
 
         self.client.username_pw_set(self.username, self.password)
         self.client.will_set(self.lwt_topic, "offline", 0, True)
@@ -551,7 +555,7 @@ def run(conf_path: Path) -> None:
             config["discovery_device_name"],
             config["discovery_filter"],
             config["hass_discovery"],
-            config["enable_ssl"],
+            config["enable_tls"],
             config["enable_websockets"],
         )
     else:
@@ -563,6 +567,8 @@ def run(conf_path: Path) -> None:
                 config["pass"],
                 config["adapter"],
                 config["scanning_mode"],
+                config["enable_tls"],
+                config["enable_websockets"],
             )
         except Exception as exception:  # noqa: BLE001
             msg = "Missing or invalid MQTT host parameters"
