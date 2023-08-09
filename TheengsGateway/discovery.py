@@ -81,6 +81,8 @@ class DiscoveryGateway(Gateway):
         discovery_device_name: str,
         discovery_filter: str,
         hass_discovery: int,
+        enable_ssl: bool,
+        enable_websockets: bool
     ) -> None:
         super().__init__(
             broker,
@@ -89,6 +91,8 @@ class DiscoveryGateway(Gateway):
             password,
             adapter,
             scanning_mode,
+            enable_ssl,
+            enable_websockets
         )
         self.discovery_topic = discovery_topic
         self.discovery_device_name = discovery_device_name

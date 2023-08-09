@@ -102,13 +102,13 @@ class Gateway:
         password: str,
         adapter: str,
         scanning_mode: str,
-        ssl: bool,
-        websockets: bool
+        enable_ssl: bool,
+        enable_websockets: bool
     ) -> None:
         self.broker = broker
         self.port = port
-        self.ssl = ssl
-        self.websockets = websockets
+        self.ssl = enable_ssl
+        self.websockets = enable_websockets
         self.username = username
         self.password = password
         self.adapter = adapter
@@ -551,6 +551,8 @@ def run(conf_path: Path) -> None:
             config["discovery_device_name"],
             config["discovery_filter"],
             config["hass_discovery"],
+            config["enable_ssl"],
+            config["enable_websockets"],
         )
     else:
         try:
