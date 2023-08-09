@@ -107,8 +107,8 @@ class Gateway:
     ) -> None:
         self.broker = broker
         self.port = port
-        self.ssl = enable_ssl
-        self.websockets = enable_websockets
+        self.enable_ssl = enable_ssl
+        self.enable_websockets = enable_websockets
         self.username = username
         self.password = password
         self.adapter = adapter
@@ -146,12 +146,12 @@ class Gateway:
         ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
-        if self.websockets:
+        if self.enable_websockets:
             self.client = mqtt_client.Client(transport="websockets")
         else:
             self.client = mqtt_client.Client()
         
-        if self.ssl:
+        if self.enable_ssl:
             self.client.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLS)
 
         self.client.username_pw_set(self.username, self.password)
