@@ -219,13 +219,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-ssl",
         "--enable_ssl",
-        type=bool,
+        action='store_true',
         help="Enable SSL",
     )
     parser.add_argument(
         "-ws",
         "--enable_websockets",
-        type=bool,
+        action='store_true',
         help="Enable websockets transport layer",
     )
     return parser.parse_args()
