@@ -26,6 +26,7 @@ import logging
 import platform
 import struct
 import sys
+import ssl
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
@@ -101,9 +102,13 @@ class Gateway:
         password: str,
         adapter: str,
         scanning_mode: str,
+        ssl: bool,
+        websockets: bool
     ) -> None:
         self.broker = broker
         self.port = port
+        self.ssl = ssl
+        self.websockets = websockets
         self.username = username
         self.password = password
         self.adapter = adapter
@@ -141,7 +146,14 @@ class Gateway:
         ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
-        self.client = mqtt_client.Client()
+        if self.websockets:
+            self.client = mqtt_client.Client(transport="websockets")
+        else:
+            self.client = mqtt_client.Client()
+        
+        if self.ssl:
+            self.client.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLS)
+
         self.client.username_pw_set(self.username, self.password)
         self.client.will_set(self.lwt_topic, "offline", 0, True)
         self.client.on_connect = on_connect
