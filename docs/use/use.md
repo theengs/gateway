@@ -44,14 +44,15 @@ Note that in the latter case, we can't guarantee that the manufacturer name is c
 
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
-usage: -m [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_TOPIC]
+usage:    [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_TOPIC]
           [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
           [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
           [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
           [-prt PRESENCE_TOPIC] [-pr PUBLISH_PRESENCE]
           [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
           [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
-          [-bk ADDRESS [BINDKEY ...]]
+          [-bk ADDRESS [BINDKEY ...]] [-tls ENABLE_TLS]
+          [-ws ENABLE_WEBSOCKET]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -103,6 +104,10 @@ optional arguments:
                         (default: 0)
   -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
                         Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
+  -tls ENABLE_TLS, --enable_tls ENABLE_TLS
+                        Enable (1) or disable (0) TLS (default: 0)
+  -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
+                        Enable (1) or disable (0) WebSocket (default: 0)
 ```
 
 ### For a Docker container
