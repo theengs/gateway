@@ -53,6 +53,8 @@ default_config = {
     "time_format": 0,
     "publish_advdata": 0,
     "bindkeys": {},
+    "enable_tls": 0,
+    "enable_websocket": 0,
 }
 
 
@@ -219,14 +221,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-tls",
         "--enable_tls",
-        action="store_true",
-        help="Enable TLS",
+        type=int,
+        help="Enable (1) or disable (0) TLS (default: 0)",
     )
     parser.add_argument(
         "-ws",
-        "--enable_websockets",
-        action="store_true",
-        help="Enable websockets transport layer",
+        "--enable_websocket",
+        type=int,
+        help="Enable (1) or disable (0) WebSocket (default: 0)",
     )
     return parser.parse_args()
 

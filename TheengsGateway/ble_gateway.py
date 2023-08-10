@@ -103,13 +103,13 @@ class Gateway:
         password: str,
         adapter: str,
         scanning_mode: str,
-        enable_tls: bool,
-        enable_websockets: bool,
+        enable_tls: int,
+        enable_websocket: int,
     ) -> None:
         self.broker = broker
         self.port = port
         self.enable_tls = enable_tls
-        self.enable_websockets = enable_websockets
+        self.enable_websocket = enable_websocket
         self.username = username
         self.password = password
         self.adapter = adapter
@@ -147,7 +147,7 @@ class Gateway:
         ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
-        if self.enable_websockets:
+        if self.enable_websocket:
             self.client = mqtt_client.Client(transport="websockets")
         else:
             self.client = mqtt_client.Client()
@@ -556,7 +556,7 @@ def run(conf_path: Path) -> None:
             config["discovery_filter"],
             config["hass_discovery"],
             config["enable_tls"],
-            config["enable_websockets"],
+            config["enable_websocket"],
         )
     else:
         try:
@@ -568,7 +568,7 @@ def run(conf_path: Path) -> None:
                 config["adapter"],
                 config["scanning_mode"],
                 config["enable_tls"],
-                config["enable_websockets"],
+                config["enable_websocket"],
             )
         except Exception as exception:  # noqa: BLE001
             msg = "Missing or invalid MQTT host parameters"
