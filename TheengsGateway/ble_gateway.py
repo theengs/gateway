@@ -27,7 +27,6 @@ import logging
 import platform
 import ssl
 import struct
-import sys
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
@@ -69,6 +68,14 @@ ADVANCED_DATA = (
     "track",
 )
 
+LOG_LEVEL = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+
 logger = logging.getLogger("BLEGateway")
 
 DataJSONType = Dict[str, Union[str, int, float, bool]]
@@ -97,23 +104,9 @@ class Gateway:
 
     def __init__(
         self,
-        broker: str,
-        port: int,
-        username: str,
-        password: str,
-        adapter: str,
-        scanning_mode: str,
-        enable_tls: int,
-        enable_websocket: int,
+        configuration: Dict,
     ) -> None:
-        self.broker = broker
-        self.port = port
-        self.enable_tls = enable_tls
-        self.enable_websocket = enable_websocket
-        self.username = username
-        self.password = password
-        self.adapter = adapter
-        self.scanning_mode = scanning_mode
+        self.configuration = configuration
         self.stopped = False
         self.clock_updates: Dict[str, float] = {}
         self.published_messages = 0
@@ -129,16 +122,24 @@ class Gateway:
         ) -> None:
             if return_code == 0:
                 logger.info("Connected to MQTT Broker!")
-                client.publish(self.lwt_topic, "online", 0, True)
-                self.subscribe(self.sub_topic)
+                client.publish(
+                    self.configuration["lwt_topic"],
+                    "online",
+                    0,
+                    True,
+                )
+                self.subscribe(self.configuration["subscribe_topic"])
             else:
                 logger.error(
                     "Failed to connect to MQTT broker %s:%d return code: %d",
-                    self.broker,
-                    self.port,
+                    self.configuration["host"],
+                    self.configuration["port"],
                     return_code,
                 )
-                self.client.connect(self.broker, self.port)
+                self.client.connect(
+                    self.configuration["host"],
+                    self.configuration["port"],
+                )
 
         def on_disconnect(
             client,  # noqa: ANN001,ARG001
@@ -147,29 +148,45 @@ class Gateway:
         ) -> None:
             logger.error("Disconnected with return code = %d", return_code)
 
-        if self.enable_websocket:
+        if self.configuration["enable_websocket"]:
             self.client = mqtt_client.Client(transport="websockets")
         else:
             self.client = mqtt_client.Client()
 
-        if self.enable_tls:
+        if self.configuration["enable_tls"]:
             self.client.tls_set(
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLS,
             )
 
-        self.client.username_pw_set(self.username, self.password)
-        self.client.will_set(self.lwt_topic, "offline", 0, True)
+        self.client.username_pw_set(
+            self.configuration["user"],
+            self.configuration["pass"],
+        )
+        self.client.will_set(
+            self.configuration["lwt_topic"],
+            "offline",
+            0,
+            True,
+        )
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         try:
-            self.client.connect(self.broker, self.port)
+            self.client.connect(
+                self.configuration["host"],
+                self.configuration["port"],
+            )
         except Exception:
             logger.exception("Connection error")
 
     def disconnect_mqtt(self) -> None:
         """Disconnect from the MQTT broker."""
-        self.client.publish(self.lwt_topic, "offline", 0, True)
+        self.client.publish(
+            self.configuration["lwt_topic"],
+            "offline",
+            0,
+            True,
+        )
         self.client.disconnect()
 
     def subscribe(self, sub_topic: str) -> None:
@@ -190,15 +207,15 @@ class Gateway:
 
             if decoded_json:
                 decoded_json = json.loads(decoded_json)
-                if gw.presence:
+                if self.configuration["presence"]:
                     self.hass_presence(decoded_json)
-                if gw.discovery:
-                    gw.publish_device_info(
+                if self.configuration["discovery"]:
+                    self.publish_device_info(
                         decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     self.publish_json(decoded_json, decoded=True)
-            elif gw.publish_all:
+            elif self.configuration["publish_all"]:
                 self.publish_json(msg_json, decoded=False)
 
         self.client.subscribe(sub_topic)
@@ -231,7 +248,7 @@ class Gateway:
     ) -> None:
         """Publish <msg> to MQTT topic <pub_topic>."""
         if not pub_topic:
-            pub_topic = self.pub_topic
+            pub_topic = self.configuration["publish_topic"]
 
         result = self.client.publish(pub_topic, msg, 0, retain)
         status = result[0]
@@ -243,7 +260,10 @@ class Gateway:
 
     def add_clock(self, address: str) -> None:
         """Register clock to synchronize its time later."""
-        if address in self.time_sync and address not in self.clock_updates:
+        if (
+            address in self.configuration["time_sync"]
+            and address not in self.clock_updates
+        ):
             # Add a random time in the last day as a starting point
             # for the daily update.
             # This prevents the gateway from connecting to all clocks
@@ -268,13 +288,18 @@ class Gateway:
                 # Find clock and try to synchronize the time
                 try:
                     logger.info("Scanning for clock %s...", address)
-                    clock = await find_clock(address, self.scan_time)
+                    clock = await find_clock(
+                        address,
+                        self.configuration["ble_scan_time"],
+                    )
                     if clock:
                         logger.info(
                             "Writing time to %s device...",
                             clock.DEVICE_TYPE,
                         )
-                        await clock.set_time(ampm=self.time_format)
+                        await clock.set_time(
+                            ampm=bool(self.configuration["time_format"]),
+                        )
                         logger.info("Synchronized time")
                     else:
                         logger.warning("Didn't find device %s.", address)
@@ -307,10 +332,10 @@ class Gateway:
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
-        scanner_kwargs = {"scanning_mode": self.scanning_mode}
+        scanner_kwargs = {"scanning_mode": self.configuration["scanning_mode"]}
 
         if platform.system() == "Linux":
-            if self.scanning_mode == "passive":
+            if self.configuration["scanning_mode"] == "passive":
                 # Passive scanning with BlueZ needs at least one or_pattern.
                 # The following matches all devices.
                 scanner_kwargs["bluez"] = BlueZScannerArgs(
@@ -319,7 +344,7 @@ class Gateway:
                         OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
                     ],
                 )  # type: ignore[assignment]
-            elif self.scanning_mode == "active":
+            elif self.configuration["scanning_mode"] == "active":
                 # Disable duplicate detection of advertisement data.
                 # Without this parameter non-compliant devices such as the
                 # TP357/8/9 return multiple keys in manufacturer data and
@@ -329,8 +354,8 @@ class Gateway:
                     filters={"DuplicateData": True},
                 )  # type: ignore[assignment]
 
-        if self.adapter:
-            scanner_kwargs["adapter"] = self.adapter
+        if self.configuration["adapter"]:
+            scanner_kwargs["adapter"] = self.configuration["adapter"]
 
         scanner_kwargs["detection_callback"] = self.detection_callback  # type: ignore[assignment] # noqa: E501
         scanner = BleakScanner(**scanner_kwargs)  # type: ignore[arg-type]
@@ -341,13 +366,15 @@ class Gateway:
                 if self.client.is_connected():
                     self.published_messages = 0
                     await scanner.start()
-                    await asyncio.sleep(self.scan_time)
+                    await asyncio.sleep(self.configuration["ble_scan_time"])
                     await scanner.stop()
                     logger.info(
                         "Sent %s messages to MQTT",
                         self.published_messages,
                     )
-                    await asyncio.sleep(self.time_between_scans)
+                    await asyncio.sleep(
+                        self.configuration["ble_time_between_scans"],
+                    )
 
                     # Update time for all clocks once a day
                     await self.update_clock_times()
@@ -420,7 +447,7 @@ class Gateway:
                 ):
                     add_manufacturer(data_json, company_id)
 
-                if gw.presence:
+                if self.configuration["presence"]:
                     self.hass_presence(decoded_json)
 
                 # Handle encrypted payload
@@ -431,31 +458,33 @@ class Gateway:
                     )
 
                 # Remove advanced data
-                if not gw.pubadvdata:
+                if not self.configuration["publish_advdata"]:
                     for key in ADVANCED_DATA:
                         decoded_json.pop(key, None)
 
-                if gw.discovery:
-                    gw.publish_device_info(
+                if self.configuration["discovery"]:
+                    self.publish_device_info(
                         decoded_json,
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     self.publish_json(decoded_json, decoded=True)
-        elif gw.publish_all:
+        elif self.configuration["publish_all"]:
             add_manufacturer(data_json, company_id)
             self.publish_json(data_json, decoded=False)
 
     def publish_json(self, data_json: DataJSONType, decoded: bool) -> None:
         """Publish JSON data to MQTT."""
         message = json.dumps(data_json)
-        gw.publish(
+        self.publish(
             message,
-            gw.pub_topic + "/" + get_address(data_json).replace(":", ""),
+            self.configuration["publish_topic"]
+            + "/"
+            + get_address(data_json).replace(":", ""),
         )
-        if decoded and gw.presence:
-            gw.publish(
+        if decoded and self.configuration["presence"]:
+            self.publish(
                 message,
-                gw.presence_topic,
+                self.configuration["presence_topic"],
             )
 
     def handle_encrypted_advertisement(
@@ -466,7 +495,7 @@ class Gateway:
         """Handle encrypted advertisement."""
         try:
             bindkey = bytes.fromhex(
-                gw.bindkeys[get_address(decoded_json)],
+                self.configuration["bindkeys"][get_address(decoded_json)],
             )
             decryptor = create_decryptor(
                 decoded_json["model_id"],  # type: ignore[arg-type]
@@ -516,85 +545,23 @@ class Gateway:
             logger.exception("Decryption failed")
 
 
-def run(conf_path: Path) -> None:
+def run(configuration: Dict, config_path: Path) -> None:
     """Run BLE gateway."""
-    global gw
-
-    try:
-        with conf_path.open(encoding="utf-8") as config_file:
-            config = json.load(config_file)
-    except (json.JSONDecodeError, OSError) as exception:
-        msg = f"Invalid File: {sys.argv[1]}"
-        raise SystemExit(msg) from exception  # noqa: TRY003
-
-    log_level = config.get("log_level", "WARNING").upper()
-    if log_level == "DEBUG":
-        log_level = logging.DEBUG
-    elif log_level == "INFO":
-        log_level = logging.INFO
-    elif log_level == "WARNING":
-        log_level = logging.WARNING
-    elif log_level == "ERROR":
-        log_level = logging.ERROR
-    elif log_level == "CRITICAL":
-        log_level = logging.CRITICAL
-    else:
-        log_level = logging.WARNING
-
-    if config["discovery"]:
+    if configuration["discovery"]:
         from .discovery import DiscoveryGateway
 
-        gw = DiscoveryGateway(
-            config["host"],
-            int(config["port"]),
-            config["user"],
-            config["pass"],
-            config["adapter"],
-            config["scanning_mode"],
-            config["discovery_topic"],
-            config["discovery_device_name"],
-            config["discovery_filter"],
-            config["hass_discovery"],
-            config["enable_tls"],
-            config["enable_websocket"],
-        )
+        gw = DiscoveryGateway(configuration)
     else:
-        try:
-            gw = Gateway(
-                config["host"],
-                int(config["port"]),
-                config["user"],
-                config["pass"],
-                config["adapter"],
-                config["scanning_mode"],
-                config["enable_tls"],
-                config["enable_websocket"],
-            )
-        except Exception as exception:  # noqa: BLE001
-            msg = "Missing or invalid MQTT host parameters"
-            raise SystemExit(msg) from exception  # noqa: TRY003
-
-    gw.discovery = config["discovery"]
-    gw.scan_time = config.get("ble_scan_time", 5)
-    gw.time_between_scans = config.get("ble_time_between_scans", 0)
-    gw.sub_topic = config.get("subscribe_topic", "gateway_sub")
-    gw.pub_topic = config.get("publish_topic", "gateway_pub")
-    gw.lwt_topic = config["lwt_topic"]
-    gw.presence_topic = config["presence_topic"]
-    gw.presence = config["presence"]
-    gw.publish_all = config["publish_all"]
-    gw.time_sync = config["time_sync"]
-    gw.time_format = bool(config["time_format"])
-    gw.pubadvdata = bool(config["publish_advdata"])
-    gw.bindkeys = config["bindkeys"]
+        gw = Gateway(configuration)  # type: ignore[assignment]
 
     logging.basicConfig()
+    log_level = LOG_LEVEL[configuration["log_level"].upper()]
     logger.setLevel(log_level)
 
     loop = asyncio.get_event_loop()
 
     if log_level == logging.DEBUG:
-        asyncio.run(diagnostics(conf_path))
+        asyncio.run(diagnostics(config_path))
     thread = Thread(target=loop.run_forever, daemon=True)
     thread.start()
     asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)

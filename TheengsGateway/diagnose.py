@@ -112,14 +112,14 @@ def _os() -> None:
     _section("Operating System", os_parameters)
 
 
-def _config(conf_path: Path) -> None:
+def _config(config_path: Path) -> None:
     """Print the anonymized Theengs Gateway configuration."""
     print("## Configuration")
     print()
-    print(f"File: {conf_path.resolve()}")
+    print(f"File: {config_path.resolve()}")
     print()
     try:
-        with conf_path.open(encoding="utf-8") as config_file:
+        with config_path.open(encoding="utf-8") as config_file:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             config["time_sync"] = _anonymize_addresses(config["time_sync"])
@@ -129,7 +129,10 @@ def _config(conf_path: Path) -> None:
         print("```")
         print()
     except FileNotFoundError:
-        print(f"Configuration file not found: {conf_path}")
+        print("Configuration file not found")
+        print()
+    except json.JSONDecodeError as exception:
+        print(f"Malformed JSON configuration file: {str(exception)}")
         print()
 
 
@@ -151,7 +154,7 @@ async def _adapters() -> None:
             _section(adapter, properties)  # type: ignore[arg-type]
 
 
-async def diagnostics(conf_path: Path) -> None:
+async def diagnostics(config_path: Path) -> None:
     """Main function of the diagnose module.
 
     This function prints a header and various sections with diagnostic information
@@ -164,7 +167,7 @@ async def diagnostics(conf_path: Path) -> None:
     _versions()
     _python()
     _os()
-    _config(conf_path)
+    _config(config_path)
     await _adapters()
 
 
@@ -173,15 +176,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c",
         "--config",
-        dest="conf_path",
         type=str,
         help="Path to the configuration file (default: ~/theengsgw.conf)",
     )
     args = parser.parse_args()
 
-    if args.conf_path:
-        conf_path = Path(args.conf_path)
+    if args.config:
+        config_path = Path(args.config)
     else:
-        conf_path = Path("~/theengsgw.conf").expanduser()
+        config_path = Path("~/theengsgw.conf").expanduser()
 
-    asyncio.run(diagnostics(conf_path))
+    asyncio.run(diagnostics(config_path))
