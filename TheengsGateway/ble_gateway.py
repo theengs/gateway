@@ -125,8 +125,8 @@ class Gateway:
                 client.publish(
                     self.configuration["lwt_topic"],
                     "online",
-                    0,
-                    True,
+                    qos=0,
+                    retain=True,
                 )
                 self.subscribe(self.configuration["subscribe_topic"])
             else:
@@ -166,8 +166,8 @@ class Gateway:
         self.client.will_set(
             self.configuration["lwt_topic"],
             "offline",
-            0,
-            True,
+            qos=0,
+            retain=True,
         )
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
@@ -184,8 +184,8 @@ class Gateway:
         self.client.publish(
             self.configuration["lwt_topic"],
             "offline",
-            0,
-            True,
+            qos=0,
+            retain=True,
         )
         self.client.disconnect()
 
@@ -234,7 +234,7 @@ class Gateway:
             )  # if tx power is not found we set a default calibration value
         logger.debug("rssi: %d, txpower: %d", rssi, txpower)
         ratio = rssi / txpower
-        if ratio < 1.0:
+        if ratio < 1.0:  # noqa: PLR2004
             distance = pow(ratio, 10)
         else:
             distance = 0.89976 * pow(ratio, 7.7095) + 0.111
@@ -244,7 +244,7 @@ class Gateway:
         self,
         msg,  # noqa: ANN001
         pub_topic=None,  # noqa: ANN001
-        retain=False,  # noqa: ANN001
+        retain=False,  # noqa: ANN001,FBT002
     ) -> None:
         """Publish <msg> to MQTT topic <pub_topic>."""
         if not pub_topic:
@@ -273,7 +273,9 @@ class Gateway:
             logger.info(
                 "Found device %s, synchronizing time daily beginning from %s",
                 address,
-                datetime.fromtimestamp(start_time + SECONDS_IN_DAY).strftime(
+                datetime.fromtimestamp(  # noqa: DTZ006
+                    start_time + SECONDS_IN_DAY,
+                ).strftime(
                     "%Y-%m-%d %H:%M:%S",
                 ),
             )
@@ -325,7 +327,7 @@ class Gateway:
                 logger.info(
                     "Synchronizing time with %s again on %s",
                     address,
-                    datetime.fromtimestamp(
+                    datetime.fromtimestamp(  # noqa: DTZ006
                         this_time + SECONDS_IN_DAY,
                     ).strftime("%Y-%m-%d %H:%M:%S"),
                 )
@@ -472,7 +474,11 @@ class Gateway:
             add_manufacturer(data_json, company_id)
             self.publish_json(data_json, decoded=False)
 
-    def publish_json(self, data_json: DataJSONType, decoded: bool) -> None:
+    def publish_json(
+        self,
+        data_json: DataJSONType,
+        decoded: bool,  # noqa: FBT001
+    ) -> None:
         """Publish JSON data to MQTT."""
         message = json.dumps(data_json)
         self.publish(
