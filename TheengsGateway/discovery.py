@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
 import re
-from typing import List
+from typing import Dict, List
 
 from TheengsDecoder import getProperties
 
@@ -69,36 +69,9 @@ ha_dev_units = [
 class DiscoveryGateway(Gateway):
     """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
 
-    def __init__(
-        self,
-        broker: str,
-        port: int,
-        username: str,
-        password: str,
-        adapter: str,
-        scanning_mode: str,
-        discovery_topic: str,
-        discovery_device_name: str,
-        discovery_filter: str,
-        hass_discovery: int,
-        enable_tls: int,
-        enable_websocket: int,
-    ) -> None:
-        super().__init__(
-            broker,
-            port,
-            username,
-            password,
-            adapter,
-            scanning_mode,
-            enable_tls,
-            enable_websocket,
-        )
-        self.discovery_topic = discovery_topic
-        self.discovery_device_name = discovery_device_name
+    def __init__(self, configuration: Dict) -> None:
+        super().__init__(configuration)
         self.discovered_entities: List[str] = []
-        self.discovery_filter = discovery_filter
-        self.hass_discovery = hass_discovery
 
     def publish_device_info(self, pub_device) -> None:  # noqa: ANN001
         """Publish sensor directly to Home Assistant via MQTT discovery."""
@@ -106,12 +79,15 @@ class DiscoveryGateway(Gateway):
         device_data = json.dumps(pub_device)
         if (
             pub_device_uuid in self.discovered_entities
-            or pub_device["model_id"] in self.discovery_filter
+            or pub_device["model_id"] in self.configuration["discovery_filter"]
         ):
             logger.debug("Already discovered or filtered: %s", pub_device_uuid)
-            self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
-            if self.presence:
-                self.publish(device_data, self.presence_topic)
+            self.publish(
+                device_data,
+                self.configuration["publish_topic"] + "/" + pub_device_uuid,
+            )
+            if self.configuration["presence"]:
+                self.publish(device_data, self.configuration["presence_topic"])
             return
 
         logger.info("publishing device `%s`", pub_device)
@@ -128,10 +104,14 @@ class DiscoveryGateway(Gateway):
             hadevice["name"] = pub_device["name"]
         else:
             hadevice["name"] = pub_device["model"]
-        hadevice["via_device"] = self.discovery_device_name  # type: ignore[assignment]
+        hadevice["via_device"] = self.configuration["discovery_device_name"]
 
-        discovery_topic = self.discovery_topic + "/" + pub_device_uuid
-        state_topic = self.pub_topic + "/" + pub_device_uuid
+        discovery_topic = (
+            self.configuration["discovery_topic"] + "/" + pub_device_uuid
+        )
+        state_topic = (
+            self.configuration["publish_topic"] + "/" + pub_device_uuid
+        )
         state_topic = re.sub(
             r".+?/",
             "+/",
@@ -154,7 +134,7 @@ class DiscoveryGateway(Gateway):
                     ]
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
-            if self.hass_discovery == 1:
+            if self.configuration["hass_discovery"]:
                 device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
             else:
                 device["val_tpl"] = "{{ value_json." + k + " }}"
@@ -164,6 +144,9 @@ class DiscoveryGateway(Gateway):
             self.publish(json.dumps(device), config_topic, True)
 
         self.discovered_entities.append(pub_device_uuid)
-        self.publish(device_data, self.pub_topic + "/" + pub_device_uuid)
-        if self.presence:
-            self.publish(device_data, self.presence_topic)
+        self.publish(
+            device_data,
+            self.configuration["publish_topic"] + "/" + pub_device_uuid,
+        )
+        if self.configuration["presence"]:
+            self.publish(device_data, self.configuration["presence_topic"])
