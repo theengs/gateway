@@ -141,7 +141,7 @@ class DiscoveryGateway(Gateway):
             device["state_class"] = "measurement"
             config_topic = discovery_topic + "-" + k + "/config"
             device["device"] = hadevice
-            self.publish(json.dumps(device), config_topic, True)
+            self.publish(json.dumps(device), config_topic, retain=True)
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish(

@@ -36,7 +36,7 @@ class AdvertisementDecryptor(ABC):
         """Replace the encrypted data by decrypted payload."""
 
 
-class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):
+class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):  # noqa: N801
     """Class for decryption of LYWSD03MMX PVVX encrypted advertisements."""
 
     def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
