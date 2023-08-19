@@ -1,18 +1,18 @@
 ---
 repos:
 - repo: https://github.com/psf/black
-  rev: 22.10.0
+  rev: 23.7.0
   hooks:
     - id: black
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: 'v0.0.261'
+  rev: 'v0.0.285'
   hooks:
     - id: ruff
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.991
+  rev: v1.5.1
   hooks:
   - id: mypy
-    entry: env MYPYPATH=src mypy
+    entry: env MYPYPATH=TheengsGateway mypy
     args: []
     additional_dependencies:
     - bleak>=0.19.0

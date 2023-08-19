@@ -3,9 +3,10 @@
 This module adds decryptors for encrypted advertisements of a selection of
 devices.
 """
+from __future__ import annotations
+
 import binascii
 from abc import ABC, abstractmethod
-from typing import Dict
 
 from Cryptodome.Cipher import AES
 
@@ -14,7 +15,7 @@ class AdvertisementDecryptor(ABC):
     """Abstract class that represents a decryptor for advertisements."""
 
     @abstractmethod
-    def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
+    def compute_nonce(self, address: str, decoded_json: dict) -> bytes:
         """Compute the nonce for a specific address and JSON input."""
 
     @abstractmethod
@@ -22,7 +23,7 @@ class AdvertisementDecryptor(ABC):
         self,
         bindkey: bytes,
         address: str,
-        decoded_json: Dict,
+        decoded_json: dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input."""
 
@@ -30,8 +31,8 @@ class AdvertisementDecryptor(ABC):
     def replace_encrypted_data(
         self,
         decrypted_data: bytes,
-        data_json: Dict,
-        decoded_json: Dict,
+        data_json: dict,
+        decoded_json: dict,
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
 
@@ -39,7 +40,7 @@ class AdvertisementDecryptor(ABC):
 class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):  # noqa: N801
     """Class for decryption of LYWSD03MMX PVVX encrypted advertisements."""
 
-    def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
+    def compute_nonce(self, address: str, decoded_json: dict) -> bytes:
         """Compute the nonce for a specific address and JSON input."""
         # The nonce consists of:
         # 6 bytes: device address in reverse
@@ -62,7 +63,7 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):  # noqa: N801
         self,
         bindkey: bytes,
         address: str,
-        decoded_json: Dict,
+        decoded_json: dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input with AES CCM."""
         nonce = self.compute_nonce(address, decoded_json)
@@ -75,8 +76,8 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):  # noqa: N801
     def replace_encrypted_data(
         self,
         decrypted_data: bytes,
-        data_json: Dict,
-        decoded_json: Dict,  # noqa: ARG002
+        data_json: dict,
+        decoded_json: dict,  # noqa: ARG002
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
         data_json["servicedata"] = decrypted_data.hex()
@@ -85,7 +86,7 @@ class LYWSD03MMC_PVVXDecryptor(AdvertisementDecryptor):  # noqa: N801
 class BTHomeV2Decryptor(AdvertisementDecryptor):
     """Class for decryption of BTHome v2 encrypted advertisements."""
 
-    def compute_nonce(self, address: str, decoded_json: Dict) -> bytes:
+    def compute_nonce(self, address: str, decoded_json: dict) -> bytes:
         """Compute the nonce for a specific address and JSON input."""
         # The nonce consists of:
         # 6 bytes: device address
@@ -107,7 +108,7 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
         self,
         bindkey: bytes,
         address: str,
-        decoded_json: Dict,
+        decoded_json: dict,
     ) -> bytes:
         """Decrypt ciphertext from JSON input with AES CCM."""
         nonce = self.compute_nonce(address, decoded_json)
@@ -119,8 +120,8 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
     def replace_encrypted_data(
         self,
         decrypted_data: bytes,
-        data_json: Dict,
-        decoded_json: Dict,
+        data_json: dict,
+        decoded_json: dict,
     ) -> None:
         """Replace the encrypted data by decrypted payload."""
         # Clear encryption and MAC included bits in device info

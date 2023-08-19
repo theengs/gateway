@@ -3,6 +3,8 @@
 This module can be run on the command line with python -m TheengsGateway.diagnose
 to show diagnostic information for debugging purposes.
 """
+from __future__ import annotations
+
 import argparse
 import asyncio
 import json
@@ -18,7 +20,7 @@ ConfigType = Dict[str, Union[str, int, List[str]]]
 _ADDR_RE = re.compile(r"^(([0-9A-F]{2}:){3})([0-9A-F]{2}:){2}[0-9A-F]{2}$")
 
 
-def _anonymize_strings(fields: List[str], config: ConfigType) -> None:
+def _anonymize_strings(fields: list[str], config: ConfigType) -> None:
     for field in fields:
         if field in config:
             config[field] = "***"
@@ -31,17 +33,17 @@ def _anonymize_address(address: str) -> str:
     return "INVALID ADDRESS"
 
 
-def _anonymize_addresses(addresses: List[str]) -> List[str]:
+def _anonymize_addresses(addresses: list[str]) -> list[str]:
     return [_anonymize_address(address) for address in addresses]
 
 
-def _anonymize_bindkeys(bindkeys: Dict[str, str]) -> Dict[str, str]:
+def _anonymize_bindkeys(bindkeys: dict[str, str]) -> dict[str, str]:
     """Anonymize the addresses and bindkeys in a dictionary."""
     return {_anonymize_address(address): "***" for address in bindkeys}
 
 
 # This function is taken from Textual
-def _section(title: str, values: Dict[str, str]) -> None:
+def _section(title: str, values: dict[str, str]) -> None:
     """Print a collection of named values within a titled section."""
     max_name = max(map(len, values.keys()))
     max_value = max(map(len, [str(value) for value in values.values()]))
@@ -50,7 +52,7 @@ def _section(title: str, values: Dict[str, str]) -> None:
     print(f"| {'Name':{max_name}} | {'Value':{max_value}} |")
     print(f"|-{'-' * max_name}-|-{'-'*max_value}-|")
     for name, value in values.items():
-        print(f"| {name:{max_name}} | {str(value):{max_value}} |")
+        print(f"| {name:{max_name}} | {value:{max_value}} |")
     print()
 
 
@@ -132,7 +134,7 @@ def _config(config_path: Path) -> None:
         print("Configuration file not found")
         print()
     except json.JSONDecodeError as exception:
-        print(f"Malformed JSON configuration file: {str(exception)}")
+        print(f"Malformed JSON configuration file: {exception}")
         print()
 
 

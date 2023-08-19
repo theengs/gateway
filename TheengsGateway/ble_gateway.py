@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 # mypy: disable-error-code="name-defined,attr-defined"
-
+from __future__ import annotations
 
 import asyncio
 import json
@@ -29,21 +29,24 @@ import ssl
 import struct
 from contextlib import suppress
 from datetime import datetime
-from pathlib import Path
 from random import randrange
 from threading import Thread
 from time import time
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 from bleak import BleakError, BleakScanner
-from bleak.backends.device import BLEDevice
-from bleak.backends.scanner import AdvertisementData
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
 from bluetooth_clocks.scanners import find_clock
 from bluetooth_numbers import company
 from bluetooth_numbers.exceptions import No16BitIntegerError, UnknownCICError
 from paho.mqtt import client as mqtt_client
 from TheengsDecoder import decodeBLE
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from bleak.backends.device import BLEDevice
+    from bleak.backends.scanner import AdvertisementData
 
 from .decryption import UnsupportedEncryptionError, create_decryptor
 from .diagnose import diagnostics
@@ -78,7 +81,7 @@ LOG_LEVEL = {
 
 logger = logging.getLogger("BLEGateway")
 
-DataJSONType = Dict[str, Union[str, int, float, bool]]
+DataJSONType = dict[str, Union[str, int, float, bool]]
 
 
 def get_address(data: DataJSONType) -> str:
@@ -91,7 +94,7 @@ def get_address(data: DataJSONType) -> str:
 
 def add_manufacturer(
     data: DataJSONType,
-    company_id: Optional[int],
+    company_id: int | None,
 ) -> None:
     """Add the name of the manufacturer based on the company ID."""
     if company_id is not None:
@@ -104,11 +107,11 @@ class Gateway:
 
     def __init__(
         self,
-        configuration: Dict,
+        configuration: dict,
     ) -> None:
         self.configuration = configuration
         self.stopped = False
-        self.clock_updates: Dict[str, float] = {}
+        self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
 
     def connect_mqtt(self) -> None:
@@ -364,26 +367,23 @@ class Gateway:
         logger.info("Starting BLE scan")
         self.running = True
         while not self.stopped:
-            try:
-                if self.client.is_connected():
-                    self.published_messages = 0
-                    await scanner.start()
-                    await asyncio.sleep(self.configuration["ble_scan_time"])
-                    await scanner.stop()
-                    logger.info(
-                        "Sent %s messages to MQTT",
-                        self.published_messages,
-                    )
-                    await asyncio.sleep(
-                        self.configuration["ble_time_between_scans"],
-                    )
+            if self.client.is_connected():
+                self.published_messages = 0
+                await scanner.start()
+                await asyncio.sleep(self.configuration["ble_scan_time"])
+                await scanner.stop()
+                logger.info(
+                    "Sent %s messages to MQTT",
+                    self.published_messages,
+                )
+                await asyncio.sleep(
+                    self.configuration["ble_time_between_scans"],
+                )
 
-                    # Update time for all clocks once a day
-                    await self.update_clock_times()
-                else:
-                    await asyncio.sleep(5.0)
-            except Exception:
-                raise
+                # Update time for all clocks once a day
+                await self.update_clock_times()
+            else:
+                await asyncio.sleep(5.0)
 
         logger.error("BLE scan loop stopped")
         self.running = False
@@ -404,8 +404,10 @@ class Gateway:
 
         if advertisement_data.manufacturer_data:
             # Only look at the first manufacturer data in the advertisement
-            company_id = list(advertisement_data.manufacturer_data.keys())[0]
-            manufacturer_data = list(
+            company_id = list(  # noqa: RUF015
+                advertisement_data.manufacturer_data.keys(),
+            )[0]
+            manufacturer_data = list(  # noqa: RUF015
                 advertisement_data.manufacturer_data.values(),
             )[0]
             dstr = str(struct.pack("<H", company_id).hex())
@@ -433,7 +435,7 @@ class Gateway:
     def decode_advertisement(
         self,
         data_json: DataJSONType,
-        company_id: Optional[int],
+        company_id: int | None,
     ) -> None:
         """Decode device from data JSON."""
         decoded_json = decodeBLE(json.dumps(data_json))
@@ -551,7 +553,7 @@ class Gateway:
             logger.exception("Decryption failed")
 
 
-def run(configuration: Dict, config_path: Path) -> None:
+def run(configuration: dict, config_path: Path) -> None:
     """Run BLE gateway."""
     if configuration["discovery"]:
         from .discovery import DiscoveryGateway
