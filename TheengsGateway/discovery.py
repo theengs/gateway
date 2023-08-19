@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 # mypy: disable-error-code=attr-defined
+from __future__ import annotations
 
 import json
 import re
-from typing import Dict, List
 
 from TheengsDecoder import getProperties
 
@@ -69,9 +69,9 @@ ha_dev_units = [
 class DiscoveryGateway(Gateway):
     """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
 
-    def __init__(self, configuration: Dict) -> None:
+    def __init__(self, configuration: dict) -> None:
         super().__init__(configuration)
-        self.discovered_entities: List[str] = []
+        self.discovered_entities: list[str] = []
 
     def publish_device_info(self, pub_device) -> None:  # noqa: ANN001
         """Publish sensor directly to Home Assistant via MQTT discovery."""
@@ -116,7 +116,7 @@ class DiscoveryGateway(Gateway):
             r".+?/",
             "+/",
             state_topic,
-            len(re.findall(r"/", state_topic)) - 1,
+            count=len(re.findall(r"/", state_topic)) - 1,
         )
         data = getProperties(pub_device["model_id"])
         data = json.loads(data)

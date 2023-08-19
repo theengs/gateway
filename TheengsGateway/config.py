@@ -3,10 +3,11 @@
 This module handles everything that has to do with configuration files and
 command-line parameters for Theengs Gateway.
 """
+from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
-from typing import Dict
 
 # Each configuration option is added to:
 # - the DEFAULT_CONFIG dict with its default value
@@ -218,7 +219,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def read_configuration(config_path: Path) -> Dict:
+def read_configuration(config_path: Path) -> dict:
     """Read a Theengs Gateway configuration from a file.
 
     If the path doesn't exist, the function returns the default configuration.
@@ -229,13 +230,13 @@ def read_configuration(config_path: Path) -> Dict:
     except OSError:
         configuration = DEFAULT_CONFIG
     except json.JSONDecodeError as exception:
-        msg = f"Malformed configuration file {config_path.resolve()}: {str(exception)}"
+        msg = f"Malformed configuration file {config_path.resolve()}: {exception}"
         raise SystemExit(msg) from exception
 
     return configuration
 
 
-def write_configuration(configuration: Dict, config_path: Path) -> None:
+def write_configuration(configuration: dict, config_path: Path) -> None:
     """Write a Theengs Gateway configuration to a file."""
     try:
         with config_path.open(encoding="utf-8", mode="w") as config_file:
@@ -247,7 +248,7 @@ def write_configuration(configuration: Dict, config_path: Path) -> None:
         raise SystemExit(msg) from exception
 
 
-def merge_args_with_config(config: Dict, args: argparse.Namespace) -> None:
+def merge_args_with_config(config: dict, args: argparse.Namespace) -> None:
     """Merge command-line arguments into configuration.
 
     Command-line arguments override the corresponding configuration if they are set.
@@ -261,8 +262,10 @@ def merge_args_with_config(config: Dict, args: argparse.Namespace) -> None:
                         dict(zip(value[::2], value[1::2])),
                     )
                 else:
-                    for element in value:
-                        if element not in config[key]:
-                            config[key].append(element)
+                    config[key].extend(
+                        element
+                        for element in value
+                        if element not in config[key]
+                    )
             elif key != "config":
                 config[key] = value
