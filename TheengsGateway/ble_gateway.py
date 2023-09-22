@@ -32,7 +32,7 @@ from datetime import datetime
 from random import randrange
 from threading import Thread
 from time import time
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Dict, Union
 
 from bleak import BleakError, BleakScanner
 from bluetooth_clocks.exceptions import UnsupportedDeviceError
@@ -81,7 +81,7 @@ LOG_LEVEL = {
 
 logger = logging.getLogger("BLEGateway")
 
-DataJSONType = dict[str, Union[str, int, float, bool]]
+DataJSONType = Dict[str, Union[str, int, float, bool]]
 
 
 def get_address(data: DataJSONType) -> str:
