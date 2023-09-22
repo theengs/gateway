@@ -107,10 +107,8 @@ def _os() -> None:
         "Machine type": platform.machine(),
     }
     if platform.system() == "Linux" and sys.version_info[:2] >= (3, 10):
-        os_parameters["Distribution"] = platform.freedesktop_os_release()[
-            "PRETTY_NAME"
-        ]
-
+        os_release = platform.freedesktop_os_release()  # type: ignore[attr-defined]
+        os_parameters["Distribution"] = os_release["PRETTY_NAME"]
     _section("Operating System", os_parameters)
 
 
