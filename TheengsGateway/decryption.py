@@ -140,6 +140,7 @@ _DECRYPTOR_MODELS = {
     "LYWSD03MMC/MJWSD05MMC_PVVX_ENCR": LYWSD03MMC_PVVXDecryptor,
     "SBBT_002C_ENCR": BTHomeV2Decryptor,
     "SBDW_002C_ENCR": BTHomeV2Decryptor,
+    "SBMO_003Z_ENCR": BTHomeV2Decryptor,
 }
 
 
