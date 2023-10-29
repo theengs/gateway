@@ -52,7 +52,7 @@ usage:    [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_T
           [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
           [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
           [-bk ADDRESS [BINDKEY ...]] [-tls ENABLE_TLS]
-          [-ws ENABLE_WEBSOCKET]
+          [-ws ENABLE_WEBSOCKET] [-id ADDRESS [IRK ...]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -108,6 +108,8 @@ optional arguments:
                         Enable (1) or disable (0) TLS (default: 0)
   -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
                         Enable (1) or disable (0) WebSocket (default: 0)
+  -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
+                        Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
 ```
 
 ### For a Docker container

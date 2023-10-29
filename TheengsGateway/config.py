@@ -42,6 +42,7 @@ DEFAULT_CONFIG = {
     "bindkeys": {},
     "enable_tls": 0,
     "enable_websocket": 0,
+    "identities": {},
 }
 
 
@@ -216,6 +217,13 @@ def parse_args() -> argparse.Namespace:
         type=int,
         help="Enable (1) or disable (0) WebSocket (default: 0)",
     )
+    parser.add_argument(
+        "-id",
+        "--identities",
+        nargs="+",
+        metavar=("ADDRESS", "IRK"),
+        help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
+    )
     return parser.parse_args()
 
 
@@ -257,7 +265,7 @@ def merge_args_with_config(config: dict, args: argparse.Namespace) -> None:
     for key, value in args.__dict__.items():
         if value is not None:
             if isinstance(value, list):
-                if key == "bindkeys":
+                if key in {"bindkeys", "identities"}:
                     config[key].update(
                         dict(zip(value[::2], value[1::2])),
                     )
