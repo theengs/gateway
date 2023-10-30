@@ -5,6 +5,8 @@ corresponding identity resolving keys (IRKs).
 """
 from __future__ import annotations
 
+from base64 import b64decode
+
 from Cryptodome.Cipher import AES
 
 _MSB_MASK = 0b11000000
@@ -24,7 +26,7 @@ def resolve_private_address(address: str, irk: str) -> bool:
 
     prand = rpa[:3]
     hash_value = rpa[3:]
-    cipher = AES.new(bytes.fromhex(irk), AES.MODE_ECB)
+    cipher = AES.new(b64decode(irk), AES.MODE_ECB)
     localhash = cipher.encrypt(b"\x00" * 13 + prand)
 
     if localhash[13:] != hash_value:
