@@ -400,8 +400,13 @@ class Gateway:
         # Try to resolve private addresses with known IRKs
         address = device.address
         for identity, irk in self.configuration["identities"].items():
-            if resolve_private_address(device.address, irk):
+            if resolve_private_address(address, irk):
                 address = identity
+                logger.debug(
+                    "Using identity address %s instead of random private address %s",
+                    address,
+                    device.address,
+                )
                 break
 
         # Try to add the device to dictionary of clocks to synchronize time.

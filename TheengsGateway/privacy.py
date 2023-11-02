@@ -26,7 +26,13 @@ def resolve_private_address(address: str, irk: str) -> bool:
 
     prand = rpa[:3]
     hash_value = rpa[3:]
-    cipher = AES.new(b64decode(irk), AES.MODE_ECB)
+    try:
+        # Suppose the key is in hex format
+        key = bytes.fromhex(irk)[::-1]
+    except ValueError:
+        # If that doesn't work, try to decode it as Base64 format
+        key = b64decode(irk)[::-1]
+    cipher = AES.new(key, AES.MODE_ECB)
     localhash = cipher.encrypt(b"\x00" * 13 + prand)
 
     if localhash[13:] != hash_value:
