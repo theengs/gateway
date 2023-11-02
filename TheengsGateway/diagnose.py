@@ -37,9 +37,9 @@ def _anonymize_addresses(addresses: list[str]) -> list[str]:
     return [_anonymize_address(address) for address in addresses]
 
 
-def _anonymize_bindkeys(bindkeys: dict[str, str]) -> dict[str, str]:
-    """Anonymize the addresses and bindkeys in a dictionary."""
-    return {_anonymize_address(address): "***" for address in bindkeys}
+def _anonymize_addr_keys(addr_keys: dict[str, str]) -> dict[str, str]:
+    """Anonymize the addresses and corresponding keys in a dictionary."""
+    return {_anonymize_address(address): "***" for address in addr_keys}
 
 
 # This function is taken from Textual
@@ -123,7 +123,8 @@ def _config(config_path: Path) -> None:
             config = json.load(config_file)
             _anonymize_strings(["user", "pass"], config)
             config["time_sync"] = _anonymize_addresses(config["time_sync"])
-            config["bindkeys"] = _anonymize_bindkeys(config["bindkeys"])
+            config["bindkeys"] = _anonymize_addr_keys(config["bindkeys"])
+            config["identities"] = _anonymize_addr_keys(config["identities"])
         print("```")
         print(json.dumps(config, sort_keys=True, indent=4))
         print("```")

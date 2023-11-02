@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
 from .decryption import UnsupportedEncryptionError, create_decryptor
 from .diagnose import diagnostics
+from .privacy import resolve_private_address
 
 if platform.system() == "Linux":
     from bleak.assigned_numbers import AdvertisementDataType
@@ -396,8 +397,20 @@ class Gateway:
         """Detect device in received advertisement data."""
         logger.debug("%s:%s", device.address, advertisement_data)
 
+        # Try to resolve private addresses with known IRKs
+        address = device.address
+        for identity, irk in self.configuration["identities"].items():
+            if resolve_private_address(address, irk):
+                address = identity
+                logger.debug(
+                    "Using identity address %s instead of random private address %s",
+                    address,
+                    device.address,
+                )
+                break
+
         # Try to add the device to dictionary of clocks to synchronize time.
-        self.add_clock(device.address)
+        self.add_clock(address)
 
         data_json: DataJSONType = {}
         company_id = None
@@ -418,7 +431,7 @@ class Gateway:
             data_json["name"] = advertisement_data.local_name
 
         if advertisement_data.service_data:
-            data_json["id"] = device.address
+            data_json["id"] = address
             data_json["rssi"] = advertisement_data.rssi
             # Try to decode advertisement with service data for each UUID separately.
             for uuid, data in advertisement_data.service_data.items():
@@ -428,7 +441,7 @@ class Gateway:
                 data_json_copy["servicedata"] = data.hex()
                 self.decode_advertisement(data_json_copy, company_id)
         elif data_json:
-            data_json["id"] = device.address
+            data_json["id"] = address
             data_json["rssi"] = advertisement_data.rssi
             self.decode_advertisement(data_json, company_id)
 

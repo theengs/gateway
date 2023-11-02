@@ -52,7 +52,7 @@ usage:    [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_T
           [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
           [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
           [-bk ADDRESS [BINDKEY ...]] [-tls ENABLE_TLS]
-          [-ws ENABLE_WEBSOCKET]
+          [-ws ENABLE_WEBSOCKET] [-id ADDRESS [IRK ...]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -108,6 +108,8 @@ optional arguments:
                         Enable (1) or disable (0) TLS (default: 0)
   -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
                         Enable (1) or disable (0) WebSocket (default: 0)
+  -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
+                        Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
 ```
 
 ### For a Docker container
@@ -236,3 +238,14 @@ TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add 
 ```
 
 Theengs Gateway will then use the bindkey 0dc540f3025b474b9ef1085e051b1add to decrypt all advertisements from device 00:11:22:33:44:55:66 and bindkey 6385424e1b0341109942ad2a6bb42e58 for all advertisements from device AA:BB:CC:DD:EE:FF.
+
+## Resolving random private addresses
+If you want to resolve random private addresses into a device's identity address, you need to add an identity resolving key (IRK) for each identity address with the `--identities` argument. For example:
+
+```
+TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
+```
+
+Theengs Gateway will then use the identity resolving key 0dc540f3025b474b9ef1085e051b1add to resolve random private addresses from device 00:11:22:33:44:55:66 and identity resolving key 6385424e1b0341109942ad2a6bb42e58 to resolve random private addresses from device AA:BB:CC:DD:EE:FF.
+
+The identity resolving key can also be specified as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
