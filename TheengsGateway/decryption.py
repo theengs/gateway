@@ -136,11 +136,9 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
         data_json["servicedata"] = bthome_service_data.hex()
 
 
-_DECRYPTOR_MODELS = {
-    "LYWSD03MMC/MJWSD05MMC_PVVX_ENCR": LYWSD03MMC_PVVXDecryptor,
-    "SBBT_002C_ENCR": BTHomeV2Decryptor,
-    "SBDW_002C_ENCR": BTHomeV2Decryptor,
-    "SBMO_003Z_ENCR": BTHomeV2Decryptor,
+_DECRYPTORS = {
+    1: LYWSD03MMC_PVVXDecryptor,
+    2: BTHomeV2Decryptor,
 }
 
 
@@ -148,11 +146,11 @@ class UnsupportedEncryptionError(Exception):
     """Exception raised when trying to decrypt an unsupported device."""
 
 
-def create_decryptor(model_id: str) -> AdvertisementDecryptor:
-    """Return the decryptor class for the given model ID."""
-    if model_id not in _DECRYPTOR_MODELS:
+def create_decryptor(mode: int) -> AdvertisementDecryptor:
+    """Return the decryptor class for the given encryption mode."""
+    if mode not in _DECRYPTORS:
         raise UnsupportedEncryptionError
-    return _DECRYPTOR_MODELS[model_id]()  # type: ignore[abstract]
+    return _DECRYPTORS[mode]()  # type: ignore[abstract]
 
 
 def reverse_address(address: str) -> str:

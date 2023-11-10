@@ -468,8 +468,8 @@ class Gateway:
                     self.hass_presence(decoded_json)
 
                 # Handle encrypted payload
-                if decoded_json.get("encr", False):
-                    self.handle_encrypted_advertisement(
+                if decoded_json.get("encr", 0) > 0:
+                    decoded_json = self.handle_encrypted_advertisement(
                         data_json,
                         decoded_json,
                     )
@@ -512,14 +512,14 @@ class Gateway:
         self,
         data_json: DataJSONType,
         decoded_json: DataJSONType,
-    ) -> None:
+    ) -> DataJSONType:
         """Handle encrypted advertisement."""
         try:
             bindkey = bytes.fromhex(
                 self.configuration["bindkeys"][get_address(decoded_json)],
             )
             decryptor = create_decryptor(
-                decoded_json["model_id"],  # type: ignore[arg-type]
+                decoded_json["encr"],  # type: ignore[arg-type]
             )
             decrypted_data = decryptor.decrypt(
                 bindkey,
@@ -564,6 +564,8 @@ class Gateway:
             )
         except ValueError:
             logger.exception("Decryption failed")
+        finally:
+            return decoded_json  # noqa: B012
 
 
 def run(configuration: dict, config_path: Path) -> None:
