@@ -370,9 +370,13 @@ class Gateway:
         while not self.stopped:
             if self.client.is_connected():
                 self.published_messages = 0
-                await scanner.start()
-                await asyncio.sleep(self.configuration["ble_scan_time"])
-                await scanner.stop()
+                try:
+                    await scanner.start()
+                    await asyncio.sleep(self.configuration["ble_scan_time"])
+                    await scanner.stop()
+                except BleakError as error:
+                    logger.exception(error)  # noqa: TRY401
+                    self.stopped = True
                 logger.info(
                     "Sent %s messages to MQTT",
                     self.published_messages,
