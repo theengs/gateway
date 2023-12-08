@@ -29,7 +29,7 @@ DEFAULT_CONFIG = {
     "log_level": "INFO",
     "discovery": 1,
     "hass_discovery": 1,
-    "discovery_topic": "homeassistant/sensor",
+    "discovery_topic": "homeassistant",
     "discovery_device_name": "TheengsGateway",
     "discovery_filter": [
         "IBEACON",

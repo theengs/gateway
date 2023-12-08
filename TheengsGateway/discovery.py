@@ -130,36 +130,22 @@ class DiscoveryGateway(Gateway):
             getProperties(pub_device["model_id"]),
         )["properties"]
 
-        hadevice = {}
-        hadevice["identifiers"] = list({pub_device_uuid})
-        hadevice["connections"] = [["mac", pub_device_uuid]]
-        hadevice["manufacturer"] = pub_device["brand"]
-        hadevice["model"] = pub_device["model_id"]
-        if "name" in pub_device:
-            hadevice["name"] = pub_device["name"]
-        else:
-            hadevice["name"] = pub_device["model"]
-        hadevice["via_device"] = self.configuration["discovery_device_name"]
+        hadevice = self.prepare_hadevice(pub_device_uuid, pub_device)
 
-        discovery_topic = (
-            self.configuration["discovery_topic"] + "/" + pub_device_uuid
-        )
-        state_topic = (
-            self.configuration["publish_topic"] + "/" + pub_device_uuid
-        )
-        state_topic = re.sub(
-            r".+?/",
-            "+/",
-            state_topic,
-            count=len(re.findall(r"/", state_topic)) - 1,
-        )
+        discovery_topic = self.configuration["discovery_topic"]
+        state_topic = self.build_state_topic(pub_device)
+
         data = getProperties(pub_device["model_id"])
         data = json.loads(data)
         data = data["properties"]
+        entity_type = "sensor"
 
         for k in data:
             device = {}
             device["stat_t"] = state_topic
+            # If the properties key is mac address, skip it
+            if k in {"mac", "device"}:
+                continue
             if k in pub_device["properties"]:
                 if pub_device["properties"][k]["name"] in ha_dev_classes:
                     device["dev_cla"] = pub_device["properties"][k]["name"]
@@ -167,21 +153,68 @@ class DiscoveryGateway(Gateway):
                     device["unit_of_meas"] = pub_device["properties"][k][
                         "unit"
                     ]
+                    device["state_class"] = "measurement"
+                    entity_type = "sensor"
+                elif pub_device["properties"][k]["unit"] == "status":
+                    entity_type = "binary_sensor"
+                    device["pl_on"] = "True"
+                    device["pl_off"] = "False"
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
             if self.configuration["hass_discovery"]:
                 device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
             else:
                 device["val_tpl"] = "{{ value_json." + k + " }}"
-            device["state_class"] = "measurement"
-            config_topic = discovery_topic + "-" + k + "/config"
-            device["device"] = hadevice
+
+            config_topic = (
+                discovery_topic
+                + "/"
+                + entity_type
+                + "/"
+                + pub_device_uuid
+                + "-"
+                + k
+                + "/config"
+            )
+            device["device"] = hadevice  # type: ignore[assignment]
             self.publish(json.dumps(device), config_topic, retain=True)
 
         self.discovered_entities.append(pub_device_uuid)
-        self.publish(
+        self.publish_device_data(
+            pub_device_uuid,
             device_data,
-            self.configuration["publish_topic"] + "/" + pub_device_uuid,
         )
+
+    def publish_device_data(self, uuid: str, data: str) -> None:
+        """Publish device data to the configured MQTT topics."""
+        self.publish(data, f"{self.configuration['publish_topic']}/{uuid}")
         if self.configuration["presence"]:
-            self.publish(device_data, self.configuration["presence_topic"])
+            self.publish(data, self.configuration["presence_topic"])
+
+    def prepare_hadevice(self, uuid: str, device: dict) -> dict:
+        """Prepare Home Assistant device configuration."""
+        return {
+            "identifiers": [uuid],
+            "connections": [["mac", uuid]],
+            "manufacturer": device.get("brand", "Unknown"),
+            "model": device.get("model_id", "Unknown"),
+            "name": device.get("name", device.get("model", "Unknown")),
+            "via_device": self.configuration.get(
+                "discovery_device_name",
+                "Unknown",
+            ),
+        }
+
+    def build_state_topic(self, device: dict) -> str:
+        """Build state topic."""
+        state_topic = (
+            self.configuration["publish_topic"]
+            + "/"
+            + device["id"].replace(":", "")
+        )
+        return re.sub(
+            r".+?/",
+            "+/",
+            state_topic,
+            count=len(re.findall(r"/", state_topic)) - 1,
+        )
