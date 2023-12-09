@@ -42,7 +42,6 @@ module.exports = {
         {
           title: '1 - Prerequisites🧭',
           children: [
-            'prerequisites/devices',
             'prerequisites/hardware',
             'prerequisites/broker',
             'prerequisites/controller']
