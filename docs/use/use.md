@@ -128,7 +128,7 @@ docker run --rm \
     -e LOG_LEVEL=INFO \
     -e HAAS_DISCOVERY=true \
     -e DISCOVERY=true \
-    -e DISCOVERY_TOPIC=homeassistant/sensor \
+    -e DISCOVERY_TOPIC=homeassistant \
     -e DISCOVERY_DEVICE_NAME=TheengsGateway \
     -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP,APPLE_CONT,APPLE_CONTAT]" \
     -e SCANNING_MODE=active \
