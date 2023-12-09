@@ -43,6 +43,13 @@ def main() -> None:
     configuration = {**DEFAULT_CONFIG, **configuration}
     merge_args_with_config(configuration, args)
 
+    # Remove /sensor if existing in the configuration as we now handle different types
+    # of devices.
+    if configuration["discovery_topic"].endswith("/sensor"):
+        configuration["discovery_topic"] = configuration["discovery_topic"][
+            :-7
+        ]
+
     if not configuration["host"]:
         sys.exit("MQTT host is not specified")
 
