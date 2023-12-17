@@ -459,6 +459,14 @@ class Gateway:
 
         if decoded_json:
             decoded_json = json.loads(decoded_json)
+
+            if "prmac" in decoded_json:
+                address = decoded_json.get("id")
+                if address in self.configuration["identities"]:
+                    decoded_json.pop("prmac", None)
+                else:
+                    decoded_json["type"] = "RMAC"
+
             # Only process if the device is not a random mac address
             if decoded_json["type"] != "RMAC":
                 # Only add manufacturer if device is compliant and no beacon
