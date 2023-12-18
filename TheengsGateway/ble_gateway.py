@@ -459,6 +459,11 @@ class Gateway:
 
         if decoded_json:
             decoded_json = json.loads(decoded_json)
+
+            decoded_json = self.process_prmacs(
+                decoded_json,
+            )
+
             # Only process if the device is not a random mac address
             if decoded_json["type"] != "RMAC":
                 # Only add manufacturer if device is compliant and no beacon
@@ -492,6 +497,20 @@ class Gateway:
         elif self.configuration["publish_all"]:
             add_manufacturer(data_json, company_id)
             self.publish_json(data_json, decoded=False)
+
+    def process_prmacs(
+        self,
+        decoded_json: DataJSONType,
+    ) -> DataJSONType:
+        """Process potential RMACs."""
+        if "prmac" in decoded_json:
+            address = decoded_json.get("id")
+            if address in self.configuration["identities"]:
+                decoded_json.pop("prmac", None)
+            else:
+                decoded_json["type"] = "RMAC"
+
+        return decoded_json
 
     def publish_json(
         self,
