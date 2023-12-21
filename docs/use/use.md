@@ -249,3 +249,13 @@ TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1ad
 Theengs Gateway will then use the identity resolving key 0dc540f3025b474b9ef1085e051b1add to resolve random private addresses from device 00:11:22:33:44:55:66 and identity resolving key 6385424e1b0341109942ad2a6bb42e58 to resolve random private addresses from device AA:BB:CC:DD:EE:FF.
 
 The identity resolving key can also be specified as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
+
+## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone and iPad
+
+To get the Bluetooth Identity Address of an Apple device go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+
+On a Mac associated with your devices open the **Keychain Access** application and search the **login** or **iCloud** Keychain - depending on whether you have iCloud *Password and Keychain* syncing activated or not - for either Bluetooth or the identity address you got for your device as described above.
+
+When you open the Keychain entry, in the Account field it should confirm the identity address as `Public AA:BB:CC:DD:EE:FF`.
+
+Tick the **Show Password** checkbox and enter your macOS password to then select and copy the *whole* content of the field. Paste the content into an empty TextEdit document and look for the **Remote IRK**.
