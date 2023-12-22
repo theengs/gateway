@@ -50,95 +50,36 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments and return them."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-H",
-        "--host",
+        "-a",
+        "--adapter",
         type=str,
-        help="MQTT host address",
+        help="Bluetooth adapter (e.g. hci1 on Linux)",
     )
     parser.add_argument(
-        "-P",
-        "--port",
-        type=int,
-        help="MQTT host port",
+        "-bk",
+        "--bindkeys",
+        nargs="+",
+        metavar=("ADDRESS", "BINDKEY"),
+        help="Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2",
     )
     parser.add_argument(
-        "-u",
-        "--user",
+        "-c",
+        "--config",
         type=str,
-        help="MQTT username",
-    )
-    parser.add_argument(
-        "-p",
-        "--pass",
-        type=str,
-        help="MQTT password",
-    )
-    parser.add_argument(
-        "-pt",
-        "--pub_topic",
-        type=str,
-        help="MQTT publish topic",
-    )
-    parser.add_argument(
-        "-st",
-        "--sub_topic",
-        type=str,
-        help="MQTT subscribe topic",
-    )
-    parser.add_argument(
-        "-Lt",
-        "--lwt_topic",
-        type=str,
-        help="MQTT LWT topic",
-    )
-    parser.add_argument(
-        "-prt",
-        "--presence_topic",
-        type=str,
-        help="MQTT presence topic",
-    )
-    parser.add_argument(
-        "-pr",
-        "--presence",
-        type=int,
-        help="Enable (1) or disable (0) presence publication (default: 1)",
-    )
-    parser.add_argument(
-        "-pa",
-        "--publish_all",
-        type=int,
-        help="Publish all (1) or only decoded (0) advertisements (default: 1)",
-    )
-    parser.add_argument(
-        "-sd",
-        "--scan_duration",
-        type=int,
-        help="BLE scan duration (seconds)",
-    )
-    parser.add_argument(
-        "-tb",
-        "--time_between",
-        type=int,
-        help="Seconds to wait between scans",
-    )
-    parser.add_argument(
-        "-ll",
-        "--log_level",
-        type=str,
-        help="TheengsGateway log level",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    )
-    parser.add_argument(
-        "-Dt",
-        "--discovery-topic",
-        type=str,
-        help="MQTT Discovery topic",
+        default=str(Path("~/theengsgw.conf").expanduser()),
+        help="Path to the configuration file (default: ~/theengsgw.conf)",
     )
     parser.add_argument(
         "-D",
         "--discovery",
         type=int,
         help="Enable(1) or disable(0) MQTT discovery",
+    )
+    parser.add_argument(
+        "-Df",
+        "--discovery_filter",
+        nargs="+",
+        help="Device discovery filter list for Home Assistant",
     )
     parser.add_argument(
         "-Dh",
@@ -154,16 +95,78 @@ def parse_args() -> argparse.Namespace:
         help="Device name for Home Assistant",
     )
     parser.add_argument(
-        "-Df",
-        "--discovery_filter",
-        nargs="+",
-        help="Device discovery filter list for Home Assistant",
+        "-Dt",
+        "--discovery-topic",
+        type=str,
+        help="MQTT Discovery topic",
     )
     parser.add_argument(
-        "-a",
-        "--adapter",
+        "-H",
+        "--host",
         type=str,
-        help="Bluetooth adapter (e.g. hci1 on Linux)",
+        help="MQTT host address",
+    )
+    parser.add_argument(
+        "-id",
+        "--identities",
+        nargs="+",
+        metavar=("ADDRESS", "IRK"),
+        help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
+    )
+    parser.add_argument(
+        "-Lt",
+        "--lwt_topic",
+        type=str,
+        help="MQTT LWT topic",
+    )
+    parser.add_argument(
+        "-ll",
+        "--log_level",
+        type=str,
+        help="TheengsGateway log level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    )
+    parser.add_argument(
+        "-P",
+        "--port",
+        type=int,
+        help="MQTT host port",
+    )
+    parser.add_argument(
+        "-p",
+        "--pass",
+        type=str,
+        help="MQTT password",
+    )
+    parser.add_argument(
+        "-pa",
+        "--publish_all",
+        type=int,
+        help="Publish all (1) or only decoded (0) advertisements (default: 1)",
+    )
+    parser.add_argument(
+        "-padv",
+        "--publish_advdata",
+        type=int,
+        help="Publish advertising and advanced data (1) or not (0) (default: 0)",
+    )
+    parser.add_argument(
+        "-pr",
+        "--presence",
+        type=int,
+        help="Enable (1) or disable (0) presence publication (default: 1)",
+    )
+    parser.add_argument(
+        "-prt",
+        "--presence_topic",
+        type=str,
+        help="MQTT presence topic",
+    )
+    parser.add_argument(
+        "-pt",
+        "--pub_topic",
+        type=str,
+        help="MQTT publish topic",
     )
     parser.add_argument(
         "-s",
@@ -173,10 +176,22 @@ def parse_args() -> argparse.Namespace:
         help="Scanning mode (default: active)",
     )
     parser.add_argument(
-        "-ts",
-        "--time_sync",
-        nargs="+",
-        help="Addresses of Bluetooth devices to synchronize the time",
+        "-sd",
+        "--scan_duration",
+        type=int,
+        help="BLE scan duration (seconds)",
+    )
+    parser.add_argument(
+        "-st",
+        "--sub_topic",
+        type=str,
+        help="MQTT subscribe topic",
+    )
+    parser.add_argument(
+        "-tb",
+        "--time_between",
+        type=int,
+        help="Seconds to wait between scans",
     )
     parser.add_argument(
         "-tf",
@@ -186,43 +201,28 @@ def parse_args() -> argparse.Namespace:
         "(default: 0)",
     )
     parser.add_argument(
-        "-padv",
-        "--publish_advdata",
-        type=int,
-        help="Publish advertising and advanced data (1) or not (0) (default: 0)",
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        type=str,
-        default=str(Path("~/theengsgw.conf").expanduser()),
-        help="Path to the configuration file (default: ~/theengsgw.conf)",
-    )
-    parser.add_argument(
-        "-bk",
-        "--bindkeys",
-        nargs="+",
-        metavar=("ADDRESS", "BINDKEY"),
-        help="Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2",
-    )
-    parser.add_argument(
         "-tls",
         "--enable_tls",
         type=int,
         help="Enable (1) or disable (0) TLS (default: 0)",
     )
     parser.add_argument(
+        "-ts",
+        "--time_sync",
+        nargs="+",
+        help="Addresses of Bluetooth devices to synchronize the time",
+    )
+    parser.add_argument(
+        "-u",
+        "--user",
+        type=str,
+        help="MQTT username",
+    )
+    parser.add_argument(
         "-ws",
         "--enable_websocket",
         type=int,
         help="Enable (1) or disable (0) WebSocket (default: 0)",
-    )
-    parser.add_argument(
-        "-id",
-        "--identities",
-        nargs="+",
-        metavar=("ADDRESS", "IRK"),
-        help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
     )
     return parser.parse_args()
 
