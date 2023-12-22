@@ -43,6 +43,7 @@ ha_dev_classes = [
     "humidity",
     "illuminance",
     "irradiance",
+    "lock",
     "motion",
     "moving",
     "pm10",
