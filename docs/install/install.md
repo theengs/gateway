@@ -6,7 +6,14 @@ Prerequisites:
 * Install [Python3](https://www.python.org/downloads/)
 * Install [pip](https://pip.pypa.io/en/stable/installation/)
 
-Command:
+Make sure to have the latest version of pip if it's already installed:
+
+```shell
+pip install --upgrade pip
+```
+
+Then install Theengs Gateway with:
+
 ```shell
 pip install TheengsGateway
 ```
@@ -48,25 +55,26 @@ docker pull theengs/gateway
 ```
 
 ## Advanced users - Build and install
-Clone the repository:
+
+Make sure to have the latest version of pip: 
+
+```shell
+pip install --upgrade pip
+```
+
+Then clone the repository:
 
 ```
 git clone https://github.com/theengs/gateway.git
 cd gateway
 ```
 
-Build the package:
+Then build and install the package:
 
 ```
-python3 setup.py sdist
+pip install .
 ```
 
-After this, enter the `dist` directory and install the package you built:
-
-```
-cd dist
-pip3 install TheengsGateway-<version>.tar.gz
-```
 :::tip
 When launching the gateway you must be outside of its source code folder to avoid errors
 :::
