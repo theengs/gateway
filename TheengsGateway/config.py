@@ -9,6 +9,8 @@ import argparse
 import json
 from pathlib import Path
 
+from importlib_metadata import version
+
 # Each configuration option is added to:
 # - the DEFAULT_CONFIG dict with its default value
 # - the parse_args function for its command-line argument
@@ -49,7 +51,9 @@ DEFAULT_CONFIG = {
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments and return them."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=f"TheengsGateway {version('TheengsGateway')}",
+    )
     parser.add_argument(
         "-a",
         "--adapter",
