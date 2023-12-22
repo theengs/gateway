@@ -44,72 +44,76 @@ Note that in the latter case, we can't guarantee that the manufacturer name is c
 
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
-usage:    [-h] [-H HOST] [-P PORT] [-u USER] [-p PWD] [-pt PUB_TOPIC] [-Lt LWT_TOPIC]
-          [-st SUB_TOPIC] [-pa PUBLISH_ALL] [-sd SCAN_DUR] [-tb TIME_BETWEEN]
-          [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-Dt DISCOVERY_TOPIC] [-D DISCOVERY] [-Dh HASS_DISCOVERY]
-          [-Dn DISCOVERY_DEVICE_NAME] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
-          [-prt PRESENCE_TOPIC] [-pr PUBLISH_PRESENCE]
-          [-a ADAPTER] [-s {active,passive}] [-ts TIME_SYNC [TIME_SYNC ...]]
-          [-tf TIME_FORMAT] [-padv PUBLISH_ADVDATA]
-          [-bk ADDRESS [BINDKEY ...]] [-tls ENABLE_TLS]
-          [-ws ENABLE_WEBSOCKET] [-id ADDRESS [IRK ...]]
+usage: TheengsGateway [-h] [-a ADAPTER] [-bk ADDRESS [BINDKEY ...]] [-c CONFIG]
+                      [-D DISCOVERY] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
+                      [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_NAME]
+                      [-Dt DISCOVERY_TOPIC] [-H HOST] [-id ADDRESS [IRK ...]]
+                      [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                      [-P PORT] [-p PASS] [-pa PUBLISH_ALL] [-padv PUBLISH_ADVDATA]
+                      [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUB_TOPIC]
+                      [-s {active,passive}] [-sd SCAN_DURATION] [-st SUB_TOPIC]
+                      [-tb TIME_BETWEEN] [-tf TIME_FORMAT] [-tls ENABLE_TLS]
+                      [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
+                      [-ws ENABLE_WEBSOCKET]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
+  -a ADAPTER, --adapter ADAPTER
+                        Bluetooth adapter (e.g. hci1 on Linux)
+  -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
+                        Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
+  -c CONFIG, --config CONFIG
+                        Path to the configuration file (default: ~/theengsgw.conf)
+  -D DISCOVERY, --discovery DISCOVERY
+                        Enable(1) or disable(0) MQTT discovery
+  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
+                        Device discovery filter list for Home Assistant
+  -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
+                        Enable(1) or disable(0) Home Assistant MQTT discovery
+                        (default: 1)
+  -Dn DISCOVERY_NAME, --discovery_name DISCOVERY_NAME
+                        Device name for Home Assistant
+  -Dt DISCOVERY_TOPIC, --discovery-topic DISCOVERY_TOPIC
+                        MQTT Discovery topic
   -H HOST, --host HOST  MQTT host address
-  -P PORT, --port PORT  MQTT host port
-  -u USER, --user USER  MQTT username
-  -p PWD, --pass PWD    MQTT password
-  -pt PUB_TOPIC, --pub_topic PUB_TOPIC
-                        MQTT publish topic
-  -st SUB_TOPIC, --sub_topic SUB_TOPIC
-                        MQTT subscribe topic
+  -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
+                        Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
   -Lt LWT_TOPIC, --lwt_topic LWT_TOPIC
                         MQTT LWT topic
+  -ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}, --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        TheengsGateway log level
+  -P PORT, --port PORT  MQTT host port
+  -p PASS, --pass PASS  MQTT password
   -pa PUBLISH_ALL, --publish_all PUBLISH_ALL
                         Publish all (1) or only decoded (0) advertisements (default:
                         1)
-  -sd SCAN_DUR, --scan_duration SCAN_DUR
-                        BLE scan duration (seconds)
-  -tb TIME_BETWEEN, --time_between TIME_BETWEEN
-                        Seconds to wait between scans
-  -ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}, --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
-                        TheengsGateway log level
-  -Dt DISCOVERY_TOPIC, --discovery-topic DISCOVERY_TOPIC
-                        MQTT Discovery topic
-  -D DISCOVERY, --discovery DISCOVERY
-                        Enable(1) or disable(0) MQTT discovery
-  -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
-                        Enable(1) or disable(0) Home Assistant-specific MQTT
-                        discovery (default: 1)                        
-  -Dn DISCOVERY_DEVICE_NAME, --discovery_name DISCOVERY_DEVICE_NAME
-                        Device name for Home Assistant
-  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
-                        Device discovery filter list for Home Assistant
-  -prt PRESENCE_TOPIC, --presence_topic PRESENCE_TOPIC
-                        MQTT topic to publish presence messages
-  -pr PUBLISH_PRESENCE, --presence PUBLISH_PRESENCE
-                        Enable (1) or disable (0) publishing presence messages
-  -a ADAPTER, --adapter ADAPTER
-                        Bluetooth adapter (e.g. hci1 on Linux)
-  -s {active,passive}, --scanning_mode {active,passive}
-                        Scanning mode (default: active)
-  -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
-                        Addresses of Bluetooth devices to synchronize the time
-  -tf TIME_FORMAT, --time_format TIME_FORMAT
-                        Use 12-hour (1) or 24-hour (0) time format for clocks
-                        (default: 0)
   -padv PUBLISH_ADVDATA, --publish_advdata PUBLISH_ADVDATA
                         Publish advertising and advanced data (1) or not (0)
                         (default: 0)
-  -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
-                        Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
+  -pr PRESENCE, --presence PRESENCE
+                        Enable (1) or disable (0) presence publication (default: 1)
+  -prt PRESENCE_TOPIC, --presence_topic PRESENCE_TOPIC
+                        MQTT presence topic
+  -pt PUB_TOPIC, --pub_topic PUB_TOPIC
+                        MQTT publish topic
+  -s {active,passive}, --scanning_mode {active,passive}
+                        Scanning mode (default: active)
+  -sd SCAN_DURATION, --scan_duration SCAN_DURATION
+                        BLE scan duration (seconds)
+  -st SUB_TOPIC, --sub_topic SUB_TOPIC
+                        MQTT subscribe topic
+  -tb TIME_BETWEEN, --time_between TIME_BETWEEN
+                        Seconds to wait between scans
+  -tf TIME_FORMAT, --time_format TIME_FORMAT
+                        Use 12-hour (1) or 24-hour (0) time format for clocks
+                        (default: 0)
   -tls ENABLE_TLS, --enable_tls ENABLE_TLS
                         Enable (1) or disable (0) TLS (default: 0)
+  -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
+                        Addresses of Bluetooth devices to synchronize the time
+  -u USER, --user USER  MQTT username
   -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
                         Enable (1) or disable (0) WebSocket (default: 0)
-  -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
-                        Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
 ```
 
 ### For a Docker container
