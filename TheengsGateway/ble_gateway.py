@@ -27,6 +27,7 @@ import logging
 import platform
 import ssl
 import struct
+import sys
 from contextlib import suppress
 from datetime import datetime
 from random import randrange
@@ -358,7 +359,6 @@ class Gateway:
         scanner_kwargs["detection_callback"] = self.detection_callback  # type: ignore[assignment] # noqa: E501
         scanner = BleakScanner(**scanner_kwargs)  # type: ignore[arg-type]
         logger.info("Starting BLE scan")
-        self.running = True
         while not self.stopped:
             if self.client.is_connected():
                 self.published_messages = 0
@@ -367,7 +367,8 @@ class Gateway:
                     await asyncio.sleep(self.configuration["ble_scan_time"])
                     await scanner.stop()
                 except BleakError as error:
-                    logger.exception(error)  # noqa: TRY401
+                    logger.exception(error, exc_info=False)  # noqa: TRY401
+                    sys.exit()
                     self.stopped = True
                 logger.info(
                     "Sent %s messages to MQTT",
@@ -383,7 +384,6 @@ class Gateway:
                 await asyncio.sleep(5.0)
 
         logger.error("BLE scan loop stopped")
-        self.running = False
 
     def detection_callback(
         self,
@@ -608,7 +608,8 @@ def run(configuration: dict, config_path: Path) -> None:
         asyncio.run(diagnostics(config_path))
     thread = Thread(target=loop.run_forever, daemon=True)
     thread.start()
-    asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
+    if configuration["ble"]:
+        asyncio.run_coroutine_threadsafe(gw.ble_scan_loop(), loop)
 
     gw.connect_mqtt()
 
@@ -617,7 +618,5 @@ def run(configuration: dict, config_path: Path) -> None:
     except (KeyboardInterrupt, SystemExit):
         gw.disconnect_mqtt()
         gw.stopped = True
-        while gw.running:
-            pass
         loop.call_soon_threadsafe(loop.stop)
         thread.join()

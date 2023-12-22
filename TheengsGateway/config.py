@@ -43,6 +43,7 @@ DEFAULT_CONFIG = {
     "enable_tls": 0,
     "enable_websocket": 0,
     "identities": {},
+    "ble": 1,
 }
 
 
@@ -54,6 +55,12 @@ def parse_args() -> argparse.Namespace:
         "--adapter",
         type=str,
         help="Bluetooth adapter (e.g. hci1 on Linux)",
+    )
+    parser.add_argument(
+        "-b",
+        "--ble",
+        type=int,
+        help="Enable (1) or disable (0) BLE (default: 1)",
     )
     parser.add_argument(
         "-bk",

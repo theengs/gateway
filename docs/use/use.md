@@ -44,8 +44,9 @@ Note that in the latter case, we can't guarantee that the manufacturer name is c
 
 ```shell
 C:\Users\1technophile>python -m TheengsGateway -h
-usage: TheengsGateway [-h] [-a ADAPTER] [-bk ADDRESS [BINDKEY ...]] [-c CONFIG]
-                      [-D DISCOVERY] [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
+usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
+                      [-c CONFIG] [-D DISCOVERY]
+                      [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
                       [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_NAME]
                       [-Dt DISCOVERY_TOPIC] [-H HOST] [-id ADDRESS [IRK ...]]
                       [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
@@ -60,6 +61,7 @@ options:
   -h, --help            show this help message and exit
   -a ADAPTER, --adapter ADAPTER
                         Bluetooth adapter (e.g. hci1 on Linux)
+  -b BLE, --ble BLE     Enable (1) or disable (0) BLE (default: 1)
   -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
                         Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
   -c CONFIG, --config CONFIG
