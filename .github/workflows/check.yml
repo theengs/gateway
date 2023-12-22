@@ -15,7 +15,8 @@ jobs:
           - "3.8"   # oldest Python supported by PSF
           - "3.9"
           - "3.10"
-          - "3.11"  # newest stable Python
+          - "3.11"
+          - "3.12"  # newest stable Python
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
