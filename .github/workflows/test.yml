@@ -1,13 +1,10 @@
-name: check
+name: Test build
 
 on:
-  push:
-    branches:
-      - development
   pull_request:
 
 jobs:
-  pre-commit:
+  test:
     strategy:
       fail-fast: false
       matrix:
@@ -21,9 +18,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with: {fetch-depth: 0}  # deep clone for setuptools-scm
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0
+      - name: Install requirements
+        run: |
+          pip3 install --upgrade pip
+          pip3 install setuptools setuptools_scm cmake wheel scikit-build ninja
+      - name: Build package
+        run: |
+          python3 setup.py sdist
+      - uses: actions/upload-artifact@v4
+        if: ${{ matrix.python == 3.12 }}
+        with:
+          name: python-package
+          path: dist/
