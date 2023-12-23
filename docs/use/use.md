@@ -206,6 +206,10 @@ ExecStart=
 ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
 ```
 
+:::tip
+On other linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing bluetooth.service or with the `which bluetoothd` command.
+:::
+
 Save and close the file and then run the following commands:
 
 ```
