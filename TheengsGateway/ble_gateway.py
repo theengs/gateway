@@ -226,9 +226,7 @@ class Gateway:
             return
         txpower = decoded_json.get("txpower", 0)
         if txpower >= 0:
-            txpower = (
-                -59
-            )  # if tx power is not found we set a default calibration value
+            txpower = -59  # if tx power is not found we set a default calibration value
         logger.debug("rssi: %d, txpower: %d", rssi, txpower)
         ratio = rssi / txpower
         if ratio < 1.0:  # noqa: PLR2004
@@ -356,7 +354,7 @@ class Gateway:
         if self.configuration["adapter"]:
             scanner_kwargs["adapter"] = self.configuration["adapter"]
 
-        scanner_kwargs["detection_callback"] = self.detection_callback  # type: ignore[assignment] # noqa: E501
+        scanner_kwargs["detection_callback"] = self.detection_callback  # type: ignore[assignment]
         scanner = BleakScanner(**scanner_kwargs)  # type: ignore[arg-type]
         logger.info("Starting BLE scan")
         while not self.stopped:
