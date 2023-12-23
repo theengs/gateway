@@ -151,9 +151,7 @@ class DiscoveryGateway(Gateway):
                 if pub_device["properties"][k]["name"] in ha_dev_classes:
                     device["dev_cla"] = pub_device["properties"][k]["name"]
                 if pub_device["properties"][k]["unit"] in ha_dev_units:
-                    device["unit_of_meas"] = pub_device["properties"][k][
-                        "unit"
-                    ]
+                    device["unit_of_meas"] = pub_device["properties"][k]["unit"]
                     device["state_class"] = "measurement"
                     entity_type = "sensor"
                 elif pub_device["properties"][k]["unit"] == "status":
@@ -209,9 +207,7 @@ class DiscoveryGateway(Gateway):
     def build_state_topic(self, device: dict) -> str:
         """Build state topic."""
         state_topic = (
-            self.configuration["publish_topic"]
-            + "/"
-            + device["id"].replace(":", "")
+            self.configuration["publish_topic"] + "/" + device["id"].replace(":", "")
         )
         return re.sub(
             r".+?/",

@@ -96,8 +96,7 @@ def parse_args() -> argparse.Namespace:
         "-Dh",
         "--hass_discovery",
         type=int,
-        help="Enable(1) or disable(0) Home Assistant MQTT discovery "
-        "(default: 1)",
+        help="Enable(1) or disable(0) Home Assistant MQTT discovery (default: 1)",
     )
     parser.add_argument(
         "-Dn",
@@ -208,8 +207,7 @@ def parse_args() -> argparse.Namespace:
         "-tf",
         "--time_format",
         type=int,
-        help="Use 12-hour (1) or 24-hour (0) time format for clocks "
-        "(default: 0)",
+        help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
     )
     parser.add_argument(
         "-tls",
@@ -282,9 +280,7 @@ def merge_args_with_config(config: dict, args: argparse.Namespace) -> None:
                     )
                 else:
                     config[key].extend(
-                        element
-                        for element in value
-                        if element not in config[key]
+                        element for element in value if element not in config[key]
                     )
             elif key != "config":
                 config[key] = value
