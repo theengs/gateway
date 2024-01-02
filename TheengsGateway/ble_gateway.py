@@ -423,11 +423,11 @@ class Gateway:
                 data_json_copy = data_json.copy()
                 data_json_copy["servicedatauuid"] = uuid[4:8]
                 data_json_copy["servicedata"] = data.hex()
+                self.decode_advertisement(data_json_copy)
         elif data_json:
             data_json["id"] = address
             data_json["rssi"] = advertisement_data.rssi
-
-        self.decode_advertisement(data_json)
+            self.decode_advertisement(data_json)
 
     def decode_advertisement(
         self,
