@@ -52,7 +52,7 @@ def _section(title: str, values: dict[str, str]) -> None:
     print(f"| {'Name':{max_name}} | {'Value':{max_value}} |")
     print(f"|-{'-' * max_name}-|-{'-'*max_value}-|")
     for name, value in values.items():
-        print(f"| {name:{max_name}} | {value:{max_value}} |")
+        print(f"| {name:{max_name}} | {value!s:{max_value}} |")
     print()
 
 
