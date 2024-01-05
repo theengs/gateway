@@ -14,7 +14,7 @@ agree to follow the [code of conduct](https://github.com/theengs/gateway/blob/ma
 * Request for review.
 * We may suggest some changes, improvements or alternatives.
 
-Some things that will increase the chance that your pull request is accepted:
+Some things that increase the chance that your pull request is accepted:
 
 * Comment your code.
 * Ask eventually for design guidelines.

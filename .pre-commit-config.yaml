@@ -4,6 +4,10 @@ repos:
   rev: 'v2.30.0'
   hooks:
     - id: vale
+      name: vale-sync
+      pass_filenames: false
+      args: [sync]
+    - id: vale
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: 'v0.1.9'
   hooks:

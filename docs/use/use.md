@@ -37,7 +37,7 @@ The `mfr` key has the company name of the manufacturer as its value in two cases
 * The advertisement of the device has been successfully decoded, its manufacturer data have a company ID compliant to the Bluetooth specification, and it's no beacon (iBeacon, Microsoft Advertising Beacon).
 * The advertisement of the device can't be decoded.
 
-Note that in the latter case, we can't guarantee that the manufacturer name is correct, as many devices are not compliant to the Bluetooth specification and encode their data in the bytes where the manufacturer ID should be.
+Note that in the latter case, there's guarantee that the manufacturer name is correct, as many devices are not compliant to the Bluetooth specification and encode their data in the bytes where the manufacturer ID should be.
 
 ## Details options
 ### For a regular installation
@@ -150,7 +150,7 @@ docker run --rm \
 python -m TheengsGateway -H "192.168.1.17" -u "username" -p "password" -pt "home/TheengsGateway"
 ```
 
-## Scan every 55s
+## Scan every 55 s
 
 ```shell
 python -m TheengsGateway -H "192.168.1.17" -u "username" -p "password" -pt "home/TheengsGateway" -tb 55
@@ -163,7 +163,7 @@ python -m TheengsGateway
 ```
 
 ## MQTTtoMQTT decoding
-Messages sent to the subscribe topic can be used for decoding BLE data and will be published to the publish topic. This allows for offloading the decode operation from other devices, such as an ESP32, to enhance performance.
+Messages with BLE data sent to the subscribe topic are decoded, and the result is published to the publish topic. This allows for offloading the decode operation from other devices, such as an ESP32, to enhance performance.
 
 The data sent to the topic is expected to be formatted in JSON and MUST have at least an "id" entry.
 
@@ -177,16 +177,16 @@ Example message:
   "txpower":12
 }
 ```
-If possible, the data will be decoded and published.
+If possible, the data is decoded and published.
 
-[OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that will publish directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
+[OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that publishes directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
 
 :::tip
-By default Theengs Gateway will listen to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway sending out MQTT messages with undecoded data, Theengs will pickup all of them and centralize the decoded BT sensor data in one place.
+By default Theengs Gateway listens to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway sending out MQTT messages with undecoded data, Theengs picks up all of them and centralizes the decoded BLE sensor data in one place.
 :::
 
 ## Home Assistant auto discovery
-If enabled (default), decoded devices will publish their configuration to Home Assistant to be discovered.
+If enabled (default), decoded devices publish their configuration to Home Assistant to be discovered.
 - This can be enabled/disabled with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
 - If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - The discovery topic can be set with the `-Dt` or `--discovery_topic` command line argument.
@@ -213,7 +213,7 @@ ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
 ```
 
 :::tip
-On other Linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing bluetooth.service or with the `which bluetoothd` command.
+On other Linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing `bluetooth.service` or with the `which bluetoothd` command.
 :::
 
 Save and close the file and then run the following commands:
@@ -228,9 +228,9 @@ If you have specified the MAC addresses of [supported Bluetooth clocks](https://
 
 Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format to show their time. Use the argument `--time_format 0` (default) for 24-hour format and `--time_format 1` for 12-hour format.
 
-Note that the first time synchronization of each specified clock will happen at a random time in the next day. This way the connections to these devices will be spaced out in time. After this first time synchronization, Theengs Gateway will synchronize its time every 24 hours.
+Note that the first time synchronization of each specified clock happens at a random time in the next day. This way the connections to these devices are spaced out in time. After this first time synchronization, Theengs Gateway synchronizes its time every 24 hours.
 
-If a device isn't recognized as a supported clock, Theengs Gateway won't try to synchronize its time ever. But if there are other errors, such as connection errors or write errors (which could be temporary), the device will still be tried every 24 hours.
+If a device isn't recognized as a supported clock, Theengs Gateway won't try to synchronize its time ever. But if there are other errors, such as connection errors or write errors (which could be temporary), the device is still tried every 24 hours.
 
 If you want to know which of your devices are supported by Theengs Gateway's time synchronization feature, run the following command:
 
@@ -247,7 +247,7 @@ If you want to read encrypted advertisements, you need to add a bindkey for each
 TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
 ```
 
-Theengs Gateway will then use the bindkey 0dc540f3025b474b9ef1085e051b1add to decrypt all advertisements from device 00:11:22:33:44:55:66 and bindkey 6385424e1b0341109942ad2a6bb42e58 for all advertisements from device AA:BB:CC:DD:EE:FF.
+Theengs Gateway then uses the bindkey `0dc540f3025b474b9ef1085e051b1add` to decrypt all advertisements from device `00:11:22:33:44:55:66` and bindkey `6385424e1b0341109942ad2a6bb42e58` for all advertisements from device `AA:BB:CC:DD:EE:FF`.
 
 ## Resolving random private addresses
 If you want to resolve random private addresses into a device's identity address, you need to add an identity resolving key (IRK) for each identity address with the `--identities` argument. For example:
@@ -256,7 +256,7 @@ If you want to resolve random private addresses into a device's identity address
 TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
 ```
 
-Theengs Gateway will then use the identity resolving key 0dc540f3025b474b9ef1085e051b1add to resolve random private addresses from device 00:11:22:33:44:55:66 and identity resolving key 6385424e1b0341109942ad2a6bb42e58 to resolve random private addresses from device AA:BB:CC:DD:EE:FF.
+Theengs Gateway then uses the identity resolving key `0dc540f3025b474b9ef1085e051b1add` to resolve random private addresses from device `00:11:22:33:44:55:66` and identity resolving key `6385424e1b0341109942ad2a6bb42e58` to resolve random private addresses from device `AA:BB:CC:DD:EE:FF`.
 
 The identity resolving key can also be specified as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
 
@@ -264,7 +264,7 @@ The identity resolving key can also be specified as a Base64 encoded string, suc
 
 To get the Bluetooth Identity Address of an Apple device go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
 
-On a Mac associated with your devices open the **Keychain Access** application and search the **login** or **iCloud** Keychain - depending on whether you have iCloud *Password and Keychain* syncing activated or not - for either Bluetooth or the identity address you got for your device as described above.
+On a Mac associated with your devices open the **Keychain Access** application and search the **login** or **iCloud** Keychain - depending on whether you have iCloud *Password and Keychain* syncing activated or not - for either Bluetooth or the identity address you got for your device as described previously.
 
 When you open the Keychain entry, in the Account field it should confirm the identity address as `Public AA:BB:CC:DD:EE:FF`.
 

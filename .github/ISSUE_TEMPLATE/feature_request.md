@@ -4,8 +4,14 @@ about: Suggest an idea for this project
 
 ---
 
+<!-- vale Google.FirstPerson = NO -->
+<!-- vale Google.Ellipses = NO -->
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+
+<!-- vale Google.FirstPerson = YES -->
+<!-- vale Google.Ellipses = YES -->
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.

@@ -131,3 +131,6 @@ dmypy.json
 
 # VuePress
 node_modules/
+
+# Vale styles
+vale/styles/Google
