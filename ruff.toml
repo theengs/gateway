@@ -1,7 +1,9 @@
 select = ["ALL"]
 ignore = [
   "ANN101",  # missing-type-self
+  "COM812",  # missing-trailing-comma (conflicts with formatter)
   "D107",    # undocumented-public-init
+  "ISC001",  # single-line-implicit-string-concatenation (conflicts with formatter)
   "N999",    # invalid-module-name
   "T201",    # print
 ]
