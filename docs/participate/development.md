@@ -14,7 +14,7 @@ agree to follow the [code of conduct](https://github.com/theengs/gateway/blob/ma
 * Request for review.
 * We may suggest some changes, improvements or alternatives.
 
-Some things that increase the chance that your pull request is accepted:
+The following things increase the chance that we accept your pull request:
 
 * Comment your code.
 * Ask eventually for design guidelines.
@@ -48,8 +48,12 @@ Some things that increase the chance that your pull request is accepted:
         this project or the open source license(s) involved.
 ```
 
-This Developer Certificate Of Origin (DCO) was adopted on February 26, 2022.
+<!-- vale Google.Passive = NO -->
 
-The text of this license is available under the [Creative Commons Attribution-ShareAlike 3.0 Unported License](http://creativecommons.org/licenses/by-sa/3.0/).  It is based on the Linux [Developer Certificate Of Origin](http://elinux.org/Developer_Certificate_Of_Origin).
+This Developer Certificate of Origin (DCO) was adopted on February 26, 2022.
 
-To accept the DCO it is required to put a x between [ ] on `[ ] I accept the DCO` in the PR template when submitting it. The [ ] is an opt-in box, so you have to manually accept it.
+<!-- vale Google.Passive = YES -->
+
+The text of this license is available under the [Creative Commons Attribution-ShareAlike 3.0 Unported License](http://creativecommons.org/licenses/by-sa/3.0/). It's based on the Linux [Developer Certificate of Origin](http://elinux.org/Developer_Certificate_Of_Origin).
+
+To accept the DCO, put a x between [ ] on `[ ] I accept the Developer Certificate of Origin (DCO)` in the PR template when submitting it. The [ ] is an opt-in box, so you have to manually accept it.
