@@ -4,6 +4,24 @@ on:
   pull_request:
 
 jobs:
+  docs:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Vale
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: vale
+  format:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Ruff format
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: ruff-format
   test:
     strategy:
       fail-fast: false
@@ -23,8 +41,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Run pre-commit
+      - name: Ruff
         uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: ruff
+      - name: Mypy
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: mypy
       - name: Install requirements
         run: |
           pip3 install --upgrade pip

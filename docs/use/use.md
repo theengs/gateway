@@ -19,13 +19,13 @@ docker run --rm \
 ```
 
 :::tip
-If your mqtt broker is installed on the same instance as the gateway you can use `localhost` as the `<mqtt_broker_host_ip>`.
+If your MQTT broker is installed on the same instance as the gateway you can use `localhost` as the `<mqtt_broker_host_ip>`.
 :::
 
 ### Checking the data published by the gateway
 Once the command launched you should see MQTT payloads appearing on the broker. To visualize these data you have to use an [MQTT client tool](../prerequisites/broker).
 
-![mqtt](../img/TheengsGateway_mqtt_explorer.png)
+![MQTT](../img/TheengsGateway_mqtt_explorer.png)
 
 Example payload received:
 ```json
@@ -182,7 +182,7 @@ If possible, the data will be decoded and published.
 [OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that will publish directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
 
 :::tip
-By default Theengs Gateway will listen to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway undecoded, Theengs will pickup all of them and centralize the decoded BT sensor data in one place.
+By default Theengs Gateway will listen to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway sending out MQTT messages with undecoded data, Theengs will pickup all of them and centralize the decoded BT sensor data in one place.
 :::
 
 ## Home Assistant auto discovery
@@ -191,14 +191,14 @@ If enabled (default), decoded devices will publish their configuration to Home A
 - If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - The discovery topic can be set with the `-Dt` or `--discovery_topic` command line argument.
 - The discovery name can be set wit the `-Dn` or `--discovery_name` command line argument.
-- Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device "model_id" to be filtered.
+- Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to be filtered.
 
 The `IBEACON` and random MAC devices (APPLE, MS-CDP and GAEN) are not discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
 ## Passive scanning
 Passive scanning (`-s passive` or `--scanning_mode passive`) only works on Windows or Linux kernel >= 5.10 and BlueZ >= 5.56 with experimental features enabled.
 
-To enable experimental features in BlueZ on a Linux distribution that uses systemd, run the following command:
+To enable experimental features in BlueZ on a Linux distribution that uses `systemd`, run the following command:
 
 ```shell
 sudo systemctl edit bluetooth.service
@@ -213,7 +213,7 @@ ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
 ```
 
 :::tip
-On other linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing bluetooth.service or with the `which bluetoothd` command.
+On other Linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing bluetooth.service or with the `which bluetoothd` command.
 :::
 
 Save and close the file and then run the following commands:

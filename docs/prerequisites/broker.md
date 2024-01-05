@@ -9,12 +9,11 @@ There are many choices of brokers, here are some of the most popular:
 * [HiveMQ](https://www.hivemq.com/hivemq/features/)
 * Embedded MQTT brokers (Home Assistant and OpenHAB)
 
-This [wikipedia list](https://en.wikipedia.org/wiki/Comparison_of_MQTT_implementations) gives you more details about the different choices you have.
-This [github list](https://github.com/mqtt/mqtt.github.io/wiki/libraries) seems to be the most exhaustive ones.
-Here is also some [ideas of criteria](https://www.hivemq.com/blog/top-10-mqtt-broker-criteria/) from HiveMQ.
+This [comparison of MQTT implementations](https://en.wikipedia.org/wiki/Comparison_of_MQTT_implementations) on Wikipedia gives you more details about the different choices you have.
+This [list of brokers](https://github.com/mqtt/mqtt.github.io/wiki/brokers) on GitHub seems to be the most exhaustive ones.
+Here is also a [list of criteria for selecting a MQTT broker](https://www.hivemq.com/blog/top-10-mqtt-broker-criteria/) from HiveMQ.
 
-Once your broker is installed it can be interesting to see the traffic passing to it and to publish data, so as to do that there are several tools available:
+Once your broker is installed, it can be interesting to see the traffic passing to it and to publish data. There are several tools available to do this:
 * [MQTT Explorer](http://mqtt-explorer.com/)
-* [HIVE MQ Web client](https://github.com/hivemq/hivemq-mqtt-web-client)
+* [HiveMQ MQTT web client](https://github.com/hivemq/hivemq-mqtt-web-client)
 * [MQTT FX](https://mqttfx.jensd.de/)
-
