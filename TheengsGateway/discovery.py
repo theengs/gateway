@@ -26,7 +26,7 @@ import re
 
 from TheengsDecoder import getProperties
 
-from .ble_gateway import Gateway, logger
+from .ble_gateway import DataJSONType, Gateway, logger
 
 ha_dev_classes = [
     "battery",
@@ -178,6 +178,8 @@ class DiscoveryGateway(Gateway):
             device["device"] = hadevice  # type: ignore[assignment]
             self.publish(json.dumps(device), config_topic, retain=True)
 
+            self.publish_device_tracker(pub_device_uuid, state_topic, pub_device, hadevice,)
+
         self.discovered_entities.append(pub_device_uuid)
         self.publish_device_data(
             pub_device_uuid,
@@ -195,9 +197,9 @@ class DiscoveryGateway(Gateway):
         return {
             "identifiers": [uuid],
             "connections": [["mac", uuid]],
-            "manufacturer": device.get("brand", "Unknown"),
-            "model": device.get("model_id", "Unknown"),
-            "name": device.get("name", device.get("model", "Unknown")),
+            "manufacturer": device["brand"],
+            "model": device["model_id"],
+            "name": device["model"] + "-" + uuid[6:],
             "via_device": self.configuration.get(
                 "discovery_device_name",
                 "Unknown",
@@ -215,3 +217,24 @@ class DiscoveryGateway(Gateway):
             state_topic,
             count=len(re.findall(r"/", state_topic)) - 1,
         )
+    
+    def publish_device_tracker(self, pub_device_uuid: str, state_topic: str, pub_device: DataJSONType, hadevice: dict) -> None:
+        """Publish device_tracker discovery."""
+        if "track" in pub_device:
+            config_topic = (
+                self.configuration["discovery_topic"]
+                + "/device_tracker/"
+                + pub_device_uuid
+                + "-tracker"
+                + "/config"
+            )
+
+            tracker = {}
+            tracker["stat_t"] = state_topic
+            tracker["name"] = pub_device["model_id"] + "-tracker" # type: ignore[assignment,operator]
+            tracker["uniq_id"] = pub_device_uuid + "-tracker"
+            tracker["val_tpl"] = "{% if value_json.get('id') -%}home{%- else -%}not_home{%- endif %}"
+            tracker["source_type"] = "bluetooth_le"
+            tracker["device"] = hadevice  # type: ignore[assignment]
+
+            self.publish(json.dumps(tracker), config_topic, retain=True)
