@@ -1,6 +1,6 @@
 # Hardware
 
-You can [install](../install/install) Theengs Gateway on various hardware as long as they have a BLE module.
+You can [install](../install/install) Theengs Gateway on various hardware as long as they have a Bluetooth Low Energy (BLE) module.
 
 The project is primarily developed for Linux, with the Raspberry Pi as a reference platform.
 

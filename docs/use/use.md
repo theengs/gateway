@@ -19,7 +19,7 @@ docker run --rm \
 ```
 
 :::tip
-If your MQTT broker is installed on the same instance as the gateway you can use `localhost` as the `<mqtt_broker_host_ip>`.
+If you've installed your MQTT broker on the same instance as the gateway, you can use `localhost` as the `<mqtt_broker_host_ip>`.
 :::
 
 ### Checking the data published by the gateway
@@ -34,10 +34,10 @@ Example payload received:
 
 The `mfr` key has the company name of the manufacturer as its value in two cases:
 
-* The advertisement of the device has been successfully decoded, its manufacturer data have a company ID compliant to the Bluetooth specification, and it's no beacon (iBeacon, Microsoft Advertising Beacon).
-* The advertisement of the device can't be decoded.
+* Theengs Gateway has successfully decoded the advertisement of the device, its manufacturer data have a company ID compliant to the Bluetooth specification, and it's no beacon (iBeacon, Microsoft Advertising Beacon).
+* Theengs Gateway isn't able to decode the advertisement of the device.
 
-Note that in the latter case, there's guarantee that the manufacturer name is correct, as many devices are not compliant to the Bluetooth specification and encode their data in the bytes where the manufacturer ID should be.
+Note that in the latter case, there's guarantee that the manufacturer name is correct, as many devices aren't compliant to the Bluetooth specification and encode their data in the bytes where the manufacturer ID should be.
 
 ## Details options
 ### For a regular installation
@@ -157,15 +157,15 @@ python -m TheengsGateway -H "192.168.1.17" -u "username" -p "password" -pt "home
 ```
 
 ## Configuration record
-Once you have entered your credentials and parameters they are saved into a configuration file `theengsgw.conf` into your user directory and you can simply launch the gateway by using:
+Once you have entered your credentials and parameters, Theengs Gateway saves them into a configuration file `theengsgw.conf` into your user directory and you can simply launch the gateway by using:
 ```shell
 python -m TheengsGateway
 ```
 
 ## MQTTtoMQTT decoding
-Messages with BLE data sent to the subscribe topic are decoded, and the result is published to the publish topic. This allows for offloading the decode operation from other devices, such as an ESP32, to enhance performance.
+Theengs Gateway decodes messages with Bluetooth Low Energy (BLE) data sent to the subscribe topic, and publishes the decoded result to the publish topic. This allows for offloading the decode operation from other devices, such as an ESP32, to enhance performance.
 
-The data sent to the topic is expected to be formatted in JSON and MUST have at least an "id" entry.
+The data sent to the topic should be in JSON format and must have at least an "id" entry.
 
 Example message:
 ```
@@ -177,7 +177,7 @@ Example message:
   "txpower":12
 }
 ```
-If possible, the data is decoded and published.
+If possible, the gateway decodes and publishes the data.
 
 [OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that publishes directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
 
@@ -186,14 +186,14 @@ By default Theengs Gateway listens to `home/+/BTtoMQTT/undecoded`, if you have s
 :::
 
 ## Home Assistant auto discovery
-If enabled (default), decoded devices publish their configuration to Home Assistant to be discovered.
-- This can be enabled/disabled with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
+If enabled (default), decoded devices publish their configuration to Home Assistant so the latter can discover them.
+- You can enable/disable this with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
 - If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
-- The discovery topic can be set with the `-Dt` or `--discovery_topic` command line argument.
-- The discovery name can be set wit the `-Dn` or `--discovery_name` command line argument.
-- Devices can be filtered from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to be filtered.
+- You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
+- You can set the discovery name with the `-Dn` or `--discovery_name` command line argument.
+- You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
-The `IBEACON` and random MAC devices (APPLE, MS-CDP and GAEN) are not discovered as their addresses (IDs) change over time resulting in multiple discoveries.
+The `IBEACON` and random MAC devices (`APPLE`, `MS-CDP` and `GAEN`) aren't discovered, as their addresses (IDs) change over time resulting in multiple discoveries.
 
 ## Passive scanning
 Passive scanning (`-s passive` or `--scanning_mode passive`) only works on Windows or Linux kernel >= 5.10 and BlueZ >= 5.56 with experimental features enabled.
@@ -213,7 +213,7 @@ ExecStart=/usr/lib/bluetooth/bluetoothd --experimental
 ```
 
 :::tip
-On other Linux variants the path might be slightly different. This can usually be seen by the commented out entries of `ExecStart=…` when editing `bluetooth.service` or with the `which bluetoothd` command.
+On other Linux variants the path might be slightly different. You can usually see this by the commented out entries of `ExecStart=…` when editing `bluetooth.service` or with the `which bluetoothd` command.
 :::
 
 Save and close the file and then run the following commands:
@@ -224,21 +224,21 @@ sudo systemctl restart bluetooth.service
 ```
 
 ## Time synchronization
-If you have specified the MAC addresses of [supported Bluetooth clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure that your gateway's time is set correctly.
+If you have specified the MAC addresses of [supported Bluetooth clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure to correctly set your gateway's time.
 
 Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format to show their time. Use the argument `--time_format 0` (default) for 24-hour format and `--time_format 1` for 12-hour format.
 
-Note that the first time synchronization of each specified clock happens at a random time in the next day. This way the connections to these devices are spaced out in time. After this first time synchronization, Theengs Gateway synchronizes its time every 24 hours.
+Note that the first time synchronization of each specified clock happens at a random time in the next day. This way the gateway spaces out connections to these devices in time. After this first time synchronization, Theengs Gateway synchronizes its time every 24 hours.
 
 If a device isn't recognized as a supported clock, Theengs Gateway won't try to synchronize its time ever. But if there are other errors, such as connection errors or write errors (which could be temporary), the device is still tried every 24 hours.
 
-If you want to know which of your devices are supported by Theengs Gateway's time synchronization feature, run the following command:
+If you want to know which of your devices Theengs Gateway's time synchronization feature supports, run the following command:
 
 ```
 bluetooth-clocks discover
 ```
 
-The `bluetooth-clocks` command is installed as part of Theengs Gateway.
+Theengs Gateway installs the `bluetooth-clocks` command as part of its dependencies.
 
 ## Reading encrypted advertisements
 If you want to read encrypted advertisements, you need to add a bindkey for each device address with the `--bindkeys` argument. For example:
@@ -250,7 +250,7 @@ TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add 
 Theengs Gateway then uses the bindkey `0dc540f3025b474b9ef1085e051b1add` to decrypt all advertisements from device `00:11:22:33:44:55:66` and bindkey `6385424e1b0341109942ad2a6bb42e58` for all advertisements from device `AA:BB:CC:DD:EE:FF`.
 
 ## Resolving random private addresses
-If you want to resolve random private addresses into a device's identity address, you need to add an identity resolving key (IRK) for each identity address with the `--identities` argument. For example:
+If you want to resolve random private addresses into a device's identity address, you need to add an Identity Resolving Key (IRK) for each identity address with the `--identities` argument. For example:
 
 ```
 TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
@@ -258,7 +258,7 @@ TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1ad
 
 Theengs Gateway then uses the identity resolving key `0dc540f3025b474b9ef1085e051b1add` to resolve random private addresses from device `00:11:22:33:44:55:66` and identity resolving key `6385424e1b0341109942ad2a6bb42e58` to resolve random private addresses from device `AA:BB:CC:DD:EE:FF`.
 
-The identity resolving key can also be specified as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
+You can also specify the identity resolving key as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
 
 ## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone and iPad
 
