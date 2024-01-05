@@ -1,5 +1,5 @@
 # Controller
-MQTT enables you to connect easily a controller so as to monitor, control and automate scenarios.
+MQTT enables you to connect easily a controller so as to monitor, control, and automate scenarios.
 
 The following controllers (and many other software) are compatible with MQTT:
 

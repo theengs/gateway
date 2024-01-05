@@ -1,5 +1,5 @@
 # Broker
-The broker will act as an intermediary between TheengsGateway and your [controller](/prerequisites/controller), it can be seen as a centralized hub at the heart of your automation system. It carry on messages following a publish / subscribe mechanism.
+The broker acts as an intermediary between TheengsGateway and your [controller](/prerequisites/controller), it can be seen as a centralized hub at the heart of your automation system. It carry on messages following a publish / subscribe mechanism.
 
 All the events or commands could pass by the broker.
 
