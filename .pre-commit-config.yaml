@@ -1,5 +1,9 @@
 ---
 repos:
+- repo: https://github.com/errata-ai/vale
+  rev: 'v2.30.0'
+  hooks:
+    - id: vale
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: 'v0.1.9'
   hooks:

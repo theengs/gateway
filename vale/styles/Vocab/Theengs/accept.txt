@@ -1,0 +1,15 @@
+bindkey
+Domoticz
+Govee
+Inkbird
+iBeacon
+iCloud
+ioBroker
+Jeedom
+Mosquitto
+Python
+Qingping
+Theengs
+undecoded
+Unported
+Xiaomi

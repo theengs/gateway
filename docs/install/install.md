@@ -35,7 +35,7 @@ Or by going to Settings -> Add-ons -> Add-on store -> ⁞ (Menu) -> Repositories
 5. Start the Add-on.
 
 ## Install Theengs Gateway as a snap
-Theengs Gateway is also packaged as a snap in the [Snap Store](https://snapcraft.io/theengs-gateway). If you have snapd running on your Linux distribution, which is the case by default on Ubuntu, you can install the Theengs Gateway snap as:
+Theengs Gateway is also packaged as a snap in the [Snap Store](https://snapcraft.io/theengs-gateway). If you have `snapd` running on your Linux distribution, which is the case by default on Ubuntu, you can install the Theengs Gateway snap as:
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/theengs-gateway)
 

@@ -4,7 +4,7 @@ We like pull requests from everyone. By participating in this project, you
 agree to follow the [code of conduct](https://github.com/theengs/gateway/blob/master/CODE_OF_CONDUCT.md).
 
 * We use the [pre-commit](https://pre-commit.com) system to identify simple issues before submission to code review. Install it with `pip install pre-commit`.
-* Fork the [development branch](https://github.com/theengs/gateway/tree/development), then clone the repo.
+* Fork the [development branch](https://github.com/theengs/gateway/tree/development), then clone the repository.
 * Run `pre-commit install` to set up the Git hook scripts.
 * Make your modification.
 * Review your code, build it.
