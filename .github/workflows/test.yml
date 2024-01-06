@@ -12,7 +12,7 @@ jobs:
       - name: Vale
         uses: pre-commit/action@v3.0.0
         with:
-          extra_args: vale
+          extra_args: --all-files vale
   format:
     runs-on: ubuntu-22.04
     steps:
@@ -21,7 +21,7 @@ jobs:
       - name: Ruff format
         uses: pre-commit/action@v3.0.0
         with:
-          extra_args: ruff-format
+          extra_args: --all-files ruff-format
   test:
     strategy:
       fail-fast: false
@@ -44,11 +44,11 @@ jobs:
       - name: Ruff
         uses: pre-commit/action@v3.0.0
         with:
-          extra_args: ruff
+          extra_args: --all-files ruff
       - name: Mypy
         uses: pre-commit/action@v3.0.0
         with:
-          extra_args: mypy
+          extra_args: --all-files mypy
       - name: Install requirements
         run: |
           pip3 install --upgrade pip

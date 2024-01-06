@@ -178,7 +178,12 @@ class DiscoveryGateway(Gateway):
             device["device"] = hadevice  # type: ignore[assignment]
             self.publish(json.dumps(device), config_topic, retain=True)
 
-            self.publish_device_tracker(pub_device_uuid, state_topic, pub_device, hadevice,)
+            self.publish_device_tracker(
+                pub_device_uuid,
+                state_topic,
+                pub_device,
+                hadevice,
+            )
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish_device_data(
@@ -217,8 +222,14 @@ class DiscoveryGateway(Gateway):
             state_topic,
             count=len(re.findall(r"/", state_topic)) - 1,
         )
-    
-    def publish_device_tracker(self, pub_device_uuid: str, state_topic: str, pub_device: DataJSONType, hadevice: dict) -> None:
+
+    def publish_device_tracker(
+        self,
+        pub_device_uuid: str,
+        state_topic: str,
+        pub_device: DataJSONType,
+        hadevice: dict,
+    ) -> None:
         """Publish device_tracker discovery."""
         if "track" in pub_device:
             config_topic = (
@@ -231,9 +242,11 @@ class DiscoveryGateway(Gateway):
 
             tracker = {}
             tracker["stat_t"] = state_topic
-            tracker["name"] = pub_device["model_id"] + "-tracker" # type: ignore[assignment,operator]
+            tracker["name"] = pub_device["model_id"] + "-tracker"  # type: ignore[assignment,operator]
             tracker["uniq_id"] = pub_device_uuid + "-tracker"
-            tracker["val_tpl"] = "{% if value_json.get('id') -%}home{%- else -%}not_home{%- endif %}"
+            tracker[
+                "val_tpl"
+            ] = "{% if value_json.get('id') -%}home{%- else -%}not_home{%- endif %}"
             tracker["source_type"] = "bluetooth_le"
             tracker["device"] = hadevice  # type: ignore[assignment]
 
