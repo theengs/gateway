@@ -193,7 +193,11 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can set the discovery name with the `-Dn` or `--discovery_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
-The `IBEACON` and random MAC devices (`APPLE`, `MS-CDP` and `GAEN`) aren't discovered, as their addresses (IDs) change over time resulting in multiple discoveries.
+The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) are not discovered as their addresses (IDs) change over time resulting in multiple discoveries.
+
+:::tip * INFO 
+Apple Watch, iPhone and iPad will be discovered if they are defined with their Identity MAC Address and IRK
+:::
 
 ## Passive scanning
 Passive scanning (`-s passive` or `--scanning_mode passive`) only works on Windows or Linux kernel >= 5.10 and BlueZ >= 5.56 with experimental features enabled.
