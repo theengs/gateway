@@ -200,10 +200,10 @@ class DiscoveryGateway(Gateway):
     def prepare_hadevice(self, uuid: str, device: dict) -> dict:
         """Prepare Home Assistant device configuration."""
         return {
-            "identifiers": [uuid],
-            "connections": [["mac", uuid]],
-            "manufacturer": device["brand"],
-            "model": device["model_id"],
+            "ids": [uuid],
+            "cns": [["mac", uuid]],
+            "mf": device["brand"],
+            "mdl": device["model_id"],
             "name": device["model"] + "-" + uuid[6:],
             "via_device": self.configuration.get(
                 "discovery_device_name",
@@ -246,7 +246,7 @@ class DiscoveryGateway(Gateway):
             tracker["uniq_id"] = pub_device_uuid + "-tracker"
             tracker[
                 "val_tpl"
-            ] = "{% if value_json.get('id') -%}home{%- else -%}not_home{%- endif %}"
+            ] = "{% if value_json.get('rssi') -%}home{%- else -%}not_home{%- endif %}"
             tracker["source_type"] = "bluetooth_le"
             tracker["device"] = hadevice  # type: ignore[assignment]
 
