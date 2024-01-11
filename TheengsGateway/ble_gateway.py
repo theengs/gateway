@@ -70,7 +70,6 @@ ADVANCED_DATA = (
     "mic",
     "servicedata",
     "servicedatauuid",
-    "track",
 )
 
 LOG_LEVEL = {
@@ -514,6 +513,10 @@ class Gateway:
         decoded: bool,  # noqa: FBT001
     ) -> None:
         """Publish JSON data to MQTT."""
+        # Remove "track" if PUBLISH_ADVDATA is 0
+        if not self.configuration["publish_advdata"] and "track" in data_json:
+            data_json.pop("track", None)
+
         message = json.dumps(data_json)
         self.publish(
             message,

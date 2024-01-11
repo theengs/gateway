@@ -112,7 +112,10 @@ class DiscoveryGateway(Gateway):
     def publish_device_info(self, pub_device) -> None:  # noqa: ANN001
         """Publish sensor directly to Home Assistant via MQTT discovery."""
         pub_device_uuid = pub_device["id"].replace(":", "")
-        device_data = json.dumps(pub_device)
+
+        pub_device_copy = self.copy_pub_device(pub_device)
+
+        device_data = json.dumps(pub_device_copy)
         if (
             pub_device_uuid in self.discovered_entities
             or pub_device["model_id"] in self.configuration["discovery_filter"]
@@ -251,3 +254,12 @@ class DiscoveryGateway(Gateway):
             tracker["device"] = hadevice  # type: ignore[assignment]
 
             self.publish(json.dumps(tracker), config_topic, retain=True)
+
+    def copy_pub_device(self, device: dict) -> dict:
+        """Copy pub_device and remove "track" if publish_advdata is false."""
+        pub_device_copy = device.copy()
+        # Remove "track" if PUBLISH_ADVDATA is 0
+        if not self.configuration["publish_advdata"] and "track" in pub_device_copy:
+            pub_device_copy.pop("track", None)
+
+        return pub_device_copy
