@@ -45,6 +45,7 @@ DEFAULT_CONFIG = {
     "enable_tls": 0,
     "enable_websocket": 0,
     "identities": {},
+    "tracker_timeout": 120,
     "ble": 1,
 }
 
@@ -214,6 +215,12 @@ def parse_args() -> argparse.Namespace:
         "--enable_tls",
         type=int,
         help="Enable (1) or disable (0) TLS (default: 0)",
+    )
+    parser.add_argument(
+        "-to",
+        "--tracker_timeout",
+        type=int,
+        help="Tracker timeout duration (seconds)",
     )
     parser.add_argument(
         "-ts",

@@ -117,6 +117,7 @@ class Gateway:
         self.stopped = False
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
+        self.discovered_trackers: dict[str, int] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -326,6 +327,27 @@ class Gateway:
                     ).strftime("%Y-%m-%d %H:%M:%S"),
                 )
 
+    def check_tracker_timeout(self) -> None:
+        """Check if tracker timeout is over timeout limit."""
+        for address, timestamp in self.discovered_trackers.copy().items():
+            if (
+                round(time()) - timestamp >= self.configuration["tracker_timeout"]
+                and timestamp != 0
+            ):
+                # If the timestamp is later than current time minus tracker_timeout
+                # Publish offline message
+                message = json.dumps(
+                    {"id": address, "state": "offline", "unlocked": False}
+                )
+                self.publish(
+                    message,
+                    self.configuration["publish_topic"]
+                    + "/"
+                    + address.replace(":", ""),
+                )
+
+                self.discovered_trackers[address] = 0
+
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
         scanner_kwargs = {"scanning_mode": self.configuration["scanning_mode"]}
@@ -472,6 +494,10 @@ class Gateway:
                     )  # Publish sensor data to Home Assistant MQTT discovery
                 else:
                     self.publish_json(decoded_json, decoded=True)
+
+                # Check tracker timeouts
+                self.check_tracker_timeout()
+
         elif self.configuration["publish_all"]:
             add_manufacturer(data_json)
             self.publish_json(data_json, decoded=False)
