@@ -113,6 +113,9 @@ options:
                         Enable (1) or disable (0) TLS (default: 0)
   -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
                         Addresses of Bluetooth devices to synchronize the time
+  -to TIME_UNTIL, --tracker_timeout TIME_UNTIL
+                        Seconds after which a discovered device tracker not being received is published as offline/away
+                        (default: 120)
   -u USER, --user USER  MQTT username
   -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
                         Enable (1) or disable (0) WebSocket (default: 0)
@@ -197,6 +200,11 @@ The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) are not dis
 
 :::tip * INFO 
 Apple Watch, iPhone and iPad will be discovered if they are defined with their Identity MAC Address and IRK
+:::
+
+## Discovered device tracker timeout
+:::tip  NOTE
+`-to TIME_UNTIL, --tracker_timeout` needs to be at least longer than TIME_BETWEEN + SCAN_DURATION to avoid any unwanted temporary offline status messages for discovered trackers.
 :::
 
 ## Passive scanning
