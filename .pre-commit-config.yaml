@@ -1,7 +1,7 @@
 ---
 repos:
 - repo: https://github.com/errata-ai/vale
-  rev: 'v2.30.0'
+  rev: 'v3.0.4'
   hooks:
     - id: vale
       name: vale-sync
@@ -9,7 +9,7 @@ repos:
       args: [sync]
     - id: vale
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 'v0.1.9'
+  rev: 'v0.1.13'
   hooks:
     - id: ruff-format
     - id: ruff
