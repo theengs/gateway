@@ -196,10 +196,11 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can set the discovery name with the `-Dn` or `--discovery_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
-The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) are not discovered as their addresses (IDs) change over time resulting in multiple discoveries.
+<!-- vale off -->
+The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) aren't discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
 :::tip * INFO 
-Apple Watch, iPhone and iPad will be discovered if they are defined with their Identity MAC Address and IRK
+Apple Watch, iPhone and iPad are discovered if they're defined with their Identity MAC Address and IRK
 :::
 
 ## Discovered device tracker timeout
@@ -281,3 +282,23 @@ On a Mac associated with your devices open the **Keychain Access** application a
 When you open the Keychain entry, in the Account field it should confirm the identity address as `Public AA:BB:CC:DD:EE:FF`.
 
 Tick the **Show Password** checkbox and enter your macOS password to then select and copy the *whole* content of the field. Paste the content into an empty TextEdit document and look for the **Remote IRK**.
+
+![Remote IRK retrieval](../img/Theengs-IRK-extraction.png)
+
+This remote IRK is used to launch the gateway with the public address of your device tracked.
+
+Example:
+Public address: 11:22:33:44:55:66
+IRK: WERknmckjn51464saa==
+
+```
+TheengsGateway --identities 11:22:33:44:55:66 WERknmckjn51464saa==
+```
+
+As a result you can see your device information published in the connected MQTT broker under `home/TheengsGateway/BTtoMQTT/112233445566`
+
+```
+{"manufacturerdata": "2c0q1006191e7v30x6fa", "id": "11:22:33:44:55:66", "rssi": -42, "brand": "Apple", "model": "Apple iPhone/iPad", "model_id": "APPLEDEVICE", "type": "TRACK", "track": true, "unlocked": false, "distance": 0.03341741003670675}
+```
+<!-- vale on -->
+You can now enjoy local presence tracking based on your Apple devices.
