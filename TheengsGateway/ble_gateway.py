@@ -345,9 +345,7 @@ class Gateway:
             ):
                 # If the timestamp is later than current time minus tracker_timeout
                 # Publish offline message
-                message = json.dumps(
-                    {"id": address, "state": "offline", "unlocked": False}
-                )
+                message = json.dumps({"id": address, "state": "offline"})
                 self.publish(
                     message,
                     self.configuration["publish_topic"]
