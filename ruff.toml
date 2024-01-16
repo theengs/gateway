@@ -12,3 +12,6 @@ target-version = "py38"
 
 [pydocstyle]
 convention = "google"
+
+[lint.mccabe]
+max-complexity = 15
