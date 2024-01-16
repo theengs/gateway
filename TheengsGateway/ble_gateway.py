@@ -209,10 +209,19 @@ class Gateway:
             try:
                 msg_json = json.loads(msg.payload.decode())
             except (json.JSONDecodeError, UnicodeDecodeError) as exception:
-                logger.warning(exception)
+                logger.warning(
+                    "Invalid JSON message %s: %s", msg.payload.decode(), exception
+                )
                 return
 
-            msg_json["id"] = self.rpa2id(msg_json["id"])
+            try:
+                msg_json["id"] = self.rpa2id(msg_json["id"])
+            except KeyError:
+                logger.warning(
+                    "JSON message %s doesn't contain id", msg.payload.decode()
+                )
+                return
+
             self.decode_advertisement(msg_json)
 
         self.client.subscribe(sub_topic)
