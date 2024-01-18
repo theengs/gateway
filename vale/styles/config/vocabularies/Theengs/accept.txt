@@ -8,7 +8,6 @@ iBeacon
 iCloud
 ioBroker
 Jeedom
-M[AC|ac]
 Mosquitto
 MQTT
 Python
