@@ -196,12 +196,15 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can set the discovery name with the `-Dn` or `--discovery_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
-<!-- vale off -->
+<!-- vale Google.Acronyms = NO -->
+
 The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) aren't discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
-:::tip * INFO 
-Apple Watch, iPhone and iPad are discovered if they're defined with their Identity MAC Address and IRK
+:::tip * INFO
+Home Assistant discovers an Apple Watch, iPhone, or iPad if you've configured their Identity MAC address and IRK.
 :::
+
+<!-- vale Google.Acronyms = YES -->
 
 ## Discovered device tracker timeout
 :::tip  NOTE
@@ -237,7 +240,7 @@ sudo systemctl restart bluetooth.service
 ```
 
 ## Time synchronization
-If you have specified the MAC addresses of [supported Bluetooth clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure to correctly set your gateway's time.
+If you have specified the Bluetooth addresses of [supported clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure to correctly set your gateway's time.
 
 Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format to show their time. Use the argument `--time_format 0` (default) for 24-hour format and `--time_format 1` for 12-hour format.
 
@@ -275,9 +278,13 @@ You can also specify the identity resolving key as a Base64 encoded string, such
 
 ## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone and iPad
 
-To get the Bluetooth Identity Address of an Apple device go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+<!-- vale Google.Acronyms = NO -->
 
-On a Mac associated with your devices open the **Keychain Access** application and search the **login** or **iCloud** Keychain - depending on whether you have iCloud *Password and Keychain* syncing activated or not - for either Bluetooth or the identity address you got for your device as described previously.
+To get the Bluetooth Identity Address of an Apple device, go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+
+<!-- vale Google.Acronyms = YES -->
+
+On a Mac associated with your devices, open the **Keychain Access** application and search the **login** or **iCloud** Keychain - depending on whether you have iCloud *Password and Keychain* syncing activated or not - for either Bluetooth or the identity address you got for your device as described previously.
 
 When you open the Keychain entry, in the Account field it should confirm the identity address as `Public AA:BB:CC:DD:EE:FF`.
 
@@ -285,20 +292,20 @@ Tick the **Show Password** checkbox and enter your macOS password to then select
 
 ![Remote IRK retrieval](../img/Theengs-IRK-extraction.png)
 
-This remote IRK is used to launch the gateway with the public address of your device tracked.
+Now use this remote IRK to launch the gateway with the public address of your device tracked.
 
 Example:
-Public address: 11:22:33:44:55:66
-IRK: WERknmckjn51464saa==
+
+* Public address: 11:22:33:44:55:66
+* IRK: WERknmckjn51464saa==
 
 ```
 TheengsGateway --identities 11:22:33:44:55:66 WERknmckjn51464saa==
 ```
 
-As a result you can see your device information published in the connected MQTT broker under `home/TheengsGateway/BTtoMQTT/112233445566`
+As a result, you can see your device information published in the connected MQTT broker under `home/TheengsGateway/BTtoMQTT/112233445566`
 
 ```
 {"manufacturerdata": "2c0q1006191e7v30x6fa", "id": "11:22:33:44:55:66", "rssi": -42, "brand": "Apple", "model": "Apple iPhone/iPad", "model_id": "APPLEDEVICE", "type": "TRACK", "track": true, "unlocked": false, "distance": 0.03341741003670675}
 ```
-<!-- vale on -->
 You can now enjoy local presence tracking based on your Apple devices.
