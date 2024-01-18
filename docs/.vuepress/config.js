@@ -2,6 +2,7 @@ const commonConfig = require('./public/commonConfig');
 
 module.exports = {
   ...commonConfig,
+  title: 'Theengs Gateway: BLE to MQTT bridge',
   themeConfig: {
     repo: 'theengs/gateway',
     ...commonConfig.themeConfig,
