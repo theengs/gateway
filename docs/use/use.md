@@ -96,7 +96,8 @@ usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-c CONFIG] [-D DISCOVERY]
                       [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
                       [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_NAME]
-                      [-Dt DISCOVERY_TOPIC] [-H HOST] [-id ADDRESS [IRK ...]]
+                      [-Dt DISCOVERY_TOPIC] [-Gp GENERAL_PRESENCE] [-H HOST] 
+                      [-id ADDRESS [IRK ...]]
                       [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                       [-P PORT] [-p PASS] [-pa PUBLISH_ALL] [-padv PUBLISH_ADVDATA]
                       [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUB_TOPIC]
@@ -125,6 +126,8 @@ options:
                         Device name for Home Assistant
   -Dt DISCOVERY_TOPIC, --discovery-topic DISCOVERY_TOPIC
                         MQTT Discovery topic
+  -Gp GENERAL_PRESENCE, --general_presence GENERAL_PRESENCE
+                        Enable (1) or disable (0) general present/absent presence when --discovery: 0
   -H HOST, --host HOST  MQTT host address
   -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
                         Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
@@ -184,6 +187,7 @@ docker run --rm \
     -e SCAN_TIME=60 \
     -e LOG_LEVEL=INFO \
     -e HAAS_DISCOVERY=true \
+    -e GENERAL_PRESENCE=false \
     -e DISCOVERY=true \
     -e DISCOVERY_TOPIC=homeassistant \
     -e DISCOVERY_DEVICE_NAME=TheengsGateway \

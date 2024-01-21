@@ -31,6 +31,7 @@ DEFAULT_CONFIG = {
     "log_level": "INFO",
     "discovery": 1,
     "hass_discovery": 1,
+    "general_presence": 0,
     "discovery_topic": "homeassistant",
     "discovery_device_name": "TheengsGateway",
     "discovery_filter": [
@@ -110,6 +111,12 @@ def parse_args() -> argparse.Namespace:
         "--discovery-topic",
         type=str,
         help="MQTT Discovery topic",
+    )
+    parser.add_argument(
+        "-Gp",
+        "--general_presence",
+        type=int,
+        help="Enable (1) or disable (0) general present/absent presence when --discovery: 0 (default: 0)",  # noqa: E501
     )
     parser.add_argument(
         "-H",

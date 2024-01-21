@@ -338,21 +338,25 @@ class Gateway:
 
     def check_tracker_timeout(self) -> None:
         """Check if tracker timeout is over timeout limit."""
+        # If the timestamp is later than current time minus tracker_timeout
+        # Publish offline message
         for address, timestamp in self.discovered_trackers.copy().items():
             if (
                 round(time()) - timestamp >= self.configuration["tracker_timeout"]
                 and timestamp != 0
+                and (
+                    self.configuration["discovery"]
+                    or self.configuration["general_presence"]
+                )
             ):
-                # If the timestamp is later than current time minus tracker_timeout
-                # Publish offline message
-                message = json.dumps({"id": address, "state": "offline"})
+                message = json.dumps({"id": address, "presence": "absent"})
+
                 self.publish(
                     message,
                     self.configuration["publish_topic"]
                     + "/"
                     + address.replace(":", ""),
                 )
-
                 self.discovered_trackers[address] = 0
 
     async def ble_scan_loop(self) -> None:
@@ -546,6 +550,25 @@ class Gateway:
         decoded: bool,  # noqa: FBT001
     ) -> None:
         """Publish JSON data to MQTT."""
+        # publish general presence "present" if tracker and general_presence true
+        if "track" in data_json:
+            if (
+                data_json["id"] not in self.discovered_trackers
+                or (
+                    data_json["id"] in self.discovered_trackers
+                    and self.discovered_trackers[str(data_json["id"])] == 0
+                )
+            ) and self.configuration["general_presence"]:
+                message = json.dumps({"id": data_json["id"], "presence": "present"})
+                self.publish(
+                    message,
+                    self.configuration["publish_topic"]
+                    + "/"
+                    + get_address(data_json).replace(":", ""),
+                )
+            self.discovered_trackers[str(data_json["id"])] = round(time())
+            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
+
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in data_json:
             data_json.pop("track", None)
