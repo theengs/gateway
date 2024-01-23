@@ -608,8 +608,7 @@ class Gateway:
             decoded_json["ctr"] = ctr
         except KeyError:
             logger.exception(
-                "Can't find bindkey for %s.",
-                get_address(decoded_json),
+                "Can't find bindkey for %s.", get_address(decoded_json), exc_info=False
             )
         except UnsupportedEncryptionError:
             logger.exception(
