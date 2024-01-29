@@ -17,10 +17,44 @@ Then install Theengs Gateway with:
 ```shell
 pip install TheengsGateway
 ```
+
 You can access advanced configuration by typing:
+
 ```shell
 python3 -m TheengsGateway -h
 ```
+
+## Install Theengs Gateway as a pip package in a Python virtual environment
+
+Recent versions of Python may prevent you from installing pip packages outside a Python virtual environment. For example, this is the case in Debian 12 ("bookworm"). Install Theengs Gateway then in a virtual environment.
+
+First install pip and the `venv` module for Python:
+
+```shell
+sudo apt update
+sudo apt install python3-pip python3-venv
+```
+
+Then create a virtual environment called `theengs` and activate it:
+
+```shell
+python3 -m venv theengs
+source theengs/bin/activate
+```
+
+The command prompt is then preceded by `(theengs)` to show you're working in the virtual environment. Now you can install the Theengs Gateway package:
+
+```shell
+pip install TheengsGateway
+```
+
+After this, you can access advanced configuration by typing:
+
+```shell
+python3 -m TheengsGateway -h
+```
+
+If you want to run Theengs Gateway again in another shell session, don't forget to activate the virtual environment first.
 
 ## Install Theengs Gateway as an Add ON in Home Assistant
 1. Add the Add-on repository into the add-on store
