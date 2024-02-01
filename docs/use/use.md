@@ -142,6 +142,7 @@ docker run --rm \
     -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP,APPLE_CONT,APPLE_CONTAT]" \
     -e SCANNING_MODE=active \
     -e ADAPTER=hci0 \
+    -e IDENTITIES="{\"CC:AA:CC:DD:CC:CC\": \"keykeykeykeykeykey==\"}" \
     -v /var/run/dbus:/var/run/dbus \
     --name TheengsGateway \
     theengs/gateway
