@@ -12,6 +12,7 @@ Mosquitto
 MQTT
 Python
 Qingping
+systemd
 Theengs
 TPMS
 undecoded

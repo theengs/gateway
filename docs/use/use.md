@@ -22,6 +22,54 @@ docker run --rm \
 If you've installed your MQTT broker on the same instance as the gateway, you can use `localhost` as the `<mqtt_broker_host_ip>`.
 :::
 
+### Automatically launching the gateway as a systemd service
+
+If you want Theengs Gateway to automatically start on booting your Linux distribution, you can accomplish this by creating a systemd service for it.
+
+First, make sure to [install](../install) Theengs Gateway as a pip package (not with `sudo` or as a root user).
+
+Then create this systemd service script in `/etc/systemd/system/TheengsGateway.service`:
+
+```
+[Unit]
+Description=Theengs Gateway
+Requires=bluetooth.target network-online.target
+
+[Service]
+Restart=always
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 -m TheengsGateway -H host -u user -p password
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Use your host, username, and password for the MQTT broker, and set any other options you need in the `ExecStart` line. Change the user after `User=` to your local username (not `root`).
+
+If you've installed Theengs Gateway in a Python virtual environment, just refer to the full path of the environment's `python3` binary in the `ExecStart` line, such as `/home/pi/theengs/bin/python3` instead of `/usr/bin/python3`.
+
+Then reload the service files and start and enable the system service:
+
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable --now TheengsGateway.service
+```
+
+Check whether the gateway is running:
+
+```shell
+systemctl status TheengsGateway
+```
+
+Check the logs if something's wrong:
+
+```shell
+journalctl -xe
+```
+
+The gateway stores its configuration in a file `theengsgw.conf` in your home directory. So after the systemd service has started successfully, you may remove all options from the `ExecStart` line in the systemd service file, as the gateway reads the configuration from that file.
+
 ### Checking the data published by the gateway
 Once the command launched you should see MQTT payloads appearing on the broker. To visualize these data you have to use an [MQTT client tool](../prerequisites/broker).
 
