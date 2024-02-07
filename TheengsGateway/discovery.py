@@ -148,7 +148,14 @@ class DiscoveryGateway(Gateway):
         for k in data:
             device = {}
             device["stat_t"] = state_topic
-            # If the properties key is mac address, skip it
+            # device_tracker discovery
+            self.publish_device_tracker(
+                pub_device_uuid,
+                state_topic,
+                pub_device,
+                hadevice,
+            )
+            # If the properties key is "mac" or "device", skip its discovery
             if k in {"mac", "device"}:
                 continue
             if k in pub_device["properties"]:
@@ -185,13 +192,6 @@ class DiscoveryGateway(Gateway):
             )
             device["device"] = hadevice  # type: ignore[assignment]
             self.publish(json.dumps(device), config_topic, retain=True)
-
-            self.publish_device_tracker(
-                pub_device_uuid,
-                state_topic,
-                pub_device,
-                hadevice,
-            )
 
         self.discovered_entities.append(pub_device_uuid)
         self.publish_device_data(
