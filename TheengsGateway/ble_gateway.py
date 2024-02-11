@@ -126,10 +126,11 @@ class Gateway:
             client,  # noqa: ANN001
             userdata,  # noqa: ANN001,ARG001
             flags,  # noqa: ANN001,ARG001
-            return_code,  # noqa: ANN001
+            reason_code,  # noqa: ANN001
+            properties,  # noqa: ANN001,ARG001
         ) -> None:
-            if return_code == 0:
-                logger.info("Connected to MQTT Broker!")
+            if reason_code == 0:
+                logger.info("Connected to MQTT broker")
                 client.publish(
                     self.configuration["lwt_topic"],
                     "online",
@@ -139,10 +140,10 @@ class Gateway:
                 self.subscribe(self.configuration["subscribe_topic"])
             else:
                 logger.error(
-                    "Failed to connect to MQTT broker %s:%d return code: %d",
+                    "Failed to connect to MQTT broker %s:%d reason code: %d",
                     self.configuration["host"],
                     self.configuration["port"],
-                    return_code,
+                    reason_code,
                 )
                 self.client.connect(
                     self.configuration["host"],
@@ -152,14 +153,23 @@ class Gateway:
         def on_disconnect(
             client,  # noqa: ANN001,ARG001
             userdata,  # noqa: ANN001,ARG001
-            return_code=0,  # noqa: ANN001
+            flags,  # noqa: ANN001,ARG001
+            reason_code,  # noqa: ANN001
+            properties,  # noqa: ANN001,ARG001
         ) -> None:
-            logger.error("Disconnected with return code = %d", return_code)
+            if reason_code == 0:
+                logger.info("Disconnected from MQTT broker")
+            else:
+                logger.error(
+                    "Disconnected from MQTT broker with reason code = %d", reason_code
+                )
 
         if self.configuration["enable_websocket"]:
-            self.client = mqtt_client.Client(transport="websockets")
+            self.client = mqtt_client.Client(
+                mqtt_client.CallbackAPIVersion.VERSION2, transport="websockets"
+            )
         else:
-            self.client = mqtt_client.Client()
+            self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2)
 
         if self.configuration["enable_tls"]:
             self.client.tls_set(
