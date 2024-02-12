@@ -102,13 +102,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-Dn",
-        "--discovery_name",
+        "--discovery_device_name",
         type=str,
         help="Device name for Home Assistant",
     )
     parser.add_argument(
         "-Dt",
-        "--discovery-topic",
+        "--discovery_topic",
         type=str,
         help="MQTT Discovery topic",
     )
@@ -182,7 +182,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-pt",
-        "--pub_topic",
+        "--publish_topic",
         type=str,
         help="MQTT publish topic",
     )
@@ -195,20 +195,20 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-sd",
-        "--scan_duration",
+        "--ble_scan_time",
         type=int,
         help="BLE scan duration (seconds)",
     )
     parser.add_argument(
         "-st",
-        "--sub_topic",
+        "--subscribe_topic",
         type=str,
         help="MQTT subscribe topic",
     )
     parser.add_argument(
         "-tb",
-        "--time_between",
-        type=int,
+        "--ble_time_between_scans",
+        type=float,
         help="Seconds to wait between scans",
     )
     parser.add_argument(
