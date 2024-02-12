@@ -95,14 +95,14 @@ C:\Users\1technophile>python -m TheengsGateway -h
 usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-c CONFIG] [-D DISCOVERY]
                       [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
-                      [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_NAME]
+                      [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_DEVICE_NAME]
                       [-Dt DISCOVERY_TOPIC] [-Gp GENERAL_PRESENCE] [-H HOST] 
                       [-id ADDRESS [IRK ...]]
                       [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                       [-P PORT] [-p PASS] [-pa PUBLISH_ALL] [-padv PUBLISH_ADVDATA]
-                      [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUB_TOPIC]
-                      [-s {active,passive}] [-sd SCAN_DURATION] [-st SUB_TOPIC]
-                      [-tb TIME_BETWEEN] [-tf TIME_FORMAT] [-tls ENABLE_TLS]
+                      [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUBLISH_TOPIC]
+                      [-s {active,passive}] [-sd BLE_SCAN_TIME] [-st SUBSCRIBE_TOPIC]
+                      [-tb BLE_TIME_BETWEEN_SCANS] [-tf TIME_FORMAT] [-tls ENABLE_TLS]
                       [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
                       [-ws ENABLE_WEBSOCKET]
 
@@ -122,9 +122,9 @@ options:
   -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
                         Enable(1) or disable(0) Home Assistant MQTT discovery
                         (default: 1)
-  -Dn DISCOVERY_NAME, --discovery_name DISCOVERY_NAME
+  -Dn DISCOVERY_DEVICE_NAME, --discovery_device_name DISCOVERY_DEVICE_NAME
                         Device name for Home Assistant
-  -Dt DISCOVERY_TOPIC, --discovery-topic DISCOVERY_TOPIC
+  -Dt DISCOVERY_TOPIC, --discovery_topic DISCOVERY_TOPIC
                         MQTT Discovery topic
   -Gp GENERAL_PRESENCE, --general_presence GENERAL_PRESENCE
                         Enable (1) or disable (0) general present/absent presence when --discovery: 0
@@ -147,15 +147,15 @@ options:
                         Enable (1) or disable (0) presence publication (default: 1)
   -prt PRESENCE_TOPIC, --presence_topic PRESENCE_TOPIC
                         MQTT presence topic
-  -pt PUB_TOPIC, --pub_topic PUB_TOPIC
+  -pt PUBLISH_TOPIC, --publish_topic PUBLISH_TOPIC
                         MQTT publish topic
   -s {active,passive}, --scanning_mode {active,passive}
                         Scanning mode (default: active)
-  -sd SCAN_DURATION, --scan_duration SCAN_DURATION
+  -sd BLE_SCAN_TIME, --ble_scan_time BLE_SCAN_TIME
                         BLE scan duration (seconds)
-  -st SUB_TOPIC, --sub_topic SUB_TOPIC
+  -st SUBSCRIBE_TOPIC, --subscribe_topic SUBSCRIBE_TOPIC
                         MQTT subscribe topic
-  -tb TIME_BETWEEN, --time_between TIME_BETWEEN
+  -tb BLE_TIME_BETWEEN_SCANS, --ble_time_between_scans BLE_TIME_BETWEEN_SCANS
                         Seconds to wait between scans
   -tf TIME_FORMAT, --time_format TIME_FORMAT
                         Use 12-hour (1) or 24-hour (0) time format for clocks
@@ -180,10 +180,10 @@ docker run --rm \
     -e MQTT_HOST=<host_ip> \
     -e MQTT_USERNAME=<username> \
     -e MQTT_PASSWORD=<password> \
-    -e MQTT_PUB_TOPIC=home/TheengsGateway/BTtoMQTT \
-    -e MQTT_SUB_TOPIC=home/+/BTtoMQTT/undecoded \
+    -e MQTT_PUBLISH_TOPIC=home/TheengsGateway/BTtoMQTT \
+    -e MQTT_SUBSCRIBE_TOPIC=home/+/BTtoMQTT/undecoded \
     -e PUBLISH_ALL=true \
-    -e TIME_BETWEEN=60 \
+    -e BLE_TIME_BETWEEN_SCANS=60 \
     -e SCAN_TIME=60 \
     -e LOG_LEVEL=INFO \
     -e HAAS_DISCOVERY=true \
@@ -246,7 +246,7 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can enable/disable this with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
 - If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
-- You can set the discovery name with the `-Dn` or `--discovery_name` command line argument.
+- You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
 <!-- vale Google.Acronyms = NO -->
@@ -261,7 +261,7 @@ Home Assistant discovers an Apple Watch, iPhone, or iPad if you've configured th
 
 ## Discovered device tracker timeout
 :::tip  NOTE
-`-to TIME_UNTIL, --tracker_timeout` needs to be at least longer than TIME_BETWEEN + SCAN_DURATION to avoid any unwanted temporary offline status messages for discovered trackers.
+`-to TIME_UNTIL, --tracker_timeout` needs to be at least longer than BLE_TIME_BETWEEN_SCANS + BLE_SCAN_TIME to avoid any unwanted temporary offline status messages for discovered trackers.
 :::
 
 ## Passive scanning
