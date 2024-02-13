@@ -117,7 +117,7 @@ class Gateway:
         self.stopped = False
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
-        self.discovered_trackers: dict[str, int] = {}
+        self.discovered_trackers: dict[str, dict[int, str]] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -350,16 +350,25 @@ class Gateway:
         """Check if tracker timeout is over timeout limit."""
         # If the timestamp is later than current time minus tracker_timeout
         # Publish offline message
-        for address, timestamp in self.discovered_trackers.copy().items():
+        for address, timemodeldict in self.discovered_trackers.copy().items():
             if (
-                round(time()) - timestamp >= self.configuration["tracker_timeout"]
-                and timestamp != 0
+                round(time()) - timemodeldict[0]
+                >= self.configuration["tracker_timeout"]
+                and timemodeldict[0] != 0
                 and (
                     self.configuration["discovery"]
                     or self.configuration["general_presence"]
                 )
             ):
-                message = json.dumps({"id": address, "presence": "absent"})
+                if (
+                    timemodeldict[1] == "APPLEWATCH"
+                    or timemodeldict[1] == "APPLEDEVICE"
+                ) and not self.configuration["discovery"]:
+                    message = json.dumps(
+                        {"id": address, "presence": "absent", "unlocked": False}
+                    )
+                else:
+                    message = json.dumps({"id": address, "presence": "absent"})
 
                 self.publish(
                     message,
@@ -367,7 +376,9 @@ class Gateway:
                     + "/"
                     + address.replace(":", ""),
                 )
-                self.discovered_trackers[address] = 0
+                tup1 = list(timemodeldict)
+                tup1[0] = 0
+                self.discovered_trackers[address] = tuple(tup1)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
@@ -566,7 +577,7 @@ class Gateway:
                 data_json["id"] not in self.discovered_trackers
                 or (
                     data_json["id"] in self.discovered_trackers
-                    and self.discovered_trackers[str(data_json["id"])] == 0
+                    and self.discovered_trackers[str(data_json["id"])][0] == 0
                 )
             ) and self.configuration["general_presence"]:
                 message = json.dumps({"id": data_json["id"], "presence": "present"})
@@ -576,7 +587,10 @@ class Gateway:
                     + "/"
                     + get_address(data_json).replace(":", ""),
                 )
-            self.discovered_trackers[str(data_json["id"])] = round(time())
+            self.discovered_trackers[str(data_json["id"])] = (
+                round(time()),
+                str(data_json["model_id"]),
+            )
             logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
         # Remove "track" if PUBLISH_ADVDATA is 0
