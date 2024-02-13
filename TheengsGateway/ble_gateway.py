@@ -87,15 +87,15 @@ DataJSONType = Dict[str, Union[str, int, float, bool]]
 
 
 @dataclass
-class TimeAndModel:
-    """Keep track of a timestamp and model for a tracker."""
+class TnM:
+    """Keep track of a timestamp and model_id for a tracker."""
 
     time: int
-    model: str
+    model_id: str
 
     def __str__(self) -> str:
-        """Show time and model."""
-        return f"({self.time}, {self.model})"
+        """Show time and model_id."""
+        return f"({self.time}, {self.model_id})"
 
 
 def get_address(data: DataJSONType) -> str:
@@ -130,7 +130,7 @@ class Gateway:
         self.stopped = False
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
-        self.discovered_trackers: dict[str, TimeAndModel] = {}
+        self.discovered_trackers: dict[str, TnM] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -373,8 +373,9 @@ class Gateway:
                 )
             ):
                 if (
-                    time_model.model in ("APPLEWATCH", "APPLEDEVICE")
-                ) and not self.configuration["discovery"]:
+                    time_model.model_id in ("APPLEWATCH", "APPLEDEVICE")
+                    and not self.configuration["discovery"]
+                ):
                     message = json.dumps(
                         {"id": address, "presence": "absent", "unlocked": False}
                     )
@@ -389,7 +390,7 @@ class Gateway:
                 )
                 time_model.time = 0
                 self.discovered_trackers[address] = time_model
-                logger.info("Discovered Trackers: %s", self.discovered_trackers)
+                logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
@@ -598,11 +599,11 @@ class Gateway:
                     + "/"
                     + get_address(data_json).replace(":", ""),
                 )
-            self.discovered_trackers[str(data_json["id"])] = TimeAndModel(
+            self.discovered_trackers[str(data_json["id"])] = TnM(
                 round(time()),
                 str(data_json["model_id"]),
             )
-            logger.info("Discovered Trackers: %s", self.discovered_trackers)
+            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in data_json:
