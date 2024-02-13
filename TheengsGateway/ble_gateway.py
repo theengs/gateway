@@ -388,11 +388,8 @@ class Gateway:
                     + address.replace(":", ""),
                 )
                 time_model.time = 0
-                logger.info("Dictionary: %s", time_model)
                 self.discovered_trackers[address] = time_model
-                logger.info(
-                    "Dictionary - Discovered Trackers: %s", self.discovered_trackers
-                )
+                logger.info("Discovered Trackers: %s", self.discovered_trackers)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
