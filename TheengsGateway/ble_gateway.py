@@ -380,7 +380,9 @@ class Gateway:
                 tup1[0] = 0
                 logger.info("Dictionary: %s", tup1)
                 self.discovered_trackers[address] = tuple(tup1)
-                logger.info("Dictionary - Discovered Trackers: %s", self.discovered_trackers)
+                logger.info(
+                    "Dictionary - Discovered Trackers: %s", self.discovered_trackers
+                )
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
