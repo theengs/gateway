@@ -93,6 +93,10 @@ class TimeAndModel:
     time: int
     model: str
 
+    def __str__(self) -> str:
+        """Show time and model."""
+        return f"({self.time}, {self.model})"
+
 
 def get_address(data: DataJSONType) -> str:
     """Return the device address from a data JSON."""
