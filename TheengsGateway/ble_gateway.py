@@ -29,6 +29,7 @@ import ssl
 import struct
 import sys
 from contextlib import suppress
+from dataclasses import dataclass
 from datetime import datetime
 from random import randrange
 from threading import Thread
@@ -85,6 +86,18 @@ logger = logging.getLogger("BLEGateway")
 DataJSONType = Dict[str, Union[str, int, float, bool]]
 
 
+@dataclass
+class TimeAndModel:
+    """Keep track of a timestamp and model for a tracker."""
+
+    time: int
+    model: str
+
+    def __str__(self) -> str:
+        """Show time and model."""
+        return f"({self.time}, '{self.model}')"
+
+
 def get_address(data: DataJSONType) -> str:
     """Return the device address from a data JSON."""
     try:
@@ -117,7 +130,7 @@ class Gateway:
         self.stopped = False
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
-        self.discovered_trackers: dict[str, dict[int, str]] = {}
+        self.discovered_trackers: dict[str, TimeAndModel] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -350,19 +363,17 @@ class Gateway:
         """Check if tracker timeout is over timeout limit."""
         # If the timestamp is later than current time minus tracker_timeout
         # Publish offline message
-        for address, timemodeldict in self.discovered_trackers.copy().items():
+        for address, time_model in self.discovered_trackers.copy().items():
             if (
-                round(time()) - timemodeldict[0]
-                >= self.configuration["tracker_timeout"]
-                and timemodeldict[0] != 0
+                round(time()) - time_model.time >= self.configuration["tracker_timeout"]
+                and time_model.time != 0
                 and (
                     self.configuration["discovery"]
                     or self.configuration["general_presence"]
                 )
             ):
                 if (
-                    timemodeldict[1] == "APPLEWATCH"
-                    or timemodeldict[1] == "APPLEDEVICE"
+                    time_model.model in ("APPLEWATCH", "APPLEDEVICE")
                 ) and not self.configuration["discovery"]:
                     message = json.dumps(
                         {"id": address, "presence": "absent", "unlocked": False}
@@ -376,12 +387,20 @@ class Gateway:
                     + "/"
                     + address.replace(":", ""),
                 )
-                tup1 = list(timemodeldict)
-                tup1[0] = 0
-                logger.info("Dictionary: %s", tup1)
-                self.discovered_trackers[address] = tuple(tup1)
+                time_model.time = 0
+                logger.info("Dictionary: %s", time_model)
+                self.discovered_trackers[address] = time_model
                 logger.info(
-                    "Dictionary - Discovered Trackers: %s", self.discovered_trackers
+                    "Dictionary - Discovered Trackers: %s",
+                    ", ".join(
+                        [
+                            f"{address}: {time_model!r}"
+                            for (
+                                address,
+                                time_model,
+                            ) in self.discovered_trackers.items()
+                        ]
+                    ),
                 )
 
     async def ble_scan_loop(self) -> None:
@@ -581,7 +600,7 @@ class Gateway:
                 data_json["id"] not in self.discovered_trackers
                 or (
                     data_json["id"] in self.discovered_trackers
-                    and self.discovered_trackers[str(data_json["id"])][0] == 0
+                    and self.discovered_trackers[str(data_json["id"])].time == 0
                 )
             ) and self.configuration["general_presence"]:
                 message = json.dumps({"id": data_json["id"], "presence": "present"})
@@ -591,7 +610,7 @@ class Gateway:
                     + "/"
                     + get_address(data_json).replace(":", ""),
                 )
-            self.discovered_trackers[str(data_json["id"])] = (
+            self.discovered_trackers[str(data_json["id"])] = TimeAndModel(
                 round(time()),
                 str(data_json["model_id"]),
             )
