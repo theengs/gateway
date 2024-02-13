@@ -265,7 +265,7 @@ class DiscoveryGateway(Gateway):
         # Update tracker last received time
         if "track" in device:
             self.discovered_trackers[device["id"]] = (round(time()), device["model_id"])
-            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
+            logger.info("Discovered Trackers: %s", self.discovered_trackers)
 
         pub_device_copy = device.copy()
         # Remove "track" if PUBLISH_ADVDATA is 0

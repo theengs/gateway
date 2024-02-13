@@ -378,7 +378,9 @@ class Gateway:
                 )
                 tup1 = list(timemodeldict)
                 tup1[0] = 0
+                logger.info("Dictionary: %s", tup1)
                 self.discovered_trackers[address] = tuple(tup1)
+                logger.info("Dictionary - Discovered Trackers: %s", self.discovered_trackers)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
@@ -591,7 +593,7 @@ class Gateway:
                 round(time()),
                 str(data_json["model_id"]),
             )
-            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
+            logger.info("Discovered Trackers: %s", self.discovered_trackers)
 
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in data_json:
