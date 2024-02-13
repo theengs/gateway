@@ -27,7 +27,7 @@ from time import time
 
 from TheengsDecoder import getProperties
 
-from .ble_gateway import DataJSONType, Gateway, logger
+from .ble_gateway import DataJSONType, Gateway, TnM, logger
 
 ha_dev_classes = [
     "battery",
@@ -264,7 +264,9 @@ class DiscoveryGateway(Gateway):
         """Copy pub_device and remove "track" if publish_advdata is false."""
         # Update tracker last received time
         if "track" in device:
-            self.discovered_trackers[device["id"]] = round(time())
+            self.discovered_trackers[device["id"]] = TnM(
+                round(time()), device["model_id"]
+            )
             logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
         pub_device_copy = device.copy()

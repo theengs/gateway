@@ -29,6 +29,7 @@ import ssl
 import struct
 import sys
 from contextlib import suppress
+from dataclasses import dataclass
 from datetime import datetime
 from random import randrange
 from threading import Thread
@@ -85,6 +86,18 @@ logger = logging.getLogger("BLEGateway")
 DataJSONType = Dict[str, Union[str, int, float, bool]]
 
 
+@dataclass
+class TnM:
+    """Keep track of a timestamp and model_id for a tracker."""
+
+    time: int
+    model_id: str
+
+    def __str__(self) -> str:
+        """Show time and model_id."""
+        return f"({self.time}, {self.model_id})"
+
+
 def get_address(data: DataJSONType) -> str:
     """Return the device address from a data JSON."""
     try:
@@ -117,7 +130,7 @@ class Gateway:
         self.stopped = False
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
-        self.discovered_trackers: dict[str, int] = {}
+        self.discovered_trackers: dict[str, TnM] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -350,16 +363,24 @@ class Gateway:
         """Check if tracker timeout is over timeout limit."""
         # If the timestamp is later than current time minus tracker_timeout
         # Publish offline message
-        for address, timestamp in self.discovered_trackers.copy().items():
+        for address, time_model in self.discovered_trackers.copy().items():
             if (
-                round(time()) - timestamp >= self.configuration["tracker_timeout"]
-                and timestamp != 0
+                round(time()) - time_model.time >= self.configuration["tracker_timeout"]
+                and time_model.time != 0
                 and (
                     self.configuration["discovery"]
                     or self.configuration["general_presence"]
                 )
             ):
-                message = json.dumps({"id": address, "presence": "absent"})
+                if (
+                    time_model.model_id in ("APPLEWATCH", "APPLEDEVICE")
+                    and not self.configuration["discovery"]
+                ):
+                    message = json.dumps(
+                        {"id": address, "presence": "absent", "unlocked": False}
+                    )
+                else:
+                    message = json.dumps({"id": address, "presence": "absent"})
 
                 self.publish(
                     message,
@@ -367,7 +388,9 @@ class Gateway:
                     + "/"
                     + address.replace(":", ""),
                 )
-                self.discovered_trackers[address] = 0
+                time_model.time = 0
+                self.discovered_trackers[address] = time_model
+                logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
@@ -566,7 +589,7 @@ class Gateway:
                 data_json["id"] not in self.discovered_trackers
                 or (
                     data_json["id"] in self.discovered_trackers
-                    and self.discovered_trackers[str(data_json["id"])] == 0
+                    and self.discovered_trackers[str(data_json["id"])].time == 0
                 )
             ) and self.configuration["general_presence"]:
                 message = json.dumps({"id": data_json["id"], "presence": "present"})
@@ -576,7 +599,10 @@ class Gateway:
                     + "/"
                     + get_address(data_json).replace(":", ""),
                 )
-            self.discovered_trackers[str(data_json["id"])] = round(time())
+            self.discovered_trackers[str(data_json["id"])] = TnM(
+                round(time()),
+                str(data_json["model_id"]),
+            )
             logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
         # Remove "track" if PUBLISH_ADVDATA is 0
