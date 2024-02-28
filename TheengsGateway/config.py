@@ -136,7 +136,7 @@ def parse_args() -> argparse.Namespace:
         "-in",
         "--insecure_tls",
         type=int,
-        help="Enable (1) or disable (0) insecure TLS (default: 0)",
+        help="Enable (1) or disable (0) insecure TLS (do not check hostnames) (default: 0)",
     )
     parser.add_argument(
         "-Lt",
