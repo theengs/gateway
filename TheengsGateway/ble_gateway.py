@@ -189,6 +189,8 @@ class Gateway:
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLS,
             )
+            if self.configuration["insecure_tls"]:
+                self.client.tls_insecure_set(True)
 
         self.client.username_pw_set(
             self.configuration["user"],
