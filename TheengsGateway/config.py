@@ -44,6 +44,7 @@ DEFAULT_CONFIG = {
     "publish_advdata": 0,
     "bindkeys": {},
     "enable_tls": 0,
+    "insecure_tls": 0,
     "enable_websocket": 0,
     "identities": {},
     "tracker_timeout": 120,
@@ -130,6 +131,12 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         metavar=("ADDRESS", "IRK"),
         help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
+    )
+    parser.add_argument(
+        "-in",
+        "--insecure_tls",
+        type=int,
+        help="Enable (1) or disable (0) insecure TLS (default: 0)",
     )
     parser.add_argument(
         "-Lt",
