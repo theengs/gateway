@@ -190,7 +190,7 @@ class Gateway:
                 tls_version=ssl.PROTOCOL_TLS,
             )
             if self.configuration["tls_insecure"]:
-                self.client.tls_insecure_set(value = True)
+                self.client.tls_insecure_set(value=True)
 
         self.client.username_pw_set(
             self.configuration["user"],
