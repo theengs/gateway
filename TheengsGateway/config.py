@@ -44,7 +44,7 @@ DEFAULT_CONFIG = {
     "publish_advdata": 0,
     "bindkeys": {},
     "enable_tls": 0,
-    "insecure_tls": 0,
+    "tls_insecure": 0,
     "enable_websocket": 0,
     "identities": {},
     "tracker_timeout": 120,
@@ -133,12 +133,6 @@ def parse_args() -> argparse.Namespace:
         help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
     )
     parser.add_argument(
-        "-in",
-        "--insecure_tls",
-        type=int,
-        help="Enable (1) or disable (0) insecure TLS (do not check hostnames) (default: 0)",
-    )
-    parser.add_argument(
         "-Lt",
         "--lwt_topic",
         type=str,
@@ -223,6 +217,12 @@ def parse_args() -> argparse.Namespace:
         "--time_format",
         type=int,
         help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
+    )
+    parser.add_argument(
+        "-ti",
+        "--tls_insecure",
+        type=int,
+        help="Allow (1) or disallow (0: default) insecure TLS (no hostname check)",
     )
     parser.add_argument(
         "-tls",
