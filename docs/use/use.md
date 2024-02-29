@@ -102,8 +102,8 @@ usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-P PORT] [-p PASS] [-pa PUBLISH_ALL] [-padv PUBLISH_ADVDATA]
                       [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUBLISH_TOPIC]
                       [-s {active,passive}] [-sd BLE_SCAN_TIME] [-st SUBSCRIBE_TOPIC]
-                      [-tb BLE_TIME_BETWEEN_SCANS] [-tf TIME_FORMAT] [-tls ENABLE_TLS]
-                      [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
+                      [-tb BLE_TIME_BETWEEN_SCANS] [-tf TIME_FORMAT] [-ti TLS_INSECURE]
+                      [-tls ENABLE_TLS] [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
                       [-ws ENABLE_WEBSOCKET]
 
 options:
@@ -160,6 +160,8 @@ options:
   -tf TIME_FORMAT, --time_format TIME_FORMAT
                         Use 12-hour (1) or 24-hour (0) time format for clocks
                         (default: 0)
+  -ti TLS_INSECURE, --tls_insecure TLS_INSECURE
+                        Allow (1) or disallow (0: default) insecure TLS (no hostname check)
   -tls ENABLE_TLS, --enable_tls ENABLE_TLS
                         Enable (1) or disable (0) TLS (default: 0)
   -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
