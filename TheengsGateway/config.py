@@ -44,6 +44,7 @@ DEFAULT_CONFIG = {
     "publish_advdata": 0,
     "bindkeys": {},
     "enable_tls": 0,
+    "tls_insecure": 0,
     "enable_websocket": 0,
     "identities": {},
     "tracker_timeout": 120,
@@ -216,6 +217,12 @@ def parse_args() -> argparse.Namespace:
         "--time_format",
         type=int,
         help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
+    )
+    parser.add_argument(
+        "-ti",
+        "--tls_insecure",
+        type=int,
+        help="Allow (1) or disallow (0: default) insecure TLS (no hostname check)",
     )
     parser.add_argument(
         "-tls",
