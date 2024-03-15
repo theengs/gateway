@@ -51,5 +51,19 @@ def main() -> None:
     if not configuration["host"]:
         sys.exit("MQTT host is not specified")
 
+    # Remove possible discovery filter remnants not required after the RMAC introduction
+    if "GAEN" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("GAEN")
+    if "MS-CDP" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("MS-CDP")
+    if "APPLE_CONT" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("APPLE_CONT")
+    if "APPLE_CONTAT" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("APPLE_CONTAT")
+    if "APPLEDEVICE" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("APPLEDEVICE")
+    if "APPLEWATCH" in configuration["discovery_filter"]:
+        configuration["discovery_filter"].remove("APPLEWATCH")
+
     write_configuration(configuration, config_path)
     run(configuration, config_path)
