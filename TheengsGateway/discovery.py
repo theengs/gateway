@@ -51,6 +51,8 @@ ha_dev_classes = [
     "pm25",
     "power",
     "power_factor",
+    "precipitation",
+    "precipitation_intensity",
     "pressure",
     "problem",
     "restart",
@@ -60,6 +62,7 @@ ha_dev_classes = [
     "voltage",
     "water",
     "weight",
+    "wind_speed",
     "window",
 ]
 
