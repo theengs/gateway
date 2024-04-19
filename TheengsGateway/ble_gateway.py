@@ -464,7 +464,10 @@ class Gateway:
         if (
             address not in self.configuration["whitelist"]
             and self.configuration["whitelist"] != []
-        ) or address in self.configuration["blacklist"]:
+        ) or (
+            address in self.configuration["blacklist"]
+            and address not in self.configuration["whitelist"]
+        ):
             return
 
         # Try to add the device to dictionary of clocks to synchronize time.
