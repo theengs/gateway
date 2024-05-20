@@ -192,7 +192,7 @@ docker run --rm \
     -e MQTT_SUBSCRIBE_TOPIC=home/+/BTtoMQTT/undecoded \
     -e PUBLISH_ALL=true \
     -e BLE_TIME_BETWEEN_SCANS=60 \
-    -e BLE_SCAN_TIME=60 \
+    -e BLE_SCAN_TIME=5 \
     -e LOG_LEVEL=INFO \
     -e HAAS_DISCOVERY=true \
     -e GENERAL_PRESENCE=false \
