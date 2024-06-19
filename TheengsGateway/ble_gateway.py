@@ -152,6 +152,8 @@ class Gateway:
                     retain=True,
                 )
                 self.subscribe(self.configuration["subscribe_topic"])
+                if self.configuration["enable_multi_gtw_sync"]:
+                    self.subscribe("home/internal/trackersync")
             else:
                 logger.error(
                     "Failed to connect to MQTT broker %s:%d reason code: %s",
@@ -227,28 +229,52 @@ class Gateway:
         """Subscribe to MQTT topic <sub_topic>."""
 
         def on_message(client, userdata, msg) -> None:  # noqa: ANN001,ARG001
-            logger.info(
-                "Received `%s` from `%s` topic",
-                msg.payload.decode(),
-                msg.topic,
-            )
-            try:
-                msg_json = json.loads(msg.payload.decode())
-            except (json.JSONDecodeError, UnicodeDecodeError) as exception:
-                logger.warning(
-                    "Invalid JSON message %s: %s", msg.payload.decode(), exception
-                )
-                return
+            # Evaluate trackersync messages
+            if (
+                msg.topic == "home/internal/trackersync"
+                and self.configuration["enable_multi_gtw_sync"]
+            ):
+                msg_json = json.loads(msg.payload)
+                logger.debug("trackersync message: %s", msg_json)
 
-            try:
-                msg_json["id"] = self.rpa2id(msg_json["id"])
-            except KeyError:
-                logger.warning(
-                    "JSON message %s doesn't contain id", msg.payload.decode()
-                )
-                return
+                if (
+                    msg_json["gatewayid"] != self.configuration["gateway_id"]
+                    and msg_json["trackerid"] in self.discovered_trackers
+                    and self.discovered_trackers[msg_json["trackerid"]].time != 0
+                ):
+                    self.discovered_trackers[msg_json["trackerid"]].time = 0
+                    logger.debug(
+                        "Tracker %s disassociated by gateway %s",
+                        msg_json["trackerid"],
+                        msg_json["gatewayid"],
+                    )
 
-            self.decode_advertisement(msg_json)
+                    logger.debug(
+                        "[DIS] Discovered Trackers: %s", self.discovered_trackers
+                    )
+            else:
+                logger.info(
+                    "Received `%s` from `%s` topic",
+                    msg.payload.decode(),
+                    msg.topic,
+                )
+                try:
+                    msg_json = json.loads(msg.payload.decode())
+                except (json.JSONDecodeError, UnicodeDecodeError) as exception:
+                    logger.warning(
+                        "Invalid JSON message %s: %s", msg.payload.decode(), exception
+                    )
+                    return
+
+                try:
+                    msg_json["id"] = self.rpa2id(msg_json["id"])
+                except KeyError:
+                    logger.warning(
+                        "JSON message %s doesn't contain id", msg.payload.decode()
+                    )
+                    return
+
+                self.decode_advertisement(msg_json)
 
         self.client.subscribe(sub_topic)
         self.client.on_message = on_message
@@ -370,14 +396,11 @@ class Gateway:
             if (
                 round(time()) - time_model.time >= self.configuration["tracker_timeout"]
                 and time_model.time != 0
-                and (
-                    self.configuration["discovery"]
-                    or self.configuration["general_presence"]
-                )
             ):
                 if (
                     time_model.model_id in ("APPLEWATCH", "APPLEDEVICE")
                     and not self.configuration["discovery"]
+                    and self.configuration["general_presence"]
                 ):
                     message = json.dumps(
                         {"id": address, "presence": "absent", "unlocked": False}
@@ -391,9 +414,12 @@ class Gateway:
                     + "/"
                     + address.replace(":", ""),
                 )
+
                 time_model.time = 0
                 self.discovered_trackers[address] = time_model
-                logger.debug("Discovered Trackers: %s", self.discovered_trackers)
+
+                logger.info("Tracker %s timed out", address)
+                logger.debug("[TO]  Discovered Trackers: %s", self.discovered_trackers)
 
     async def ble_scan_loop(self) -> None:
         """Scan for BLE devices."""
@@ -440,6 +466,10 @@ class Gateway:
                     "Sent %s messages to MQTT",
                     self.published_messages,
                 )
+
+                # Check tracker timeouts
+                self.check_tracker_timeout()
+
                 await asyncio.sleep(
                     self.configuration["ble_time_between_scans"],
                 )
@@ -611,11 +641,26 @@ class Gateway:
                     + "/"
                     + get_address(data_json).replace(":", ""),
                 )
+
+            # Update tracker last received time
             self.discovered_trackers[str(data_json["id"])] = TnM(
                 round(time()),
                 str(data_json["model_id"]),
             )
-            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
+            # Publish trackersync message
+            if self.configuration["enable_multi_gtw_sync"]:
+                message = json.dumps(
+                    {
+                        "gatewayid": self.configuration["gateway_id"],
+                        "trackerid": data_json["id"],
+                    }
+                )
+                self.publish(
+                    message,
+                    "home/internal/trackersync",
+                )
+
+                logger.debug("[GP]  Discovered Trackers: %s", self.discovered_trackers)
 
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in data_json:

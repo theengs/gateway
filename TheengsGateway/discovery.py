@@ -273,8 +273,21 @@ class DiscoveryGateway(Gateway):
             self.discovered_trackers[device["id"]] = TnM(
                 round(time()), device["model_id"]
             )
-            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
+            # Publish trackersync message
+            if self.configuration["enable_multi_gtw_sync"]:
+                message = json.dumps(
+                    {
+                        "gatewayid": self.configuration["gateway_id"],
+                        "trackerid": device["id"],
+                    }
+                )
+                self.publish(
+                    message,
+                    "home/internal/trackersync",
+                )
+
+                logger.debug("      Discovered Trackers: %s", self.discovered_trackers)
         pub_device_copy = device.copy()
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in pub_device_copy:

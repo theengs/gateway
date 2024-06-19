@@ -20,7 +20,7 @@ DEFAULT_CONFIG = {
     "port": 1883,
     "user": "",
     "pass": "",
-    "ble_scan_time": 5,
+    "ble_scan_time": 7,
     "ble_time_between_scans": 5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "lwt_topic": "home/TheengsGateway/LWT",
@@ -51,6 +51,7 @@ DEFAULT_CONFIG = {
     "ble": 1,
     "whitelist": [],
     "blacklist": [],
+    "enable_multi_gtw_sync": 1,
 }
 
 
@@ -267,6 +268,12 @@ def parse_args() -> argparse.Namespace:
         "--enable_websocket",
         type=int,
         help="Enable (1) or disable (0) WebSocket (default: 0)",
+    )
+    parser.add_argument(
+        "-gs",
+        "--enable_multi_gtw_sync",
+        type=int,
+        help="Disable (0) or enable (1) to use tracker and closest control devices sync across Theengs Gateway gateways and OpenMQTTGateway (default: 1)",  # noqa: E501
     )
     return parser.parse_args()
 
