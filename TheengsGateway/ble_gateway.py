@@ -66,6 +66,7 @@ ADVANCED_DATA = (
     "cipher",
     "cont",
     "ctr",
+    "ctrl",
     "encr",
     "manufacturerdata",
     "mic",
