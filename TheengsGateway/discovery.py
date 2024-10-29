@@ -284,7 +284,7 @@ class DiscoveryGateway(Gateway):
                 )
                 self.publish(
                     message,
-                    "home/internal/trackersync",
+                    self.configuration["trackersync_topic"],
                 )
 
                 logger.debug("      Discovered Trackers: %s", self.discovered_trackers)

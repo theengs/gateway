@@ -52,6 +52,7 @@ DEFAULT_CONFIG = {
     "whitelist": [],
     "blacklist": [],
     "enable_multi_gtw_sync": 1,
+    "trackersync_topic": "home/internal/trackersync",
 }
 
 
@@ -274,6 +275,12 @@ def parse_args() -> argparse.Namespace:
         "--enable_multi_gtw_sync",
         type=int,
         help="Disable (0) or enable (1) to use tracker and closest control devices sync across Theengs Gateway gateways and OpenMQTTGateway (default: 1)",  # noqa: E501
+    )
+    parser.add_argument(
+        "-tt",
+        "--trackersync_topic",
+        type=str,
+        help="Internal trackersync publish topic",
     )
     return parser.parse_args()
 

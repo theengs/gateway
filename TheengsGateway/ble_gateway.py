@@ -153,7 +153,7 @@ class Gateway:
                 )
                 self.subscribe(self.configuration["subscribe_topic"])
                 if self.configuration["enable_multi_gtw_sync"]:
-                    self.subscribe("home/internal/trackersync")
+                    self.subscribe(self.configuration["trackersync_topic"])
             else:
                 logger.error(
                     "Failed to connect to MQTT broker %s:%d reason code: %s",
@@ -231,7 +231,7 @@ class Gateway:
         def on_message(client, userdata, msg) -> None:  # noqa: ANN001,ARG001
             # Evaluate trackersync messages
             if (
-                msg.topic == "home/internal/trackersync"
+                msg.topic == self.configuration["trackersync_topic"]
                 and self.configuration["enable_multi_gtw_sync"]
             ):
                 msg_json = json.loads(msg.payload)
@@ -657,7 +657,7 @@ class Gateway:
                 )
                 self.publish(
                     message,
-                    "home/internal/trackersync",
+                    self.configuration["trackersync_topic"],
                 )
 
                 logger.debug("[GP]  Discovered Trackers: %s", self.discovered_trackers)
