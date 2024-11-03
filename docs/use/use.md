@@ -337,11 +337,13 @@ Theengs Gateway then uses the identity resolving key `0dc540f3025b474b9ef1085e05
 
 You can also specify the identity resolving key as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
 
-## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone and iPad
+## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone, iPad and AirPods
 
 <!-- vale Google.Acronyms = NO -->
 
-To get the Bluetooth Identity Address of an Apple device, go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+To get the Bluetooth Identity Address of an Apple Watch, iPhone or iPad, go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+
+For AirPods go to the **System Report** (***Apple menu*** > ***About This Mac***) on a related Mac and view the Bluetooth Identity Address in the Bluetooth section of the System Information.
 
 <!-- vale Google.Acronyms = YES -->
 
