@@ -30,6 +30,7 @@ from TheengsDecoder import getProperties
 from .ble_gateway import DataJSONType, Gateway, TnM, logger
 
 ha_dev_classes = [
+    "battery_charging",
     "battery",
     "carbon_dioxide",
     "carbon_monoxide",
@@ -50,10 +51,10 @@ ha_dev_classes = [
     "pm1",
     "pm10",
     "pm25",
-    "power",
     "power_factor",
-    "precipitation",
+    "power",
     "precipitation_intensity",
+    "precipitation",
     "pressure",
     "problem",
     "restart",
