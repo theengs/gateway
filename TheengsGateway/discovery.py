@@ -152,7 +152,7 @@ class DiscoveryGateway(Gateway):
         entity_type = "sensor"
 
         for k in data:
-            device = {}
+            device: DataJSONType = {}
             device["stat_t"] = state_topic
             # device_tracker discovery
             self.publish_device_tracker(
@@ -173,8 +173,8 @@ class DiscoveryGateway(Gateway):
                     entity_type = "sensor"
                 elif pub_device["properties"][k]["unit"] == "status":
                     entity_type = "binary_sensor"
-                    device["pl_on"] = "True"
-                    device["pl_off"] = "False"
+                    device["pl_on"] = True
+                    device["pl_off"] = False
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
             if k == "unlocked":
