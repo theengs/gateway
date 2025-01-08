@@ -372,3 +372,11 @@ As a result, you can see your device information published in the connected MQTT
 {"manufacturerdata": "2c0q1006191e7v30x6fa", "id": "11:22:33:44:55:66", "rssi": -42, "brand": "Apple", "model": "Apple iPhone/iPad", "model_id": "APPLEDEVICE", "type": "TRACK", "track": true, "unlocked": false, "distance": 0.03341741003670675}
 ```
 You can now enjoy local presence tracking based on your Apple devices.
+
+## Without a Mac: How to convert an Identity Resolving Key (IRK) for Apple Watch, iPhone or iPad retrieved by ESPresense 
+
+Any IRk in hex format retrieved by ESPresense needs to be octet/byte-wise reversed to be compatible in Theengs Gateway. 
+
+You can use online converters like the following for this. Make sure to delete the leading hex identifier **0x** from the result.
+
+https://toolsfairy.com/tools/number-utilities/reverse-hex

@@ -1,6 +1,7 @@
 AWS
 bindkey
 Domoticz
+ESPresense
 FHEM
 Govee
 Inkbird
