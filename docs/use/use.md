@@ -379,4 +379,4 @@ Any IRk in hex format retrieved by ESPresense needs to be octet/byte-wise revers
 
 You can use online converters like the following for this. Make sure to delete the leading hex identifier **0x** from the result.
 
-https://toolsfairy.com/tools/number-utilities/reverse-hex
+[Reverse Hex Tool](https://toolsfairy.com/tools/number-utilities/reverse-hex)
