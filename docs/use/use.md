@@ -96,7 +96,7 @@ usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-bl ADDRESS [ADDRESS ...]]
                       [-c CONFIG] [-D DISCOVERY]
                       [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
-                      [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_DEVICE_NAME]
+                      [-Dn DISCOVERY_DEVICE_NAME]
                       [-Dt DISCOVERY_TOPIC] [-Gp GENERAL_PRESENCE] [-H HOST] 
                       [-id ADDRESS [IRK ...]]
                       [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
@@ -120,14 +120,11 @@ options:
   -c CONFIG, --config CONFIG
                         Path to the configuration file (default: ~/theengsgw.conf)
   -D DISCOVERY, --discovery DISCOVERY
-                        Enable(1) or disable(0) MQTT discovery
-  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
-                        Device discovery filter list for Home Assistant
-  -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
                         Enable(1) or disable(0) Home Assistant MQTT discovery
-                        (default: 1)
+  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
+                        Device discovery filter list for Home Assistant MQTT discovery
   -Dn DISCOVERY_DEVICE_NAME, --discovery_device_name DISCOVERY_DEVICE_NAME
-                        Device name for Home Assistant
+                        Device name for Home Assistant MQTT discovery
   -Dt DISCOVERY_TOPIC, --discovery_topic DISCOVERY_TOPIC
                         MQTT Discovery topic
   -Gp GENERAL_PRESENCE, --general_presence GENERAL_PRESENCE
@@ -252,7 +249,6 @@ By default Theengs Gateway listens to `home/+/BTtoMQTT/undecoded`, if you have s
 ## Home Assistant auto discovery
 If enabled (default), decoded devices publish their configuration to Home Assistant so the latter can discover them.
 - You can enable/disable this with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
-- If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
 - You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
@@ -262,7 +258,7 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) aren't discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
 :::tip * INFO
-Home Assistant discovers an Apple Watch, iPhone, or iPad if you've configured their Identity MAC address and IRK.
+Home Assistant discovers an Apple Watch, iPhone, iPad or AirPods if you've configured their Identity MAC address and IRK.
 :::
 
 <!-- vale Google.Acronyms = YES -->
