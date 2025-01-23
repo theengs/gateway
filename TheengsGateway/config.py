@@ -233,7 +233,7 @@ def parse_args() -> argparse.Namespace:
         "-ca",
         "--ca_certs",
         type=str,
-        help="Path to file containing custom Certificate Authorities for TLS validation",
+        help="Path to file containing local Certificate Authorities for TLS validation",
     )
     parser.add_argument(
         "-ti",
