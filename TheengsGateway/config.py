@@ -45,6 +45,7 @@ DEFAULT_CONFIG = {
     "bindkeys": {},
     "enable_tls": 0,
     "tls_insecure": 0,
+    "ca_certs": None,
     "enable_websocket": 0,
     "identities": {},
     "tracker_timeout": 120,
@@ -227,6 +228,12 @@ def parse_args() -> argparse.Namespace:
         "--time_format",
         type=int,
         help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
+    )
+    parser.add_argument(
+        "-ca",
+        "--ca_certs",
+        type=str,
+        help="Path to file containing custom Certificate Authorities for TLS validation",
     )
     parser.add_argument(
         "-ti",
