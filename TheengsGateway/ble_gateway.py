@@ -191,6 +191,7 @@ class Gateway:
             self.client.tls_set(
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLS,
+                ca_certs=self.configuration["ca_certs"],
             )
             if self.configuration["tls_insecure"]:
                 self.client.tls_insecure_set(value=True)
