@@ -30,7 +30,6 @@ DEFAULT_CONFIG = {
     "publish_all": 1,
     "log_level": "INFO",
     "discovery": 1,
-    "hass_discovery": 1,
     "general_presence": 0,
     "discovery_topic": "homeassistant",
     "discovery_device_name": "TheengsGateway",
@@ -98,25 +97,19 @@ def parse_args() -> argparse.Namespace:
         "-D",
         "--discovery",
         type=int,
-        help="Enable(1) or disable(0) MQTT discovery",
+        help="Enable(1) or disable(0) Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Df",
         "--discovery_filter",
         nargs="+",
-        help="Device discovery filter list for Home Assistant",
-    )
-    parser.add_argument(
-        "-Dh",
-        "--hass_discovery",
-        type=int,
-        help="Enable(1) or disable(0) Home Assistant MQTT discovery (default: 1)",
+        help="Device discovery filter list for Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Dn",
         "--discovery_device_name",
         type=str,
-        help="Device name for Home Assistant",
+        help="Device name for Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Dt",
