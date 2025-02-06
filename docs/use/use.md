@@ -198,7 +198,7 @@ docker run --rm \
     -e DISCOVERY=true \
     -e DISCOVERY_TOPIC=homeassistant \
     -e DISCOVERY_DEVICE_NAME=TheengsGateway \
-    -e DISCOVERY_FILTER="[IBEACON,GAEN,MS-CDP,APPLE_CONT,APPLE_CONTAT]" \
+    -e DISCOVERY_FILTER="[\"model_id\":[IBEACON,GAEN,MS-CDP,APPLE_CONT,APPLE_CONTAT],\"id\":[],\"brand\":[],\"model\":[]]" \
     -e SCANNING_MODE=active \
     -e ADAPTER=hci0 \
     -e IDENTITIES="{\"CC:AA:CC:DD:CC:CC\": \"keykeykeykeykeykey==\"}" \
@@ -253,7 +253,7 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can enable/disable this with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
 - You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
 - You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
-- You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
+- You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID's, ID's, brands, and models to filter.
 
 <!-- vale Google.Acronyms = NO -->
 
