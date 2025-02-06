@@ -33,14 +33,14 @@ DEFAULT_CONFIG = {
     "general_presence": 0,
     "discovery_topic": "homeassistant",
     "discovery_device_name": "TheengsGateway",
-    "discovery_filter": [
+    "discovery_filter": {
         "brand": [],
         "id": [],
         "model": [],
         "model_id": [
             "IBEACON"
         ]
-    ],
+    },
     "adapter": "",
     "scanning_mode": "active",
     "time_sync": [],
