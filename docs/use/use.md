@@ -132,6 +132,9 @@ options:
   -H HOST, --host HOST  MQTT host address
   -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
                         Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
+  -iwbl IGNORE_WBLIST, --ignore_wblist IGNORE_WBLIST
+                        Ignore a set white- or black-list (1) or not (0)
+                        (default: 0)
   -Lt LWT_TOPIC, --lwt_topic LWT_TOPIC
                         MQTT LWT topic
   -ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}, --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
