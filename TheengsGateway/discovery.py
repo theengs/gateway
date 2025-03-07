@@ -30,6 +30,7 @@ from TheengsDecoder import getProperties
 from .ble_gateway import DataJSONType, Gateway, TnM, logger
 
 ha_dev_classes = [
+    "battery_charging",
     "battery",
     "carbon_dioxide",
     "carbon_monoxide",
@@ -50,10 +51,10 @@ ha_dev_classes = [
     "pm1",
     "pm10",
     "pm25",
-    "power",
     "power_factor",
-    "precipitation",
+    "power",
     "precipitation_intensity",
+    "precipitation",
     "pressure",
     "problem",
     "restart",
@@ -151,7 +152,7 @@ class DiscoveryGateway(Gateway):
         entity_type = "sensor"
 
         for k in data:
-            device = {}
+            device: DataJSONType = {}
             device["stat_t"] = state_topic
             # device_tracker discovery
             self.publish_device_tracker(
@@ -172,18 +173,16 @@ class DiscoveryGateway(Gateway):
                     entity_type = "sensor"
                 elif pub_device["properties"][k]["unit"] == "status":
                     entity_type = "binary_sensor"
-                    device["pl_on"] = "True"
-                    device["pl_off"] = "False"
+                    device["pl_on"] = True
+                    device["pl_off"] = False
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
             if k == "unlocked":
                 device[
                     "val_tpl"
                 ] = "{% if value_json.get('unlocked') is true -%}True{%- else -%}False{%- endif %}"  # noqa: E501
-            elif self.configuration["hass_discovery"]:
-                device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
             else:
-                device["val_tpl"] = "{{ value_json." + k + " }}"
+                device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
 
             config_topic = (
                 discovery_topic
@@ -267,8 +266,21 @@ class DiscoveryGateway(Gateway):
             self.discovered_trackers[device["id"]] = TnM(
                 round(time()), device["model_id"]
             )
-            logger.debug("Discovered Trackers: %s", self.discovered_trackers)
 
+            # Publish trackersync message
+            if self.configuration["enable_multi_gtw_sync"]:
+                message = json.dumps(
+                    {
+                        "gatewayid": self.configuration["gateway_id"],
+                        "trackerid": device["id"],
+                    }
+                )
+                self.publish(
+                    message,
+                    self.configuration["trackersync_topic"],
+                )
+
+                logger.debug("      Discovered Trackers: %s", self.discovered_trackers)
         pub_device_copy = device.copy()
         # Remove "track" if PUBLISH_ADVDATA is 0
         if not self.configuration["publish_advdata"] and "track" in pub_device_copy:

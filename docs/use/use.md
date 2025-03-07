@@ -96,7 +96,7 @@ usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-bl ADDRESS [ADDRESS ...]]
                       [-c CONFIG] [-D DISCOVERY]
                       [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
-                      [-Dh HASS_DISCOVERY] [-Dn DISCOVERY_DEVICE_NAME]
+                      [-Dn DISCOVERY_DEVICE_NAME]
                       [-Dt DISCOVERY_TOPIC] [-Gp GENERAL_PRESENCE] [-H HOST] 
                       [-id ADDRESS [IRK ...]]
                       [-Lt LWT_TOPIC] [-ll {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
@@ -104,7 +104,7 @@ usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-pr PRESENCE] [-prt PRESENCE_TOPIC] [-pt PUBLISH_TOPIC]
                       [-s {active,passive}] [-sd BLE_SCAN_TIME] [-st SUBSCRIBE_TOPIC]
                       [-tb BLE_TIME_BETWEEN_SCANS] [-tf TIME_FORMAT] [-ti TLS_INSECURE]
-                      [-tls ENABLE_TLS] [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
+                      [-tls ENABLE_TLS] [-ca CA_FILE] [-ts TIME_SYNC [TIME_SYNC ...]] [-u USER]
                       [-wl ADDRESS [ADDRESS ...]]
                       [-ws ENABLE_WEBSOCKET]
 
@@ -120,14 +120,11 @@ options:
   -c CONFIG, --config CONFIG
                         Path to the configuration file (default: ~/theengsgw.conf)
   -D DISCOVERY, --discovery DISCOVERY
-                        Enable(1) or disable(0) MQTT discovery
-  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
-                        Device discovery filter list for Home Assistant
-  -Dh HASS_DISCOVERY, --hass_discovery HASS_DISCOVERY
                         Enable(1) or disable(0) Home Assistant MQTT discovery
-                        (default: 1)
+  -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
+                        Device discovery filter list for Home Assistant MQTT discovery
   -Dn DISCOVERY_DEVICE_NAME, --discovery_device_name DISCOVERY_DEVICE_NAME
-                        Device name for Home Assistant
+                        Device name for Home Assistant MQTT discovery
   -Dt DISCOVERY_TOPIC, --discovery_topic DISCOVERY_TOPIC
                         MQTT Discovery topic
   -Gp GENERAL_PRESENCE, --general_presence GENERAL_PRESENCE
@@ -164,6 +161,8 @@ options:
   -tf TIME_FORMAT, --time_format TIME_FORMAT
                         Use 12-hour (1) or 24-hour (0) time format for clocks
                         (default: 0)
+  -ca CA_FILE, --ca_certs CA_FILE
+                        Path to file containing custom Certificate Authorities for TLS validation
   -ti TLS_INSECURE, --tls_insecure TLS_INSECURE
                         Allow (1) or disallow (0: default) insecure TLS (no hostname check)
   -tls ENABLE_TLS, --enable_tls ENABLE_TLS
@@ -192,7 +191,7 @@ docker run --rm \
     -e MQTT_SUBSCRIBE_TOPIC=home/+/BTtoMQTT/undecoded \
     -e PUBLISH_ALL=true \
     -e BLE_TIME_BETWEEN_SCANS=60 \
-    -e SCAN_TIME=60 \
+    -e BLE_SCAN_TIME=5 \
     -e LOG_LEVEL=INFO \
     -e HAAS_DISCOVERY=true \
     -e GENERAL_PRESENCE=false \
@@ -252,7 +251,6 @@ By default Theengs Gateway listens to `home/+/BTtoMQTT/undecoded`, if you have s
 ## Home Assistant auto discovery
 If enabled (default), decoded devices publish their configuration to Home Assistant so the latter can discover them.
 - You can enable/disable this with the `-D` or `--discovery` command line argument with a value of 1 (enable) or 0 (disable).
-- If you want to use Home Assistant discovery with other home automation gateways such as openHAB, set `-Dh` or `--hass_discovery` to 0 (disable).
 - You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
 - You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
@@ -262,7 +260,7 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) aren't discovered as their addresses (IDs) change over time resulting in multiple discoveries.
 
 :::tip * INFO
-Home Assistant discovers an Apple Watch, iPhone, or iPad if you've configured their Identity MAC address and IRK.
+Home Assistant discovers an Apple Watch, iPhone, iPad or AirPods if you've configured their Identity MAC address and IRK.
 :::
 
 <!-- vale Google.Acronyms = YES -->
@@ -337,11 +335,13 @@ Theengs Gateway then uses the identity resolving key `0dc540f3025b474b9ef1085e05
 
 You can also specify the identity resolving key as a Base64 encoded string, such as `"MGRjNTQwZjMwMjViNDc0YjllZjEwODVlMDUxYjFhZGQ="`.
 
-## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone and iPad
+## Getting Identity Resolving Key (IRK) for Apple Watch, iPhone, iPad and AirPods
 
 <!-- vale Google.Acronyms = NO -->
 
-To get the Bluetooth Identity Address of an Apple device, go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+To get the Bluetooth Identity Address of an Apple Watch, iPhone or iPad, go to ***Settings*** > ***General*** > ***About*** on the device and view the MAC address stated under **Bluetooth**.
+
+For AirPods go to the **System Report** (***Apple menu*** > ***About This Mac***) on a related Mac and view the Bluetooth Identity Address in the Bluetooth section of the System Information.
 
 <!-- vale Google.Acronyms = YES -->
 
@@ -370,3 +370,11 @@ As a result, you can see your device information published in the connected MQTT
 {"manufacturerdata": "2c0q1006191e7v30x6fa", "id": "11:22:33:44:55:66", "rssi": -42, "brand": "Apple", "model": "Apple iPhone/iPad", "model_id": "APPLEDEVICE", "type": "TRACK", "track": true, "unlocked": false, "distance": 0.03341741003670675}
 ```
 You can now enjoy local presence tracking based on your Apple devices.
+
+## Without a Mac: How to convert an Identity Resolving Key (IRK) for Apple Watch, iPhone or iPad retrieved by ESPresense 
+
+Any IRk in hex format retrieved by ESPresense needs to be octet/byte-wise reversed to be compatible in Theengs Gateway. 
+
+You can use online converters like the following for this. Make sure to delete the leading hex identifier **0x** from the result.
+
+[Reverse Hex Tool](https://toolsfairy.com/tools/number-utilities/reverse-hex)

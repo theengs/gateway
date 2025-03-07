@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import sys
+import uuid
 from pathlib import Path
 
 from .ble_gateway import run
@@ -47,6 +48,12 @@ def main() -> None:
     # of devices.
     if configuration["discovery_topic"].endswith("/sensor"):
         configuration["discovery_topic"] = configuration["discovery_topic"][:-7]
+
+    # Get the MAC address of the gateway.
+    mac_address = uuid.UUID(int=uuid.getnode()).hex[-12:]
+    configuration["gateway_id"] = ":".join(
+        [mac_address[i : i + 2] for i in range(0, 12, 2)]
+    ).upper()
 
     if not configuration["host"]:
         sys.exit("MQTT host is not specified")

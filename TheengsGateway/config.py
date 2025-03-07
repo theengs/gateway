@@ -20,7 +20,7 @@ DEFAULT_CONFIG = {
     "port": 1883,
     "user": "",
     "pass": "",
-    "ble_scan_time": 5,
+    "ble_scan_time": 7,
     "ble_time_between_scans": 5,
     "publish_topic": "home/TheengsGateway/BTtoMQTT",
     "lwt_topic": "home/TheengsGateway/LWT",
@@ -30,7 +30,6 @@ DEFAULT_CONFIG = {
     "publish_all": 1,
     "log_level": "INFO",
     "discovery": 1,
-    "hass_discovery": 1,
     "general_presence": 0,
     "discovery_topic": "homeassistant",
     "discovery_device_name": "TheengsGateway",
@@ -45,12 +44,15 @@ DEFAULT_CONFIG = {
     "bindkeys": {},
     "enable_tls": 0,
     "tls_insecure": 0,
+    "ca_certs": None,
     "enable_websocket": 0,
     "identities": {},
     "tracker_timeout": 120,
     "ble": 1,
     "whitelist": [],
     "blacklist": [],
+    "enable_multi_gtw_sync": 1,
+    "trackersync_topic": "home/internal/trackersync",
 }
 
 
@@ -95,25 +97,19 @@ def parse_args() -> argparse.Namespace:
         "-D",
         "--discovery",
         type=int,
-        help="Enable(1) or disable(0) MQTT discovery",
+        help="Enable(1) or disable(0) Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Df",
         "--discovery_filter",
         nargs="+",
-        help="Device discovery filter list for Home Assistant",
-    )
-    parser.add_argument(
-        "-Dh",
-        "--hass_discovery",
-        type=int,
-        help="Enable(1) or disable(0) Home Assistant MQTT discovery (default: 1)",
+        help="Device discovery filter list for Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Dn",
         "--discovery_device_name",
         type=str,
-        help="Device name for Home Assistant",
+        help="Device name for Home Assistant MQTT discovery",
     )
     parser.add_argument(
         "-Dt",
@@ -227,6 +223,12 @@ def parse_args() -> argparse.Namespace:
         help="Use 12-hour (1) or 24-hour (0) time format for clocks (default: 0)",
     )
     parser.add_argument(
+        "-ca",
+        "--ca_certs",
+        type=str,
+        help="Path to file containing local Certificate Authorities for TLS validation",
+    )
+    parser.add_argument(
         "-ti",
         "--tls_insecure",
         type=int,
@@ -267,6 +269,18 @@ def parse_args() -> argparse.Namespace:
         "--enable_websocket",
         type=int,
         help="Enable (1) or disable (0) WebSocket (default: 0)",
+    )
+    parser.add_argument(
+        "-gs",
+        "--enable_multi_gtw_sync",
+        type=int,
+        help="Disable (0) or enable (1) to use tracker and closest control devices sync across Theengs Gateway gateways and OpenMQTTGateway (default: 1)",  # noqa: E501
+    )
+    parser.add_argument(
+        "-tt",
+        "--trackersync_topic",
+        type=str,
+        help="Internal trackersync publish topic",
     )
     return parser.parse_args()
 
