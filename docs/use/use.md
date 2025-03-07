@@ -114,9 +114,9 @@ options:
                         Bluetooth adapter (e.g. hci1 on Linux)
   -b BLE, --ble BLE     Enable (1) or disable (0) BLE (default: 1)
   -bk ADDRESS [BINDKEY ...], --bindkeys ADDRESS [BINDKEY ...]
-                        Device addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
+                        Device MAC addresses and their bindkeys: ADDR1 KEY1 ADDR2 KEY2
   -bl ADDRESS [ADDRESS ...], --blacklist ADDRESS [ADDRESS ...]
-                        Addresses of Bluetooth devices to ignore, all other devices are allowed
+                        MAC addresses of Bluetooth devices to ignore, all other devices are allowed
   -c CONFIG, --config CONFIG
                         Path to the configuration file (default: ~/theengsgw.conf)
   -D DISCOVERY, --discovery DISCOVERY
@@ -131,7 +131,7 @@ options:
                         Enable (1) or disable (0) general present/absent presence when --discovery: 0
   -H HOST, --host HOST  MQTT host address
   -id ADDRESS [IRK ...], --identities ADDRESS [IRK ...]
-                        Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
+                        Identity MAC addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2
   -iwbl IGNORE_WBLIST, --ignore_wblist IGNORE_WBLIST
                         Ignore a set white- or black-list (1) or not (0)
                         (default: 0)
@@ -171,13 +171,13 @@ options:
   -tls ENABLE_TLS, --enable_tls ENABLE_TLS
                         Enable (1) or disable (0) TLS (default: 0)
   -ts TIME_SYNC [TIME_SYNC ...], --time_sync TIME_SYNC [TIME_SYNC ...]
-                        Addresses of Bluetooth devices to synchronize the time
+                        MAC addresses of Bluetooth devices to synchronize the time
   -to TIME_UNTIL, --tracker_timeout TIME_UNTIL
                         Seconds after which a discovered device tracker not being received is published as offline/away
                         (default: 120)
   -u USER, --user USER  MQTT username
   -wl ADDRESS [ADDRESS ...], --whitelist ADDRESS [ADDRESS ...]
-                        Addresses of Bluetooth devices to allow, all other devices are ignored
+                        MAC addresses of Bluetooth devices to allow, all other devices are ignored
   -ws ENABLE_WEBSOCKET, --enable_websocket ENABLE_WEBSOCKET
                         Enable (1) or disable (0) WebSocket (default: 0)
 ```
@@ -302,7 +302,7 @@ sudo systemctl restart bluetooth.service
 ```
 
 ## Time synchronization
-If you have specified the Bluetooth addresses of [supported clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure to correctly set your gateway's time.
+If you have specified the Bluetooth MAC addresses of [supported clocks](https://bluetooth-clocks.readthedocs.io/en/latest/devices.html) with the `--time_sync` argument, Theengs Gateway automatically synchronizes their time once a day. Therefore, make sure to correctly set your gateway's time.
 
 Some Bluetooth clocks let you choose between 12-hour (AM/PM) and 24-hour format to show their time. Use the argument `--time_format 0` (default) for 24-hour format and `--time_format 1` for 12-hour format.
 
@@ -319,7 +319,7 @@ bluetooth-clocks discover
 Theengs Gateway installs the `bluetooth-clocks` command as part of its dependencies.
 
 ## Reading encrypted advertisements
-If you want to read encrypted advertisements, you need to add a bindkey for each device address with the `--bindkeys` argument. For example:
+If you want to read encrypted advertisements, you need to add a bindkey for each device MAC address with the `--bindkeys` argument. For example:
 
 ```
 TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
@@ -328,7 +328,7 @@ TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add 
 Theengs Gateway then uses the bindkey `0dc540f3025b474b9ef1085e051b1add` to decrypt all advertisements from device `00:11:22:33:44:55:66` and bindkey `6385424e1b0341109942ad2a6bb42e58` for all advertisements from device `AA:BB:CC:DD:EE:FF`.
 
 ## Resolving random private addresses
-If you want to resolve random private addresses into a device's identity address, you need to add an Identity Resolving Key (IRK) for each identity address with the `--identities` argument. For example:
+If you want to resolve random private MAC addresses into a device's identity MAC address, you need to add an Identity Resolving Key (IRK) for each identity address with the `--identities` argument. For example:
 
 ```
 TheengsGateway --identities 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add AA:BB:CC:DD:EE:FF 6385424e1b0341109942ad2a6bb42e58
@@ -360,7 +360,7 @@ Now use this remote IRK to launch the gateway with the public address of your de
 
 Example:
 
-* Public address: 11:22:33:44:55:66
+* Public MAC address: 11:22:33:44:55:66
 * IRK: WERknmckjn51464saa==
 
 ```
