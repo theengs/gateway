@@ -495,10 +495,12 @@ class Gateway:
 
         if (
             address not in self.configuration["whitelist"]
-            and self.configuration["whitelist"] != []
+            and self.configuration["whitelist"] != [] 
+            and self.configuration["ignore_wblist"] == 0
         ) or (
             address in self.configuration["blacklist"]
-            and address not in self.configuration["whitelist"]
+            and address not in self.configuration["whitelist"] 
+            and self.configuration["ignore_wblist"] == 0
         ):
             return
 

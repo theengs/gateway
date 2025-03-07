@@ -51,6 +51,7 @@ DEFAULT_CONFIG = {
     "ble": 1,
     "whitelist": [],
     "blacklist": [],
+    "ignore_wblist": 0,
     "enable_multi_gtw_sync": 1,
     "trackersync_topic": "home/internal/trackersync",
 }
@@ -135,6 +136,12 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         metavar=("ADDRESS", "IRK"),
         help="Identity addresses and their IRKs: ADDR1 IRK1 ADDR2 IRK2",
+    )
+    parser.add_argument(
+        "-iwbl",
+        "--ignore_wblist",
+        type=int,
+        help="Ignore a set white- or black-list (1) or not (0) (default: 0)",
     )
     parser.add_argument(
         "-Lt",
