@@ -213,9 +213,14 @@ class DiscoveryGateway(Gateway):
         """Prepare Home Assistant device configuration."""
         return {
             "ids": [uuid],
+            "cns": [["mac", uuid]],
             "mf": device["brand"],
             "mdl": device["model_id"],
-            "name": device["model"] + "-" + uuid[6:]
+            "name": device["model"] + "-" + uuid[6:],
+            "via_device": self.configuration.get(
+                "discovery_device_name",
+                "Unknown",
+            ),
         }
 
     def build_state_topic(self, device: dict) -> str:
