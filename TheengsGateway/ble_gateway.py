@@ -715,6 +715,12 @@ class Gateway:
             decoded_json = decodeBLE(json.dumps(data_json))
             if decoded_json:
                 decoded_json = json.loads(decoded_json)  # type: ignore[arg-type]
+            # Check if the mic matches the first byte of the bindkey for bindkey verification
+            elif mic != bindkey[:1].hex():
+                logger.exception(
+                    "Bindkey does not seem to be correct for `%s`",
+                    get_address(decoded_json),
+                )
             else:
                 logger.exception(
                     "Decrypted payload not supported: `%s`",
