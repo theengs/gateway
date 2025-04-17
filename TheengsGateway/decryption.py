@@ -135,10 +135,53 @@ class BTHomeV2Decryptor(AdvertisementDecryptor):
         bthome_service_data.extend(decrypted_data)
         data_json["servicedata"] = bthome_service_data.hex()
 
+class VictronDecryptor(AdvertisementDecryptor):
+    """Class for decryption of Victron Energy encrypted advertisements."""
+
+    def compute_nonce(self, address: str, decoded_json: dict) -> bytes:
+        """Get the nonce from a specific address and JSON input."""
+        # The nonce is provided in the message and needs to be padded to 8 bytes
+        nonce = bytes.fromhex(decoded_json["ctr"])
+        nonce = nonce.ljust(8, b"\x00") # Pad to 8 bytes with zeros
+        return nonce  
+
+    def decrypt(
+        self,
+        bindkey: bytes,
+        address: str,
+        decoded_json: dict,
+    ) -> bytes:
+        """Decrypt ciphertext from JSON input with AES CTR."""
+        nonce = self.compute_nonce(address, decoded_json)
+        cipher = AES.new(bindkey, AES.MODE_CTR, nonce=nonce)
+        payload = bytes.fromhex(decoded_json["cipher"])
+        decrypted_data = cipher.decrypt(payload)
+        return decrypted_data
+
+    def replace_encrypted_data(
+        self,
+        decrypted_data: bytes,
+        data_json: dict,
+        decoded_json: dict,
+    ) -> None:
+        """Replace the encrypted data with decrypted payload."""
+        # Extract the first 10 octets of the manufacturer data
+        victron_manufacturer_data = bytearray(bytes.fromhex(decoded_json["manufacturerdata"][:20]))
+
+        # Replace indexes 4-5 and 14-17 with "11" and "ffff" to indicate decrypted data
+        victron_manufacturer_data[2:3] = binascii.unhexlify("11")
+        victron_manufacturer_data[7:9] = binascii.unhexlify("ffff")
+
+        # Append the decrypted payload to the manufacturer data
+        victron_manufacturer_data.extend(decrypted_data)
+
+        # Update the manufacturerdata field in the JSON
+        data_json["manufacturerdata"] = victron_manufacturer_data.hex()
 
 _DECRYPTORS = {
     1: LYWSD03MMC_PVVXDecryptor,
     2: BTHomeV2Decryptor,
+    3: VictronDecryptor,
 }
 
 
