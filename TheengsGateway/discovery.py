@@ -161,8 +161,9 @@ class DiscoveryGateway(Gateway):
                 pub_device,
                 hadevice,
             )
-            # If the properties key is "mac" or "device", skip its discovery
-            if k in {"mac", "device"}:
+            # If the properties key is "mac" or "device", or any of the 
+            # intermediate decryption decoder properties, skip its discovery
+            if k in {"mac", "device", "cipher", "ctr", "mic"}:
                 continue
             if k in pub_device["properties"]:
                 if pub_device["properties"][k]["name"] in ha_dev_classes:
