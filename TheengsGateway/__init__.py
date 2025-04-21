@@ -58,6 +58,12 @@ def main() -> None:
     if not configuration["host"]:
         sys.exit("MQTT host is not specified")
 
+    # Make sure discovery_filter is a list, and convert to list 
+    # if it is actually a string (Docker and HA Add-in)
+    if isinstance(configuration["discovery_filter"], str):
+        # Convert the string to a list by removing brackets and splitting by commas
+        configuration["discovery_filter"] = configuration["discovery_filter"].strip("[]").split(",")
+
     # Remove possible discovery filter remnants not required after the RMAC introduction
     if "GAEN" in configuration["discovery_filter"]:
         configuration["discovery_filter"].remove("GAEN")
