@@ -311,6 +311,10 @@ def read_configuration(config_path: Path) -> dict:
 
 def write_configuration(configuration: dict, config_path: Path) -> None:
     """Write a Theengs Gateway configuration to a file."""
+    # Ensure discovery_filter is a list before writing
+    if isinstance(configuration.get("discovery_filter"), str):
+        configuration["discovery_filter"] = configuration["discovery_filter"].strip("[]").split(",")
+
     try:
         with config_path.open(encoding="utf-8", mode="w") as config_file:
             config_file.write(
@@ -338,5 +342,7 @@ def merge_args_with_config(config: dict, args: argparse.Namespace) -> None:
                     config[key].extend(
                         element for element in value if element not in config[key]
                     )
+            elif key == "discovery_filter" and isinstance(value, str):
+                config[key] = value.strip("[]").split(",")
             elif key != "config":
                 config[key] = value
