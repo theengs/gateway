@@ -182,10 +182,14 @@ class Gateway:
 
         if self.configuration["enable_websocket"]:
             self.client = mqtt_client.Client(
-                mqtt_client.CallbackAPIVersion.VERSION2, transport="websockets"
+                mqtt_client.CallbackAPIVersion.VERSION2, 
+                client_id=self.configuration.get("discovery_device_name", ""), 
+                transport="websockets"
             )
         else:
-            self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2)
+            self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2, 
+                                             client_id=self.configuration.get("discovery_device_name", "")
+            )
 
         if self.configuration["enable_tls"]:
             self.client.tls_set(
