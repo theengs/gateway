@@ -326,7 +326,16 @@ TheengsGateway --bindkeys 00:11:22:33:44:55:66 0dc540f3025b474b9ef1085e051b1add 
 ```
 
 Theengs Gateway then uses the bindkey `0dc540f3025b474b9ef1085e051b1add` to decrypt all advertisements from device `00:11:22:33:44:55:66` and bindkey `6385424e1b0341109942ad2a6bb42e58` for all advertisements from device `AA:BB:CC:DD:EE:FF`.
+<!-- vale off -->
+## Victron Energy devices prerequisite and bindkey retrieval
+To allow for decryption and decoding of BLE advertisement broadcasts, in the Victron Energy app, Bluetooth needs to be enabled as well as the Instant Readout option for each device.
 
+![Victron Settings](../img/Victron01.png)
+
+Selecting SHOW for the Encryption Data opens a view with the Bluetooth MAC address and bindkey (Encryption Key) for adding to Theengs Gateway as described in the section above.
+
+![Victron Bindkey](../img/Victron02.png)
+<!-- vale on -->
 ## Resolving random private addresses
 If you want to resolve random private MAC addresses into a device's identity MAC address, you need to add an Identity Resolving Key (IRK) for each identity address with the `--identities` argument. For example:
 
