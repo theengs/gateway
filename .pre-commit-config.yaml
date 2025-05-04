@@ -21,4 +21,4 @@ repos:
     - bluetooth-numbers>=1.0,<2.0
     - importlib-metadata
     - paho-mqtt>=2.0.0,<3.0.0
-    - TheengsDecoder>=1.8.2
+    - theengsdecoder>=1.9.5
