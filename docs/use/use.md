@@ -245,7 +245,7 @@ Example message:
 ```
 If possible, the gateway decodes and publishes the data.
 
-[OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that publishes directly to 'home/<gateway name>/BTtoMQTT` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
+[OpenMQTTGateway](https://docs.openmqttgateway.com/), proposes a [web upload](https://docs.openmqttgateway.com/upload/web-install.html) binary `esp32dev-ble-mqtt-undecoded` that publishes directly to `home/<gateway name>/BTtoMQTT/undecoded` making it directly compatible with Theengs Gateway MQTTtoMQTT decoding feature.
 
 :::tip
 By default Theengs Gateway listens to `home/+/BTtoMQTT/undecoded`, if you have several ESP32 gateways with OpenMQTTGateway sending out MQTT messages with undecoded data, Theengs picks up all of them and centralizes the decoded BLE sensor data in one place.
