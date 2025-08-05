@@ -32,7 +32,7 @@ DEFAULT_CONFIG = {
     "discovery": 1,
     "general_presence": 0,
     "discovery_topic": "homeassistant",
-    "discovery_device_name": "TheengsGateway",
+    "discovery_device_name": "",
     "discovery_filter": [
         "IBEACON",
     ],
