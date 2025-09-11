@@ -472,9 +472,6 @@ class Gateway:
                     self.published_messages,
                 )
 
-                # Check tracker timeouts
-                self.check_tracker_timeout()
-
                 await asyncio.sleep(
                     self.configuration["ble_time_between_scans"],
                 )
@@ -483,6 +480,9 @@ class Gateway:
                 await self.update_clock_times()
             else:
                 await asyncio.sleep(5.0)
+
+            # Check tracker timeouts
+            self.check_tracker_timeout()
 
         logger.error("BLE scan loop stopped")
 
