@@ -403,7 +403,7 @@ class Gateway:
                 and time_model.time != 0
             ):
                 if (
-                    time_model.model_id in ("APPLEWATCH", "APPLEDEVICE")
+                    time_model.model_id == "APPLEWATCH"
                     and not self.configuration["discovery"]
                     and self.configuration["general_presence"]
                 ):
