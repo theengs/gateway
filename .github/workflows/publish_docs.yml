@@ -12,25 +12,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "14.x"
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+          node-version: "18.x"
       - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-          npm install
-      - name: Download Common Config
-        run: |
-          curl -o docs/.vuepress/public/commonConfig.js https://www.theengs.io/commonConfig.js
+        run: npm install
       - name: Build documentation
-        run: |
-          npm run docs:build
+        run: npm run docs:build
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/.vuepress/dist
+          publish_dir: ./generated/site
           cname: gateway.theengs.io

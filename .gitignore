@@ -129,8 +129,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VuePress
+# VitePress
 node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/public/commonConfig.js
+generated/
 
 # Vale styles
 vale/styles/Google

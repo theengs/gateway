@@ -26,7 +26,7 @@ If you've installed your MQTT broker on the same instance as the gateway, you ca
 
 If you want Theengs Gateway to automatically start on booting your Linux distribution, you can accomplish this by creating a systemd service for it.
 
-First, make sure to [install](../install) Theengs Gateway as a pip package (not with `sudo` or as a root user).
+First, make sure to [install](../install/install) Theengs Gateway as a pip package (not with `sudo` or as a root user).
 
 Then create this systemd service script in `/etc/systemd/system/TheengsGateway.service`:
 
