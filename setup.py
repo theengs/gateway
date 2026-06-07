@@ -25,7 +25,7 @@ setup(
         "importlib-metadata",
         "paho-mqtt>=2.0.0,<3.0.0",
         "pycryptodomex>=3.18.0",
-        "theengsdecoder>=2.1.0",
+        "theengsdecoder>=2.3.0",
     ],
     use_scm_version={"version_scheme": "no-guess-dev"},
     setup_requires=["setuptools_scm"],
