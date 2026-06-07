@@ -140,9 +140,11 @@ class VictronDecryptor(AdvertisementDecryptor):
 
     def compute_nonce(self, address: str, decoded_json: dict) -> bytes:
         """Get the nonce from a specific address and JSON input."""
-        # The nonce is provided in the message and needs to be padded to 16 bytes
+        # The nonce is provided in the message and needs to be padded to 8 bytes.
+        # pycryptodome's AES.MODE_CTR requires nonce length < block size (16);
+        # it appends its own counter to fill the 16-byte block.
         nonce = bytes.fromhex(decoded_json["ctr"])
-        nonce = nonce.ljust(16, b"\x00") # Pad to 16 bytes with zeros
+        nonce = nonce.ljust(8, b"\x00") # Pad to 8 bytes with zeros
         return nonce  
 
     def decrypt(
