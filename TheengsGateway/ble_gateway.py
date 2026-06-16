@@ -764,7 +764,7 @@ def run(configuration: dict, config_path: Path) -> None:
     log_level = LOG_LEVEL[configuration["log_level"].upper()]
     logger.setLevel(log_level)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
 
     if log_level == logging.DEBUG:
         asyncio.run(diagnostics(config_path))
