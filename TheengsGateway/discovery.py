@@ -125,7 +125,10 @@ class DiscoveryGateway(Gateway):
         device_data = json.dumps(pub_device_copy)
         if (
             pub_device_uuid in self.discovered_entities
-            or pub_device["model_id"] in self.configuration["discovery_filter"]
+            or pub_device["model_id"] in self.configuration["discovery_filter"]["model_id"]
+            or pub_device["model"] in self.configuration["discovery_filter"]["model"]
+            or pub_device["id"] in self.configuration["discovery_filter"]["id"]
+            or pub_device["brand"] in self.configuration["discovery_filter"]["brand"]
         ):
             logger.debug("Already discovered or filtered: %s", pub_device_uuid)
             self.publish(

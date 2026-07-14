@@ -65,18 +65,18 @@ def main() -> None:
         configuration["discovery_filter"] = configuration["discovery_filter"].strip("[]").split(",")
 
     # Remove possible discovery filter remnants not required after the RMAC introduction
-    if "GAEN" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("GAEN")
-    if "MS-CDP" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("MS-CDP")
-    if "APPLE_CONT" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("APPLE_CONT")
-    if "APPLE_CONTAT" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("APPLE_CONTAT")
-    if "APPLEDEVICE" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("APPLEDEVICE")
-    if "APPLEWATCH" in configuration["discovery_filter"]:
-        configuration["discovery_filter"].remove("APPLEWATCH")
+    if "GAEN" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("GAEN")
+    if "MS-CDP" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("MS-CDP")
+    if "APPLE_CONT" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("APPLE_CONT")
+    if "APPLE_CONTAT" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("APPLE_CONTAT")
+    if "APPLEDEVICE" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("APPLEDEVICE")
+    if "APPLEWATCH" in configuration["discovery_filter"]["model_id"]:
+        configuration["discovery_filter"]["model_id"].remove("APPLEWATCH")
 
     write_configuration(configuration, config_path)
     run(configuration, config_path)
