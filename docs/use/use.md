@@ -258,6 +258,8 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
 
+Every discovered device also gets a Received Signal Strength Indicator (RSSI) sensor. Home Assistant creates it disabled; enable it from the device page if you want to follow the signal strength of a device.
+
 <!-- vale Google.Acronyms = NO -->
 
 The `IBEACON` and random MAC devices (`APPLE`*, `MS-CDP` and `GAEN`) aren't discovered as their addresses (IDs) change over time resulting in multiple discoveries.
