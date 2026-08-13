@@ -147,16 +147,17 @@ class DiscoveryGateway(Gateway):
         state_topic = self.build_state_topic(pub_device)
         entity_type = "sensor"
 
+        # device_tracker discovery
+        self.publish_device_tracker(
+            pub_device_uuid,
+            state_topic,
+            pub_device,
+            hadevice,
+        )
+
         for k in pub_device["properties"]:
             device: DataJSONType = {}
             device["stat_t"] = state_topic
-            # device_tracker discovery
-            self.publish_device_tracker(
-                pub_device_uuid,
-                state_topic,
-                pub_device,
-                hadevice,
-            )
             # If the properties key is "mac" or "device", or any of the
             # intermediate decryption decoder properties, skip its discovery
             if k in {"mac", "device", "cipher", "ctr", "mic"}:
