@@ -141,6 +141,13 @@ class DiscoveryGateway(Gateway):
             getProperties(pub_device["model_id"]),
         )["properties"]
 
+        # rssi is scan metadata rather than a decoded value, so no decoder
+        # declares it. Add it here so it is discovered like any other property.
+        pub_device["properties"]["rssi"] = {
+            "unit": "dBm",
+            "name": "signal_strength",
+        }
+
         hadevice = self.prepare_hadevice(pub_device_uuid, pub_device)
 
         discovery_topic = self.configuration["discovery_topic"]
@@ -180,6 +187,9 @@ class DiscoveryGateway(Gateway):
                 ] = "{% if value_json.get('unlocked') is true -%}True{%- else -%}False{%- endif %}"  # noqa: E501
             else:
                 device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
+            if k == "rssi":
+                # Created disabled, the user enables it per device in Home Assistant
+                device["en"] = False
 
             config_topic = (
                 discovery_topic
