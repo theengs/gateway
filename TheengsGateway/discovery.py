@@ -272,7 +272,7 @@ class DiscoveryGateway(Gateway):
             self.publish(json.dumps(tracker), config_topic, retain=True)
 
     def copy_pub_device(self, device: dict) -> dict:
-        """Copy pub_device and remove "track" if publish_advdata is false."""
+        """Copy pub_device and remove tag properties if publish_advdata is false."""
         # Update tracker last received time
         if "track" in device:
             self.discovered_trackers[device["id"]] = TnM(
@@ -294,8 +294,9 @@ class DiscoveryGateway(Gateway):
 
                 logger.debug("      Discovered Trackers: %s", self.discovered_trackers)
         pub_device_copy = device.copy()
-        # Remove "track" if PUBLISH_ADVDATA is 0
-        if not self.configuration["publish_advdata"] and "track" in pub_device_copy:
+        # Remove "track" and "bvpp" if PUBLISH_ADVDATA is 0
+        if not self.configuration["publish_advdata"]:
             pub_device_copy.pop("track", None)
+            pub_device_copy.pop("bvpp", None)
 
         return pub_device_copy
