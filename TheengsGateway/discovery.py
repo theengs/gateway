@@ -108,6 +108,31 @@ ha_dev_units = [
     "cm",
 ]
 
+# Battery and charge state, diagnostic unless reporting them is what the
+# device is for (i.e. unless flagged bvpp by the decoder).
+ha_batt_diag_properties = [
+    "batt",
+    "batt_case",
+    "batt_l",
+    "batt_low",
+    "batt_r",
+    "charging_case",
+    "charging_l",
+    "charging_r",
+    "lowbatt",
+    "volt",
+]
+
+# Scan and protocol metadata rather than a reading, so always diagnostic.
+ha_diag_properties = [
+    "packet",
+    "packet_1",
+    "packet_2",
+    "rssi",
+    "tx",
+    "txpower",
+]
+
 
 class DiscoveryGateway(Gateway):
     """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
@@ -162,6 +187,8 @@ class DiscoveryGateway(Gateway):
             hadevice,
         )
 
+        diagnostic_properties = self.build_diagnostic_properties(pub_device)
+
         for k in pub_device["properties"]:
             device: DataJSONType = {}
             device["stat_t"] = state_topic
@@ -190,6 +217,8 @@ class DiscoveryGateway(Gateway):
             if k == "rssi":
                 # Created disabled, the user enables it per device in Home Assistant
                 device["en"] = False
+            if k in diagnostic_properties:
+                device["ent_cat"] = "diagnostic"
 
             config_topic = (
                 discovery_topic
@@ -241,6 +270,16 @@ class DiscoveryGateway(Gateway):
             state_topic,
             count=len(re.findall(r"/", state_topic)) - 1,
         )
+
+    def build_diagnostic_properties(self, device: dict) -> list[str]:
+        """Return the properties to publish as diagnostic entities.
+
+        Decided once per device rather than per property, as the "bvpp"
+        flag is the same for every property of a device.
+        """
+        if "bvpp" in device:
+            return ha_diag_properties
+        return ha_diag_properties + ha_batt_diag_properties
 
     def publish_device_tracker(
         self,
