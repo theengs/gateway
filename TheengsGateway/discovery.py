@@ -274,9 +274,12 @@ class DiscoveryGateway(Gateway):
     def build_diagnostic_properties(self, device: dict) -> list[str]:
         """Return the properties to publish as diagnostic entities.
 
-        Decided once per device rather than per property, as the "bvpp"
-        flag is the same for every property of a device.
+        Empty if the option is off. Decided once per device rather than per
+        property, as neither the option nor the "bvpp" flag varies with the
+        property.
         """
+        if not self.configuration["discovery_diagnostic"]:
+            return []
         if "bvpp" in device:
             return ha_diag_properties
         return ha_diag_properties + ha_batt_diag_properties

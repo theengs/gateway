@@ -36,6 +36,7 @@ DEFAULT_CONFIG = {
     "discovery_filter": [
         "IBEACON",
     ],
+    "discovery_diagnostic": 0,
     "adapter": "",
     "scanning_mode": "active",
     "time_sync": [],
@@ -99,6 +100,12 @@ def parse_args() -> argparse.Namespace:
         "--discovery",
         type=int,
         help="Enable(1) or disable(0) Home Assistant MQTT discovery",
+    )
+    parser.add_argument(
+        "-Dd",
+        "--discovery_diagnostic",
+        type=int,
+        help="Enable(1) or disable(0) categorization of diagnostic entities (default: 0)",  # noqa: E501
     )
     parser.add_argument(
         "-Df",
