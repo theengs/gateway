@@ -132,6 +132,7 @@ class Gateway:
         self.clock_updates: dict[str, float] = {}
         self.published_messages = 0
         self.discovered_trackers: dict[str, TnM] = {}
+        self.last_event_advertisements: dict[str, str] = {}
 
     def connect_mqtt(self) -> None:
         """Connect to MQTT broker."""
@@ -552,6 +553,13 @@ class Gateway:
 
         if decoded_json:
             decoded_json = json.loads(decoded_json)
+
+            if decoded_json.get("model_id") == "S520104":
+                address = str(decoded_json["id"])
+                advertisement = str(data_json.get("manufacturerdata", ""))
+                if self.last_event_advertisements.get(address) == advertisement:
+                    return
+                self.last_event_advertisements[address] = advertisement
 
             decoded_json = self.process_prmacs(
                 decoded_json,

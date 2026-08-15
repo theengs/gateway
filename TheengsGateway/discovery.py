@@ -152,6 +152,7 @@ class DiscoveryGateway(Gateway):
         entity_type = "sensor"
 
         for k in data:
+            entity_type = "sensor"
             device: DataJSONType = {}
             device["stat_t"] = state_topic
             # device_tracker discovery
@@ -176,12 +177,30 @@ class DiscoveryGateway(Gateway):
                     entity_type = "binary_sensor"
                     device["pl_on"] = True
                     device["pl_off"] = False
+                elif pub_device["properties"][k]["unit"] == "event":
+                    entity_type = "event"
+                    device["event_types"] = pub_device["properties"][k][
+                        "events"
+                    ]  # type: ignore[assignment]
+                    legacy_config_topic = (
+                        discovery_topic
+                        + "/sensor/"
+                        + pub_device_uuid
+                        + "-"
+                        + k
+                        + "/config"
+                    )
+                    self.publish("", legacy_config_topic, retain=True)
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
             if k == "unlocked":
                 device[
                     "val_tpl"
                 ] = "{% if value_json.get('unlocked') is true -%}True{%- else -%}False{%- endif %}"  # noqa: E501
+            elif entity_type == "event":
+                device["val_tpl"] = (
+                    "{{ {'event_type': value_json." + k + "} | to_json }}"
+                )
             else:
                 device["val_tpl"] = "{{ value_json." + k + " | is_defined }}"
 
