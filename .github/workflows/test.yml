@@ -39,7 +39,7 @@ jobs:
       - name: Install requirements
         run: |
           pip3 install --upgrade pip
-          pip3 install setuptools setuptools_scm cmake wheel scikit-build ninja
+          pip3 install --upgrade setuptools setuptools_scm cmake wheel scikit-build ninja
       - name: Build package
         run: |
           python3 setup.py sdist
