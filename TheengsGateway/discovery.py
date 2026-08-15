@@ -145,37 +145,33 @@ class DiscoveryGateway(Gateway):
 
         discovery_topic = self.configuration["discovery_topic"]
         state_topic = self.build_state_topic(pub_device)
-
-        data = getProperties(pub_device["model_id"])
-        data = json.loads(data)
-        data = data["properties"]
         entity_type = "sensor"
 
-        for k in data:
+        # device_tracker discovery
+        self.publish_device_tracker(
+            pub_device_uuid,
+            state_topic,
+            pub_device,
+            hadevice,
+        )
+
+        for k in pub_device["properties"]:
             device: DataJSONType = {}
             device["stat_t"] = state_topic
-            # device_tracker discovery
-            self.publish_device_tracker(
-                pub_device_uuid,
-                state_topic,
-                pub_device,
-                hadevice,
-            )
-            # If the properties key is "mac" or "device", or any of the 
+            # If the properties key is "mac" or "device", or any of the
             # intermediate decryption decoder properties, skip its discovery
             if k in {"mac", "device", "cipher", "ctr", "mic"}:
                 continue
-            if k in pub_device["properties"]:
-                if pub_device["properties"][k]["name"] in ha_dev_classes:
-                    device["dev_cla"] = pub_device["properties"][k]["name"]
-                if pub_device["properties"][k]["unit"] in ha_dev_units:
-                    device["unit_of_meas"] = pub_device["properties"][k]["unit"]
-                    device["state_class"] = "measurement"
-                    entity_type = "sensor"
-                elif pub_device["properties"][k]["unit"] == "status":
-                    entity_type = "binary_sensor"
-                    device["pl_on"] = True
-                    device["pl_off"] = False
+            if pub_device["properties"][k]["name"] in ha_dev_classes:
+                device["dev_cla"] = pub_device["properties"][k]["name"]
+            if pub_device["properties"][k]["unit"] in ha_dev_units:
+                device["unit_of_meas"] = pub_device["properties"][k]["unit"]
+                device["state_class"] = "measurement"
+                entity_type = "sensor"
+            elif pub_device["properties"][k]["unit"] == "status":
+                entity_type = "binary_sensor"
+                device["pl_on"] = True
+                device["pl_off"] = False
             device["name"] = pub_device["model_id"] + "-" + k
             device["uniq_id"] = pub_device_uuid + "-" + k
             if k == "unlocked":
