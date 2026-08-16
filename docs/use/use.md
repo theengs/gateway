@@ -94,7 +94,7 @@ Note that in the latter case, there's guarantee that the manufacturer name is co
 C:\Users\1technophile>python -m TheengsGateway -h
 usage: TheengsGateway [-h] [-a ADAPTER] [-b BLE] [-bk ADDRESS [BINDKEY ...]]
                       [-bl ADDRESS [ADDRESS ...]]
-                      [-c CONFIG] [-D DISCOVERY]
+                      [-c CONFIG] [-D DISCOVERY] [-Dd DISCOVERY_DIAGNOSTIC]
                       [-Df DISCOVERY_FILTER [DISCOVERY_FILTER ...]]
                       [-Dn DISCOVERY_DEVICE_NAME]
                       [-Dt DISCOVERY_TOPIC] [-Gp GENERAL_PRESENCE] [-H HOST] 
@@ -121,6 +121,8 @@ options:
                         Path to the configuration file (default: ~/theengsgw.conf)
   -D DISCOVERY, --discovery DISCOVERY
                         Enable(1) or disable(0) Home Assistant MQTT discovery
+  -Dd DISCOVERY_DIAGNOSTIC, --discovery_diagnostic DISCOVERY_DIAGNOSTIC
+                        Enable(1) or disable(0) categorization of diagnostic entities (default: 0)
   -Df DISCOVERY_FILTER [DISCOVERY_FILTER ...], --discovery_filter DISCOVERY_FILTER [DISCOVERY_FILTER ...]
                         Device discovery filter list for Home Assistant MQTT discovery
   -Dn DISCOVERY_DEVICE_NAME, --discovery_device_name DISCOVERY_DEVICE_NAME
@@ -257,6 +259,11 @@ If enabled (default), decoded devices publish their configuration to Home Assist
 - You can set the discovery topic with the `-Dt` or `--discovery_topic` command line argument.
 - You can set the discovery name with the `-Dn` or `--discovery_device_name` command line argument.
 - You can filter devices from discovery with the `-Df` or `--discovery_filter` argument which takes a list of device model ID to filter.
+- You can mark diagnostic entities (battery percentage, packet counter, etc.) as such using the `-Dd` or `--discovery_diagnostic` command line argument with a value of 1 (enable) or 0 (disable, the default). Home Assistant then groups them separately from the device's main readings. Devices which exist to monitor a battery or a voltage never have their battery/voltage entities marked as diagnostic.
+
+:::tip
+Wait until all devices have published data at least once (and thus been re-discovered) and then reload the MQTT integration in Home Assistant for the diagnostic flag to be applied to existing entities.
+:::
 
 Every discovered device also gets a Received Signal Strength Indicator (RSSI) sensor. Home Assistant creates it disabled; enable it from the device page if you want to follow the signal strength of a device.
 

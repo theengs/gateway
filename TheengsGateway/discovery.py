@@ -108,6 +108,31 @@ ha_dev_units = [
     "cm",
 ]
 
+# Battery and charge state, diagnostic unless reporting them is what the
+# device is for (i.e. unless flagged bvpp by the decoder).
+ha_batt_diag_properties = [
+    "batt",
+    "batt_case",
+    "batt_l",
+    "batt_low",
+    "batt_r",
+    "charging_case",
+    "charging_l",
+    "charging_r",
+    "lowbatt",
+    "volt",
+]
+
+# Scan and protocol metadata rather than a reading, so always diagnostic.
+ha_diag_properties = [
+    "packet",
+    "packet_1",
+    "packet_2",
+    "rssi",
+    "tx",
+    "txpower",
+]
+
 
 class DiscoveryGateway(Gateway):
     """BLE to MQTT gateway class with Home Assistant MQTT discovery."""
@@ -162,6 +187,8 @@ class DiscoveryGateway(Gateway):
             hadevice,
         )
 
+        diagnostic_properties = self.build_diagnostic_properties(pub_device)
+
         for k in pub_device["properties"]:
             device: DataJSONType = {}
             device["stat_t"] = state_topic
@@ -190,6 +217,8 @@ class DiscoveryGateway(Gateway):
             if k == "rssi":
                 # Created disabled, the user enables it per device in Home Assistant
                 device["en"] = False
+            if k in diagnostic_properties:
+                device["ent_cat"] = "diagnostic"
 
             config_topic = (
                 discovery_topic
@@ -242,6 +271,19 @@ class DiscoveryGateway(Gateway):
             count=len(re.findall(r"/", state_topic)) - 1,
         )
 
+    def build_diagnostic_properties(self, device: dict) -> list[str]:
+        """Return the properties to publish as diagnostic entities.
+
+        Empty if the option is off. Decided once per device rather than per
+        property, as neither the option nor the "bvpp" flag varies with the
+        property.
+        """
+        if not self.configuration["discovery_diagnostic"]:
+            return []
+        if "bvpp" in device:
+            return ha_diag_properties
+        return ha_diag_properties + ha_batt_diag_properties
+
     def publish_device_tracker(
         self,
         pub_device_uuid: str,
@@ -272,7 +314,7 @@ class DiscoveryGateway(Gateway):
             self.publish(json.dumps(tracker), config_topic, retain=True)
 
     def copy_pub_device(self, device: dict) -> dict:
-        """Copy pub_device and remove "track" if publish_advdata is false."""
+        """Copy pub_device and remove tag properties if publish_advdata is false."""
         # Update tracker last received time
         if "track" in device:
             self.discovered_trackers[device["id"]] = TnM(
@@ -294,8 +336,9 @@ class DiscoveryGateway(Gateway):
 
                 logger.debug("      Discovered Trackers: %s", self.discovered_trackers)
         pub_device_copy = device.copy()
-        # Remove "track" if PUBLISH_ADVDATA is 0
-        if not self.configuration["publish_advdata"] and "track" in pub_device_copy:
+        # Remove "track" and "bvpp" if PUBLISH_ADVDATA is 0
+        if not self.configuration["publish_advdata"]:
             pub_device_copy.pop("track", None)
+            pub_device_copy.pop("bvpp", None)
 
         return pub_device_copy

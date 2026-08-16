@@ -669,9 +669,10 @@ class Gateway:
 
                 logger.debug("[GP]  Discovered Trackers: %s", self.discovered_trackers)
 
-        # Remove "track" if PUBLISH_ADVDATA is 0
-        if not self.configuration["publish_advdata"] and "track" in data_json:
+        # Remove "track" and "bvpp" if PUBLISH_ADVDATA is 0
+        if not self.configuration["publish_advdata"]:
             data_json.pop("track", None)
+            data_json.pop("bvpp", None)
 
         message = json.dumps(data_json)
         self.publish(
