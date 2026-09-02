@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import uuid
+import socket
 from pathlib import Path
 
 from .ble_gateway import run
@@ -57,6 +58,9 @@ def main() -> None:
 
     if not configuration["host"]:
         sys.exit("MQTT host is not specified")
+
+    if not configuration["discovery_device_name"]:
+        configuration["discovery_device_name"] = socket.gethostname() + "-TheengsGateway"
 
     # Make sure discovery_filter is a list, and convert to list 
     # if it is actually a string (Docker and HA Add-in)
